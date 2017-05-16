@@ -1,0 +1,4 @@
+node_modules
+coverage
+dist
+__fixtures__

@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`1. captains-log 1`] = `
+"
+var hi = \\"hey\\";
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+var ih = \\"hey\\";
+"
+`;
+
+exports[`default will throw if output changes 1`] = `"Expected output to not change, but it did"`;
+
+exports[`plugin is required 1`] = `"plugin is a required parameter."`;
+
+exports[`snapshot option can be derived from the root config 1`] = `"\`output\` cannot be provided with \`snapshot: true\`"`;
+
+exports[`throws an invariant if the plugin name is not inferable 1`] = `"The \`pluginName\` must be inferable or provided."`;
+
+exports[`throws error if fixture provided and code changes 1`] = `"Expected output to not change, but it did"`;
+
+exports[`throws if output is incorrect 1`] = `"Output is incorrect."`;
+
+exports[`throws invariant if code is unchanged and snapshot is enabled 1`] = `"Code was unmodified but attempted to take a snapshot. If the code should not be modified, set \`snapshot: false\`"`;
+
+exports[`throws invariant if snapshot and output are both provided 1`] = `"\`output\` cannot be provided with \`snapshot: true\`"`;
+
+exports[`throws invariant if there's no code 1`] = `"A string or object with a \`code\` or \`fixture\` property must be provided"`;

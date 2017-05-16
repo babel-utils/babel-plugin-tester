@@ -1,0 +1,92 @@
+{
+  "name": "babel-plugin-tester",
+  "version": "0.0.0-semantically-released",
+  "description": "Utilities for testing babel plugins",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "nps",
+    "test": "nps test",
+    "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\"",
+    "precommit": "lint-staged && opt --in pre-commit --exec \"npm start validate\""
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [],
+  "author": "Kent C. Dodds <kent@doddsfamily.us> (http://kentcdodds.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "babel-core": "^6.24.1",
+    "common-tags": "^1.4.0",
+    "invariant": "^2.2.2",
+    "lodash.merge": "^4.6.0",
+    "recast": "^0.12.3",
+    "strip-indent": "^2.0.0"
+  },
+  "devDependencies": {
+    "all-contributors-cli": "^4.0.1",
+    "babel-cli": "^6.23.0",
+    "babel-jest": "^20.0.1",
+    "babel-preset-env": "^1.2.0",
+    "babel-preset-stage-2": "^6.22.0",
+    "babel-register": "^6.23.0",
+    "codecov": "^2.1.0",
+    "commitizen": "^2.9.6",
+    "cz-conventional-changelog": "^2.0.0",
+    "eslint": "^3.17.0",
+    "eslint-config-kentcdodds": "^12.0.0",
+    "husky": "^0.13.2",
+    "jest-cli": "^20.0.1",
+    "lint-staged": "^3.3.1",
+    "nps": "^5.0.3",
+    "nps-utils": "^1.1.2",
+    "opt-cli": "^1.5.1",
+    "prettier-eslint-cli": "^3.1.2",
+    "semantic-release": "^6.3.6",
+    "validate-commit-msg": "^2.11.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "kentcdodds",
+      "kentcdodds/jest",
+      "kentcdodds/prettier"
+    ],
+    "rules": {
+      "func-style": "off"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier-eslint --write",
+      "git add"
+    ]
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "__fixtures__"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "functions": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    }
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kentcdodds/babel-plugin-tester.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kentcdodds/babel-plugin-tester/issues"
+  },
+  "homepage": "https://github.com/kentcdodds/babel-plugin-tester#readme"
+}
