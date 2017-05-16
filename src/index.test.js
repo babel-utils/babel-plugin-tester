@@ -140,6 +140,25 @@ test(`throws invariant if there's no code`, () => {
   ).toThrowErrorMatchingSnapshot()
 })
 
+test('trims and deindents code and output', () => {
+  const tests = [
+    {
+      code: `
+        var someCode = 'cool';
+      `,
+      output: `
+        var someCode = 'cool';
+      `,
+    },
+  ]
+  pluginTester(getOptions({tests}))
+  expect(equalSpy).toHaveBeenCalledWith(
+    `var someCode = 'cool';`,
+    `var someCode = 'cool';`,
+    expect.any(String),
+  )
+})
+
 test('can get a code and output fixture that is an absolute path', () => {
   const tests = [
     {

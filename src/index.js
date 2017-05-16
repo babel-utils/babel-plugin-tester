@@ -109,7 +109,7 @@ function toTestArray(tests) {
 
 function toTestConfig({testConfig, index, plugin, pluginName, fixtures}) {
   if (typeof testConfig === 'string') {
-    testConfig = {code: stripIndent(testConfig).trim()}
+    testConfig = {code: testConfig}
   }
   const {
     title,
@@ -121,8 +121,8 @@ function toTestConfig({testConfig, index, plugin, pluginName, fixtures}) {
   return merge({}, testConfig, {
     babelOptions: {plugins: [plugin]},
     title: fullTitle,
-    code: code.trim(),
-    output: output.trim(),
+    code: stripIndent(code).trim(),
+    output: stripIndent(output).trim(),
   })
 }
 
