@@ -125,7 +125,7 @@ Read more about test objects below.
 
 #### ...rest
 
-The rest of the options you provide will be [`lodash.merge`][lodash-merge]d
+The rest of the options you provide will be [`lodash.merge`][lodash.merge]d
 with each test object. Read more about those next!
 
 ### Test Objects
