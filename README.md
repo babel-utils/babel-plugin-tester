@@ -175,6 +175,8 @@ to understand.
 
 ## Examples
 
+### Full Example + Docs
+
 ```javascript
 import pluginTester from 'babel-plugin-tester'
 import identifierReversePlugin from '../identifier-reverse-plugin'
@@ -258,6 +260,31 @@ pluginTester({
       // easier to understand.
       snapshot: true,
     },
+  ],
+})
+```
+
+### Simple Example
+
+```javascript
+import pluginTester from 'babel-plugin-tester'
+import identifierReversePlugin from '../identifier-reverse-plugin'
+
+pluginTester({
+  plugin: identifierReversePlugin,
+  snapshot: true,
+  tests: [
+    {code: '"hello";', snapshot: false},
+    {
+      code: 'var hello = "hi";',
+      output: 'var olleh = "hi";',
+    },
+    `
+      function sayHi(person) {
+        return 'Hello ' + person + '!'
+      }
+      console.log(sayHi('Jenny'))
+    `,
   ],
 })
 ```
