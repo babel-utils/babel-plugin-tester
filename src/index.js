@@ -8,7 +8,7 @@ import * as babel from 'babel-core'
 import stripIndent from 'strip-indent'
 import {oneLine} from 'common-tags'
 
-export default pluginTester
+module.exports = pluginTester
 
 const fullDefaultConfig = {
   parserOpts: {parser: recast.parse},
@@ -26,13 +26,14 @@ function pluginTester(
     ...rest
   } = {},
 ) {
-  if (!tests || !tests.length) {
+  const testAsArray = toTestArray(tests)
+  if (!testAsArray.length) {
     return
   }
   const testerConfig = merge({}, fullDefaultConfig, rest)
 
   describe(describeBlockTitle, () => {
-    tests.forEach((testConfig, index) => {
+    testAsArray.forEach((testConfig, index) => {
       if (!testConfig) {
         return
       }
@@ -86,6 +87,24 @@ function pluginTester(
       }
     })
   })
+}
+
+function toTestArray(tests) {
+  tests = tests || [] // null/0/false are ok, so no default param
+  if (Array.isArray(tests)) {
+    return tests
+  }
+  return Object.keys(tests).reduce((testsArray, key) => {
+    let value = tests[key]
+    if (typeof value === 'string') {
+      value = {code: value}
+    }
+    testsArray.push({
+      title: key,
+      ...value,
+    })
+    return testsArray
+  }, [])
 }
 
 function toTestConfig({testConfig, index, plugin, pluginName, fixtures}) {

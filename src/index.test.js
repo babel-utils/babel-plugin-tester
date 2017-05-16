@@ -1,15 +1,17 @@
 import fs from 'fs'
 import path from 'path'
-import merge from 'lodash.merge'
+import assert from 'assert'
+// eslint-disable-next-line import/default
 import pluginTester from './'
 
-let errorSpy, describeSpy, itSpy, itOnlySpy
+let errorSpy, describeSpy, itSpy, itOnlySpy, equalSpy
 
 const noop = () => {}
 const titleTesterMock = (title, testFn) => testFn()
 const simpleTest = 'var hi = "hey";'
 
 beforeEach(() => {
+  equalSpy = jest.spyOn(assert, 'equal')
   errorSpy = jest.spyOn(console, 'error').mockImplementation(noop)
   describeSpy = jest
     .spyOn(global, 'describe')
@@ -20,6 +22,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  equalSpy.mockRestore()
   errorSpy.mockRestore()
   describeSpy.mockRestore()
   itSpy.mockRestore()
@@ -84,9 +87,10 @@ test('can infer the plugin name for the describe block', () => {
 
 test('calls describe and test for a group of tests', () => {
   const pluginName = 'supergirl'
+  const customTitle = 'some custom title'
   const options = getOptions({
     pluginName,
-    tests: [simpleTest, simpleTest, simpleTest],
+    tests: [simpleTest, simpleTest, {code: simpleTest, title: customTitle}],
   })
   pluginTester(options)
   expect(describeSpy).toHaveBeenCalledTimes(1)
@@ -98,7 +102,7 @@ test('calls describe and test for a group of tests', () => {
   expect(itSpy.mock.calls).toEqual([
     [`1. ${pluginName}`, expect.any(Function)],
     [`2. ${pluginName}`, expect.any(Function)],
-    [`3. ${pluginName}`, expect.any(Function)],
+    [`3. ${customTitle}`, expect.any(Function)],
   ])
 })
 
@@ -112,7 +116,7 @@ test('applies modifier if one is specified', () => {
 test('default will throw if output changes', () => {
   const tests = ['var hello = "hi";']
   expect(() =>
-    pluginTester(getOptions({plugin: IdentifierSwapPlugin, tests})),
+    pluginTester(getOptions({plugin: IdentifierReversePlugin, tests})),
   ).toThrowErrorMatchingSnapshot()
 })
 
@@ -170,7 +174,7 @@ test('can pass with fixture and outputFixture', () => {
 test('throws error if fixture provided and code changes', () => {
   const tests = [{fixture: getFixturePath('fixture1.js')}]
   expect(() =>
-    pluginTester(getOptions({plugin: IdentifierSwapPlugin, tests})),
+    pluginTester(getOptions({plugin: IdentifierReversePlugin, tests})),
   ).toThrowErrorMatchingSnapshot()
 })
 
@@ -224,19 +228,38 @@ test('takes a snapshot', () => {
   // work pretty well soooooo... 😀
   const tests = [simpleTest]
   pluginTester(
-    getOptions({snapshot: true, tests, plugin: IdentifierSwapPlugin}),
+    getOptions({snapshot: true, tests, plugin: IdentifierReversePlugin}),
   )
 })
 
-function getOptions(overrides) {
-  return merge(
-    {
-      pluginName: 'captains-log',
-      plugin: () => ({name: 'captains-log', visitor: {}}),
-      tests: [simpleTest],
+test('can provide an object for tests', () => {
+  const firstTitle = 'first title'
+  const secondTitle = 'second title'
+  const tests = {
+    [firstTitle]: simpleTest,
+    [secondTitle]: {
+      code: simpleTest,
     },
-    overrides,
-  )
+  }
+  pluginTester(getOptions({tests}))
+  expect(equalSpy).toHaveBeenCalledTimes(2)
+  expect(equalSpy.mock.calls).toEqual([
+    [simpleTest, simpleTest, expect.any(String)],
+    [simpleTest, simpleTest, expect.any(String)],
+  ])
+  expect(itSpy.mock.calls).toEqual([
+    [`1. ${firstTitle}`, expect.any(Function)],
+    [`2. ${secondTitle}`, expect.any(Function)],
+  ])
+})
+
+function getOptions(overrides) {
+  return {
+    pluginName: 'captains-log',
+    plugin: () => ({name: 'captains-log', visitor: {}}),
+    tests: [simpleTest],
+    ...overrides,
+  }
 }
 
 function getFixtureContents(fixture) {
@@ -248,7 +271,7 @@ function getFixturePath(fixture = '') {
   return path.join(__dirname, '__fixtures__', fixture)
 }
 
-function IdentifierSwapPlugin() {
+function IdentifierReversePlugin() {
   return {
     visitor: {
       Identifier(idPath) {
