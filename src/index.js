@@ -37,7 +37,15 @@ function pluginTester(
       if (!testConfig) {
         return
       }
-      const {modifier, title, code, babelOptions, output, snapshot} = merge(
+      const {
+        modifier,
+        title,
+        code,
+        babelOptions,
+        output,
+        snapshot,
+        error,
+      } = merge(
         {},
         testerConfig,
         toTestConfig({testConfig, index, plugin, pluginName, fixtures}),
@@ -49,6 +57,7 @@ function pluginTester(
         it(title, tester)
       }
 
+      // eslint-disable-next-line complexity
       function tester() {
         invariant(
           code,
@@ -63,7 +72,27 @@ function pluginTester(
             '`output` cannot be provided with `snapshot: true`',
           )
         }
-        const result = babel.transform(code, babelOptions).code.trim()
+
+        let result
+        let errored = false
+
+        try {
+          result = babel.transform(code, babelOptions).code.trim()
+        } catch (err) {
+          if (error) {
+            errored = true
+            result = err
+          } else {
+            throw err
+          }
+        }
+
+        const expectedToThrowButDidNot = error && !errored
+        assert(
+          !expectedToThrowButDidNot,
+          'Expected to throw error, but it did not.',
+        )
+
         if (snapshot) {
           invariant(
             result !== code,
@@ -75,6 +104,19 @@ function pluginTester(
           const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n'
           const formattedOutput = [code, separator, result].join('')
           expect(`\n${formattedOutput}\n`).toMatchSnapshot(title)
+        } else if (error) {
+          if (typeof error === 'function') {
+            if (!(result instanceof error || error(result) === true)) {
+              throw result
+            }
+          } else if (typeof error === 'string') {
+            assert.equal(result.message, error, 'Error message is incorrect')
+          } else if (error instanceof RegExp) {
+            assert(
+              error.test(result.message),
+              `Expected ${result.message} to match ${error}`,
+            )
+          }
         } else if (output) {
           assert.equal(result, output, 'Output is incorrect.')
         } else {
