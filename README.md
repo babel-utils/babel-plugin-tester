@@ -9,7 +9,7 @@ Utilities for testing babel plugins
 [![downloads][downloads-badge]][npm-stat]
 [![MIT License][license-badge]][LICENSE]
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors)
 [![PRs Welcome][prs-badge]][prs]
 [![Donate][donate-badge]][donate]
 [![Code of Conduct][coc-badge]][coc]
@@ -362,8 +362,8 @@ here!
 Thanks goes to these people ([emoji key][emojis]):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-| [<img src="https://avatars.githubusercontent.com/u/1500684?v=3" width="100px;"/><br /><sub>Kent C. Dodds</sub>](https://kentcdodds.com)<br />[💻](https://github.com/kentcdodds/babel-plugin-tester/commits?author=kentcdodds) [📖](https://github.com/kentcdodds/babel-plugin-tester/commits?author=kentcdodds) 🚇 [⚠️](https://github.com/kentcdodds/babel-plugin-tester/commits?author=kentcdodds) |
-| :---: |
+| [<img src="https://avatars.githubusercontent.com/u/1500684?v=3" width="100px;"/><br /><sub>Kent C. Dodds</sub>](https://kentcdodds.com)<br />[💻](https://github.com/kentcdodds/babel-plugin-tester/commits?author=kentcdodds "Code") [📖](https://github.com/kentcdodds/babel-plugin-tester/commits?author=kentcdodds "Documentation") [🚇](#infra-kentcdodds "Infrastructure (Hosting, Build-Tools, etc)") [⚠️](https://github.com/kentcdodds/babel-plugin-tester/commits?author=kentcdodds "Tests") | [<img src="https://avatars3.githubusercontent.com/u/952783?v=3" width="100px;"/><br /><sub>james kyle</sub>](http://thejameskyle.com/)<br />[💻](https://github.com/kentcdodds/babel-plugin-tester/commits?author=thejameskyle "Code") [📖](https://github.com/kentcdodds/babel-plugin-tester/commits?author=thejameskyle "Documentation") [👀](#review-thejameskyle "Reviewed Pull Requests") [⚠️](https://github.com/kentcdodds/babel-plugin-tester/commits?author=thejameskyle "Tests") |
+| :---: | :---: |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors][all-contributors] specification.

@@ -18,6 +18,18 @@
         "infra",
         "test"
       ]
+    },
+    {
+      "login": "thejameskyle",
+      "name": "james kyle",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/952783?v=3",
+      "profile": "http://thejameskyle.com/",
+      "contributions": [
+        "code",
+        "doc",
+        "review",
+        "test"
+      ]
     }
   ]
 }
