@@ -5,7 +5,7 @@ import assert from 'assert'
 import pluginTester from '../'
 import identifierReversePlugin from './__helpers__/identifier-reverse-plugin'
 
-let errorSpy, describeSpy, itSpy, itOnlySpy, equalSpy
+let errorSpy, describeSpy, itSpy, itOnlySpy, itSkipSpy, equalSpy
 
 const noop = () => {}
 const titleTesterMock = (title, testFn) => testFn()
@@ -19,7 +19,9 @@ beforeEach(() => {
     .mockImplementation(titleTesterMock)
   itSpy = jest.spyOn(global, 'it').mockImplementation(titleTesterMock)
   global.it.only = jest.fn(titleTesterMock)
+  global.it.skip = jest.fn(titleTesterMock)
   itOnlySpy = global.it.only
+  itSkipSpy = global.it.skip
 })
 
 afterEach(() => {
@@ -107,11 +109,28 @@ test('calls describe and test for a group of tests', () => {
   ])
 })
 
-test('applies modifier if one is specified', () => {
+test('tests can be skipped', () => {
   const {plugin} = getOptions()
-  pluginTester({plugin, tests: [{modifier: 'only', code: '"hey";'}]})
+  pluginTester({plugin, tests: [{skip: true, code: '"hey";'}]})
+  expect(itSkipSpy).toHaveBeenCalledTimes(1)
+  expect(itSpy).not.toHaveBeenCalled()
+})
+
+test('tests can be only-ed', () => {
+  const {plugin} = getOptions()
+  pluginTester({plugin, tests: [{only: true, code: '"hey";'}]})
   expect(itOnlySpy).toHaveBeenCalledTimes(1)
   expect(itSpy).not.toHaveBeenCalled()
+})
+
+test('tests cannot be both only-ed and skipped', () => {
+  const {plugin} = getOptions()
+  expect(() =>
+    pluginTester({
+      plugin,
+      tests: [{only: true, skip: true, code: '"hey";'}],
+    }),
+  ).toThrowErrorMatchingSnapshot()
 })
 
 test('default will throw if output changes', () => {
