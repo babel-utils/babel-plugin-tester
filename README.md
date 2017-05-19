@@ -173,6 +173,26 @@ something you hard-code, then specify `snapshot: true`. This will take a
 snapshot with both the source code and the output, making the snapshot easier
 to understand.
 
+#### error
+
+If a particular test case should be throwing an error, you can that using one
+of the following:
+
+```javascript
+{
+  // ...
+  error: true,
+  error: 'should have this exact message',
+  error: /should pass this regex/,
+  error: SyntaxError, // should be instance of this constructor
+  error: err => {
+    if (err instanceof SyntaxError && /message/.test(err.message)) {
+      return true; // test will fail if function doesn't return `true`
+    }
+  },
+}
+```
+
 ## Examples
 
 ### Full Example + Docs

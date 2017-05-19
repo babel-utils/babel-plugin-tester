@@ -272,6 +272,61 @@ test('can provide an object for tests', () => {
   ])
 })
 
+function testError(error, overrides) {
+  pluginTester(
+    getOptions({
+      plugin: () => {
+        throw new SyntaxError('test message')
+      },
+      tests: [
+        {
+          code: simpleTest,
+          error,
+        },
+      ],
+      ...overrides,
+    }),
+  )
+}
+
+test('can capture errors with true', () => {
+  testError(true)
+})
+
+test('can capture errors with Error constructor', () => {
+  testError(SyntaxError)
+})
+
+test('can capture errors with string', () => {
+  testError('test message')
+})
+
+test('can capture errors with regex', () => {
+  testError(/mess/)
+})
+
+test('can capture errors with function', () => {
+  testError(err => /mess/.test(err.message) && err instanceof SyntaxError)
+})
+
+test('throws error when function doesnt return true', () => {
+  expect(() => testError(() => false)).toThrowErrorMatchingSnapshot()
+})
+
+test('throws error when error expected but no error thrown', () => {
+  expect(() =>
+    testError(true, {
+      plugin: () => null,
+    }),
+  ).toThrowErrorMatchingSnapshot()
+})
+
+test('throws error if there is a problem parsing', () => {
+  expect(() => {
+    pluginTester(getOptions({tests: [`][fkfhgo]fo{r`]}))
+  }).toThrowErrorMatchingSnapshot()
+})
+
 function getOptions(overrides) {
   return {
     pluginName: 'captains-log',
