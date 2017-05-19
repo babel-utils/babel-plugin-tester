@@ -128,18 +128,7 @@ function pluginTester(
           const formattedOutput = [code, separator, result].join('')
           expect(`\n${formattedOutput}\n`).toMatchSnapshot(title)
         } else if (error) {
-          if (typeof error === 'function') {
-            if (!(result instanceof error || error(result) === true)) {
-              throw result
-            }
-          } else if (typeof error === 'string') {
-            assert.equal(result.message, error, 'Error message is incorrect')
-          } else if (error instanceof RegExp) {
-            assert(
-              error.test(result.message),
-              `Expected ${result.message} to match ${error}`,
-            )
-          }
+          assertError(error, result)
         } else if (output) {
           assert.equal(result, output, 'Output is incorrect.')
         } else {
@@ -244,6 +233,27 @@ function getPath(filename, basename) {
     return basename
   }
   return path.join(path.dirname(filename), basename)
+}
+
+// eslint-disable-next-line complexity
+function assertError(error, result) {
+  if (typeof error === 'function') {
+    if (!(result instanceof error || error(result) === true)) {
+      throw result
+    }
+  } else if (typeof error === 'string') {
+    assert.equal(result.message, error, 'Error message is incorrect')
+  } else if (error instanceof RegExp) {
+    assert(
+      error.test(result.message),
+      `Expected ${result.message} to match ${error}`,
+    )
+  } else {
+    invariant(
+      typeof error === 'boolean',
+      'The given `error` must be a function, string, boolean, or RegExp',
+    )
+  }
 }
 
 function requiredParam(name) {
