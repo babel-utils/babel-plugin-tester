@@ -1,11 +1,12 @@
 import fs from 'fs'
 import path from 'path'
 import assert from 'assert'
+import * as babel from 'babel-core'
 // eslint-disable-next-line import/default
 import pluginTester from '../'
 import identifierReversePlugin from './__helpers__/identifier-reverse-plugin'
 
-let errorSpy, describeSpy, itSpy, itOnlySpy, itSkipSpy, equalSpy
+let errorSpy, describeSpy, itSpy, itOnlySpy, itSkipSpy, equalSpy, transformSpy
 
 const noop = () => {}
 const titleTesterMock = (title, testFn) => testFn()
@@ -22,6 +23,7 @@ beforeEach(() => {
   global.it.skip = jest.fn(titleTesterMock)
   itOnlySpy = global.it.only
   itSkipSpy = global.it.skip
+  transformSpy = jest.spyOn(babel, 'transform')
 })
 
 afterEach(() => {
@@ -29,6 +31,8 @@ afterEach(() => {
   errorSpy.mockRestore()
   describeSpy.mockRestore()
   itSpy.mockRestore()
+  itSkipSpy.mockRestore()
+  transformSpy.mockRestore()
 })
 
 test('plugin is required', () => {
@@ -266,6 +270,56 @@ test('can fail tests in fixtures at an absolute path', () => {
   ).toThrowErrorMatchingSnapshot()
 })
 
+test('uses the fixture filename in babelOptions', () => {
+  const fixture = getFixturePath('fixture1.js')
+  const tests = [
+    {
+      fixture,
+      outputFixture: getFixturePath('fixture1.js'),
+    },
+  ]
+  pluginTester(getOptions({tests}))
+  expect(transformSpy).toHaveBeenCalledTimes(1)
+  expect(transformSpy).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.objectContaining({
+      filename: fixture,
+    }),
+  )
+})
+
+test('allows for a test babelOptions can provide a filename', () => {
+  const filename = getFixturePath('outure1.js')
+  const tests = [
+    {
+      babelOptions: {filename},
+      fixture: getFixturePath('fixture1.js'),
+      outputFixture: getFixturePath('fixture1.js'),
+    },
+  ]
+  pluginTester(getOptions({tests}))
+  expect(transformSpy).toHaveBeenCalledTimes(1)
+  expect(transformSpy).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.objectContaining({
+      filename,
+    }),
+  )
+})
+
+test('can provide a test filename for code strings', () => {
+  const filename = getFixturePath('outure1.js')
+  const tests = [{babelOptions: {filename}, code: simpleTest}]
+  pluginTester(getOptions({tests}))
+  expect(transformSpy).toHaveBeenCalledTimes(1)
+  expect(transformSpy).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.objectContaining({
+      filename,
+    }),
+  )
+})
+
 test('throws invariant if snapshot and output are both provided', () => {
   const tests = [{code: simpleTest, output: 'anything', snapshot: true}]
   expect(() =>
@@ -380,6 +434,13 @@ test('throws error if there is a problem parsing', () => {
     expect(error.constructor).toBe(SyntaxError)
     expect(error.message.endsWith('Unexpected token (1:0)'))
   }
+})
+
+test(`throws an error if babelrc is true with no filename`, () => {
+  const tests = ['"use strict";']
+  expect(() =>
+    pluginTester(getOptions({tests, babelOptions: {babelrc: true}})),
+  ).toThrowErrorMatchingSnapshot()
 })
 
 function getOptions(overrides) {

@@ -89,12 +89,14 @@ function pluginTester(
             \`fixture\` property must be provided
           `,
         )
-        if (snapshot) {
-          invariant(
-            !output,
-            '`output` cannot be provided with `snapshot: true`',
-          )
-        }
+        invariant(
+          !babelOptions.babelrc || babelOptions.filename,
+          'babelrc set to true, but no filename specified in babelOptions',
+        )
+        invariant(
+          !snapshot || !output,
+          '`output` cannot be provided with `snapshot: true`',
+        )
 
         let result
         let errored = false
@@ -159,6 +161,7 @@ function testFixtures({
         const babelRcPath = path.join(fixtureDir, '.babelrc')
 
         const {babelOptions} = merge(
+          {},
           fullDefaultConfig,
           {
             babelOptions: {
@@ -213,12 +216,18 @@ function toTestConfig({testConfig, index, plugin, pluginName, filename}) {
     fullTitle = `${index + 1}. ${title || pluginName}`,
     output = getCode(filename, testConfig.outputFixture),
   } = testConfig
-  return merge({}, testConfig, {
-    babelOptions: {plugins: [plugin]},
-    title: fullTitle,
-    code: stripIndent(code).trim(),
-    output: stripIndent(output).trim(),
-  })
+  return merge(
+    {
+      babelOptions: {filename: getPath(filename, fixture)},
+    },
+    testConfig,
+    {
+      babelOptions: {plugins: [plugin]},
+      title: fullTitle,
+      code: stripIndent(code).trim(),
+      output: stripIndent(output).trim(),
+    },
+  )
 }
 
 function getCode(filename, fixture) {
@@ -229,6 +238,9 @@ function getCode(filename, fixture) {
 }
 
 function getPath(filename, basename) {
+  if (!basename) {
+    return undefined
+  }
   if (path.isAbsolute(basename)) {
     return basename
   }
