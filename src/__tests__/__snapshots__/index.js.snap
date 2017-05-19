@@ -20,6 +20,8 @@ exports[`snapshot option can be derived from the root config 1`] = `"\`output\` 
 
 exports[`tests cannot be both only-ed and skipped 1`] = `"Cannot enable both skip and only on a test"`;
 
+exports[`throws an error if babelrc is true with no filename 1`] = `"babelrc set to true, but no filename specified in babelOptions"`;
+
 exports[`throws an invariant if the plugin name is not inferable 1`] = `"The \`pluginName\` must be inferable or provided."`;
 
 exports[`throws error if fixture provided and code changes 1`] = `"Expected output to not change, but it did"`;
