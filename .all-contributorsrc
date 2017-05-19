@@ -30,6 +30,15 @@
         "review",
         "test"
       ]
+    },
+    {
+      "login": "bbohen",
+      "name": "Brad Bohen",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/1894628?v=3",
+      "profile": "https://github.com/bbohen",
+      "contributions": [
+        "bug"
+      ]
     }
   ]
 }
