@@ -114,7 +114,7 @@ absolute paths, then they will be `path.join`ed with `path.dirname` of the
 This is a path to a directory with this format:
 
 ```
-fixtures
+__fixtures__
 ├── first-test # test title will be: "first test"
 │   ├── code.js # required
 │   └── output.js # required
@@ -123,6 +123,17 @@ fixtures
     ├── code.js
     └── output.js
 ```
+
+With this you could make your test config like so:
+
+```javascript
+pluginTester({
+  plugin,
+  fixtures: path.join(__dirname, '__fixtures__'),
+})
+```
+
+And it would run two tests. One for each directory in `__fixtures__`.
 
 #### tests
 
@@ -174,7 +185,7 @@ a convenience for template literals.
 
 If you'd rather put your `code` in a separate file, you can specify a filename
 here. If it's an absolute path, that's the file that will be loaded, otherwise,
-this will be `path.join`ed with the `fixtures` path.
+this will be `path.join`ed with the `filename` path.
 
 #### outputFixture
 
@@ -237,7 +248,7 @@ pluginTester({
   title: 'describe block title',
 
   // only necessary if you use fixture or outputFixture in your tests
-  fixtures: path.join(__dirname, '__fixtures__'),
+  filename: __filename,
 
   // these will be `lodash.merge`d with the test objects
   // below are the defaults:
@@ -286,11 +297,11 @@ pluginTester({
     {
       // because these are not absolute paths, they will be joined with the
       // `fixtures` path provided above
-      fixture: 'changed.js',
+      fixture: '__fixtures__/changed.js',
       // because outputFixture is provided, the assertion will be that the
       // plugin will change the contents of `changed.js` to the contents of
       // `changed-output.js`
-      outputFixture: 'changed-output.js',
+      outputFixture: '__fixtures__/changed-output.js',
     },
     {
       // as a convenience, this will have the indentation striped and it will
