@@ -181,6 +181,16 @@ this will be `path.join`ed with the `fixtures` path.
 If you'd rather put your `output` in a separate file, you can specify this
 instead (works the same as `fixture`).
 
+#### only
+
+To run only this test. Useful while developing to help focus on a single test.
+Can be used on multiple tests.
+
+#### skip
+
+To skip running this test. Useful for when you're working on a feature that is
+not yet supported.
+
 #### snapshot
 
 If you'd prefer to take a snapshot of your output rather than compare it to

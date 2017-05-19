@@ -52,7 +52,8 @@ function pluginTester(
         return
       }
       const {
-        modifier,
+        skip,
+        only,
         title,
         code,
         babelOptions,
@@ -64,9 +65,17 @@ function pluginTester(
         testerConfig,
         toTestConfig({testConfig, index, plugin, pluginName, filename}),
       )
+      assert(
+        (!skip && !only) || skip !== only,
+        'Cannot enable both skip and only on a test',
+      )
 
-      if (modifier) {
-        it[modifier](title, tester)
+      if (skip) {
+        // eslint-disable-next-line jest/no-disabled-tests
+        it.skip(title, tester)
+      } else if (only) {
+        // eslint-disable-next-line jest/no-focused-tests
+        it.only(title, tester)
       } else {
         it(title, tester)
       }
