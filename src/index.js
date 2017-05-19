@@ -1,6 +1,7 @@
 import assert from 'assert'
 import path from 'path'
 import fs from 'fs'
+import pathExists from 'path-exists'
 import merge from 'lodash.merge'
 import invariant from 'invariant'
 import * as recast from 'recast'
@@ -11,9 +12,11 @@ import {oneLine} from 'common-tags'
 module.exports = pluginTester
 
 const fullDefaultConfig = {
-  parserOpts: {parser: recast.parse},
-  generatorOpts: {generator: recast.print, lineTerminator: '\n'},
-  babelrc: false,
+  babelOptions: {
+    parserOpts: {parser: recast.parse},
+    generatorOpts: {generator: recast.print, lineTerminator: '\n'},
+    babelrc: false,
+  },
 }
 
 function pluginTester(
@@ -23,9 +26,20 @@ function pluginTester(
     title: describeBlockTitle = pluginName,
     tests,
     fixtures,
+    filename,
     ...rest
   } = {},
 ) {
+  if (fixtures) {
+    testFixtures({
+      plugin,
+      pluginName,
+      title: describeBlockTitle,
+      fixtures,
+      filename,
+      ...rest,
+    })
+  }
   const testAsArray = toTestArray(tests)
   if (!testAsArray.length) {
     return
@@ -48,7 +62,7 @@ function pluginTester(
       } = merge(
         {},
         testerConfig,
-        toTestConfig({testConfig, index, plugin, pluginName, fixtures}),
+        toTestConfig({testConfig, index, plugin, pluginName, filename}),
       )
 
       if (modifier) {
@@ -131,6 +145,47 @@ function pluginTester(
   })
 }
 
+function testFixtures({
+  plugin,
+  title: describeBlockTitle,
+  fixtures,
+  filename,
+  ...rest
+}) {
+  describe(`${describeBlockTitle} fixtures`, () => {
+    const fixturesDir = getPath(filename, fixtures)
+    fs.readdirSync(fixturesDir).forEach(caseName => {
+      it(caseName.split('-').join(' '), () => {
+        const fixtureDir = path.join(fixturesDir, caseName)
+        const codePath = path.join(fixtureDir, 'code.js')
+        const babelRcPath = path.join(fixtureDir, '.babelrc')
+
+        const {babelOptions} = merge(
+          fullDefaultConfig,
+          {
+            babelOptions: {
+              plugins: [plugin],
+              // if they have a babelrc, then we'll let them use that
+              // otherwise, we'll just use our simple config
+              babelrc: pathExists.sync(babelRcPath),
+            },
+          },
+          rest,
+        )
+        const actual = babel
+          .transformFileSync(codePath, babelOptions)
+          .code.trim()
+
+        const output = fs
+          .readFileSync(path.join(fixtureDir, 'output.js'), 'utf8')
+          .trim()
+
+        assert.equal(output, actual, 'actual output does not match output.js')
+      })
+    })
+  })
+}
+
 function toTestArray(tests) {
   tests = tests || [] // null/0/false are ok, so no default param
   if (Array.isArray(tests)) {
@@ -149,16 +204,16 @@ function toTestArray(tests) {
   }, [])
 }
 
-function toTestConfig({testConfig, index, plugin, pluginName, fixtures}) {
+function toTestConfig({testConfig, index, plugin, pluginName, filename}) {
   if (typeof testConfig === 'string') {
     testConfig = {code: testConfig}
   }
   const {
     title,
     fixture,
-    code = getCode(fixtures, fixture),
+    code = getCode(filename, fixture),
     fullTitle = `${index + 1}. ${title || pluginName}`,
-    output = getCode(fixtures, testConfig.outputFixture),
+    output = getCode(filename, testConfig.outputFixture),
   } = testConfig
   return merge({}, testConfig, {
     babelOptions: {plugins: [plugin]},
@@ -168,15 +223,18 @@ function toTestConfig({testConfig, index, plugin, pluginName, fixtures}) {
   })
 }
 
-function getCode(fixtures, fixture) {
+function getCode(filename, fixture) {
   if (!fixture) {
     return ''
   }
-  let fullPath = fixture
-  if (!path.isAbsolute(fixture)) {
-    fullPath = path.join(fixtures, fixture)
+  return fs.readFileSync(getPath(filename, fixture), 'utf8')
+}
+
+function getPath(filename, basename) {
+  if (path.isAbsolute(basename)) {
+    return basename
   }
-  return fs.readFileSync(fullPath, 'utf8')
+  return path.join(path.dirname(filename), basename)
 }
 
 function requiredParam(name) {
