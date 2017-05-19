@@ -100,14 +100,29 @@ to provide this option.
 This can be used to specify a title for the describe block (rather than using
 the `pluginName`).
 
+#### filename
+
+Relative paths from the other options will be relative to this. Normally you'll
+provide this as `filename: __filename`. The only `options` property affected by
+this value is `fixtures`. Test Object properties affected by this value are:
+`fixture` and `outputFixture`. If those properties are not
+absolute paths, then they will be `path.join`ed with `path.dirname` of the
+`filename`.
+
 #### fixtures
 
-This is used in combination with the test object's `fixture` and `outputFixture`
-options. This is used as the base directory with which to resolve relative
-paths for those options.
+This is a path to a directory with this format:
 
-Note: you really only need to specify this option if one of your test objects
-uses `fixture` or `outputFixture` without absolute paths.
+```
+fixtures
+├── first-test # test title will be: "first test"
+│   ├── code.js # required
+│   └── output.js # required
+└── second-test
+    ├── .babelrc # optional
+    ├── code.js
+    └── output.js
+```
 
 #### tests
 

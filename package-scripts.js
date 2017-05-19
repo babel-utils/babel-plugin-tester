@@ -28,7 +28,7 @@ module.exports = {
       description: 'delete the dist directory and run babel to build the files',
       script: series(
         rimraf('dist'),
-        'babel --copy-files --out-dir dist --ignore *.test.js,__fixtures__ src'
+        'babel --copy-files --out-dir dist --ignore "**/__tests__/**" src'
       ),
     },
     lint: {
