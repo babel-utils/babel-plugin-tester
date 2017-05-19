@@ -2,7 +2,8 @@ import fs from 'fs'
 import path from 'path'
 import assert from 'assert'
 // eslint-disable-next-line import/default
-import pluginTester from './'
+import pluginTester from '../'
+import identifierReversePlugin from './__helpers__/identifier-reverse-plugin'
 
 let errorSpy, describeSpy, itSpy, itOnlySpy, equalSpy
 
@@ -116,7 +117,7 @@ test('applies modifier if one is specified', () => {
 test('default will throw if output changes', () => {
   const tests = ['var hello = "hi";']
   expect(() =>
-    pluginTester(getOptions({plugin: IdentifierReversePlugin, tests})),
+    pluginTester(getOptions({plugin: identifierReversePlugin, tests})),
   ).toThrowErrorMatchingSnapshot()
 })
 
@@ -193,20 +194,19 @@ test('can pass with fixture and outputFixture', () => {
 test('throws error if fixture provided and code changes', () => {
   const tests = [{fixture: getFixturePath('fixture1.js')}]
   expect(() =>
-    pluginTester(getOptions({plugin: IdentifierReversePlugin, tests})),
+    pluginTester(getOptions({plugin: identifierReversePlugin, tests})),
   ).toThrowErrorMatchingSnapshot()
 })
 
-test('can resolve a fixture with the fixtures option', () => {
-  const fixtures = getFixturePath()
+test('can resolve a fixture with the filename option', () => {
   const tests = [
     {
-      fixture: 'fixture1.js',
-      outputFixture: 'outure1.js',
+      fixture: '__fixtures__/fixture1.js',
+      outputFixture: '__fixtures__/outure1.js',
     },
   ]
   try {
-    pluginTester(getOptions({fixtures, tests}))
+    pluginTester(getOptions({filename: __filename, tests}))
   } catch (error) {
     const actual = getFixtureContents('fixture1.js')
     const expected = getFixtureContents('outure1.js')
@@ -217,6 +217,34 @@ test('can resolve a fixture with the fixtures option', () => {
       expected,
     })
   }
+})
+
+test('can pass tests in fixtures relative to the filename', () => {
+  pluginTester(
+    getOptions({
+      filename: __filename,
+      fixtures: '__fixtures__/fixtures',
+      tests: null,
+    }),
+  )
+  expect(describeSpy).toHaveBeenCalledTimes(1)
+  expect(itSpy).toHaveBeenCalledTimes(2)
+  expect(itSpy.mock.calls).toEqual([
+    [`changed`, expect.any(Function)],
+    [`unchanged`, expect.any(Function)],
+  ])
+})
+
+test('can fail tests in fixtures at an absolute path', () => {
+  expect(() =>
+    pluginTester(
+      getOptions({
+        plugin: identifierReversePlugin,
+        tests: null,
+        fixtures: getFixturePath('failing-fixtures'),
+      }),
+    ),
+  ).toThrowErrorMatchingSnapshot()
 })
 
 test('throws invariant if snapshot and output are both provided', () => {
@@ -247,7 +275,7 @@ test('takes a snapshot', () => {
   // work pretty well soooooo... 😀
   const tests = [simpleTest]
   pluginTester(
-    getOptions({snapshot: true, tests, plugin: IdentifierReversePlugin}),
+    getOptions({snapshot: true, tests, plugin: identifierReversePlugin}),
   )
 })
 
@@ -309,7 +337,7 @@ test('can capture errors with function', () => {
   testError(err => /mess/.test(err.message) && err instanceof SyntaxError)
 })
 
-test('throws error when function doesnt return true', () => {
+test(`throws error when function doesn't return true`, () => {
   expect(() => testError(() => false)).toThrowErrorMatchingSnapshot()
 })
 
@@ -322,9 +350,17 @@ test('throws error when error expected but no error thrown', () => {
 })
 
 test('throws error if there is a problem parsing', () => {
-  expect(() => {
-    pluginTester(getOptions({tests: [`][fkfhgo]fo{r`]}))
-  }).toThrowErrorMatchingSnapshot()
+  try {
+    pluginTester(
+      getOptions({
+        tests: [`][fkfhgo]fo{r`],
+        babelOptions: {filename: __filename},
+      }),
+    )
+  } catch (error) {
+    expect(error.constructor).toBe(SyntaxError)
+    expect(error.message.endsWith('Unexpected token (1:0)'))
+  }
 })
 
 function getOptions(overrides) {
@@ -343,14 +379,4 @@ function getFixtureContents(fixture) {
 
 function getFixturePath(fixture = '') {
   return path.join(__dirname, '__fixtures__', fixture)
-}
-
-function IdentifierReversePlugin() {
-  return {
-    visitor: {
-      Identifier(idPath) {
-        idPath.node.name = idPath.node.name.split('').reverse().join('')
-      },
-    },
-  }
 }

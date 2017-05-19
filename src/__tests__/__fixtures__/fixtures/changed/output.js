@@ -1,0 +1,1 @@
+elosnoc.gol('hello');
