@@ -21,7 +21,6 @@
     "invariant": "^2.2.2",
     "lodash.merge": "^4.6.0",
     "path-exists": "^3.0.0",
-    "recast": "^0.12.3",
     "strip-indent": "^2.0.0"
   },
   "devDependencies": {

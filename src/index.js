@@ -4,7 +4,6 @@ import fs from 'fs'
 import pathExists from 'path-exists'
 import merge from 'lodash.merge'
 import invariant from 'invariant'
-import * as recast from 'recast'
 import * as babel from 'babel-core'
 import stripIndent from 'strip-indent'
 import {oneLine} from 'common-tags'
@@ -13,8 +12,8 @@ module.exports = pluginTester
 
 const fullDefaultConfig = {
   babelOptions: {
-    parserOpts: {parser: recast.parse},
-    generatorOpts: {generator: recast.print, lineTerminator: '\n'},
+    parserOpts: {},
+    generatorOpts: {},
     babelrc: false,
   },
 }
