@@ -253,8 +253,8 @@ pluginTester({
   // these will be `lodash.merge`d with the test objects
   // below are the defaults:
   babelOptions: {
-    parserOpts: {parser: recast.parse},
-    generatorOpts: {generator: recast.print, lineTerminator: '\n'},
+    parserOpts: {},
+    generatorOpts: {},
     babelrc: false,
   },
   snapshot: false, // use jest snapshots (only works with jest)
