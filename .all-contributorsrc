@@ -1,6 +1,6 @@
 {
   "projectName": "babel-plugin-tester",
-  "projectOwner": "kentcdodds",
+  "projectOwner": "babel-utils",
   "files": [
     "README.md"
   ],

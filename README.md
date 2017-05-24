@@ -362,7 +362,7 @@ here!
 Thanks goes to these people ([emoji key][emojis]):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-| [<img src="https://avatars.githubusercontent.com/u/1500684?v=3" width="100px;"/><br /><sub>Kent C. Dodds</sub>](https://kentcdodds.com)<br />[💻](https://github.com/kentcdodds/babel-plugin-tester/commits?author=kentcdodds "Code") [📖](https://github.com/kentcdodds/babel-plugin-tester/commits?author=kentcdodds "Documentation") [🚇](#infra-kentcdodds "Infrastructure (Hosting, Build-Tools, etc)") [⚠️](https://github.com/kentcdodds/babel-plugin-tester/commits?author=kentcdodds "Tests") | [<img src="https://avatars3.githubusercontent.com/u/952783?v=3" width="100px;"/><br /><sub>james kyle</sub>](http://thejameskyle.com/)<br />[💻](https://github.com/kentcdodds/babel-plugin-tester/commits?author=thejameskyle "Code") [📖](https://github.com/kentcdodds/babel-plugin-tester/commits?author=thejameskyle "Documentation") [👀](#review-thejameskyle "Reviewed Pull Requests") [⚠️](https://github.com/kentcdodds/babel-plugin-tester/commits?author=thejameskyle "Tests") | [<img src="https://avatars1.githubusercontent.com/u/1894628?v=3" width="100px;"/><br /><sub>Brad Bohen</sub>](https://github.com/bbohen)<br />[🐛](https://github.com/kentcdodds/babel-plugin-tester/issues?q=author%3Abbohen "Bug reports") |
+| [<img src="https://avatars.githubusercontent.com/u/1500684?v=3" width="100px;"/><br /><sub>Kent C. Dodds</sub>](https://kentcdodds.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Documentation") [🚇](#infra-kentcdodds "Infrastructure (Hosting, Build-Tools, etc)") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Tests") | [<img src="https://avatars3.githubusercontent.com/u/952783?v=3" width="100px;"/><br /><sub>james kyle</sub>](http://thejameskyle.com/)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Documentation") [👀](#review-thejameskyle "Reviewed Pull Requests") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Tests") | [<img src="https://avatars1.githubusercontent.com/u/1894628?v=3" width="100px;"/><br /><sub>Brad Bohen</sub>](https://github.com/bbohen)<br />[🐛](https://github.com/babel-utils/babel-plugin-tester/issues?q=author%3Abbohen "Bug reports") |
 | :---: | :---: | :---: |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
@@ -375,34 +375,34 @@ MIT
 
 [npm]: https://www.npmjs.com/
 [node]: https://nodejs.org
-[build-badge]: https://img.shields.io/travis/kentcdodds/babel-plugin-tester.svg?style=flat-square
-[build]: https://travis-ci.org/kentcdodds/babel-plugin-tester
-[coverage-badge]: https://img.shields.io/codecov/c/github/kentcdodds/babel-plugin-tester.svg?style=flat-square
-[coverage]: https://codecov.io/github/kentcdodds/babel-plugin-tester
-[dependencyci-badge]: https://dependencyci.com/github/kentcdodds/babel-plugin-tester/badge?style=flat-square
-[dependencyci]: https://dependencyci.com/github/kentcdodds/babel-plugin-tester
+[build-badge]: https://img.shields.io/travis/babel-utils/babel-plugin-tester.svg?style=flat-square
+[build]: https://travis-ci.org/babel-utils/babel-plugin-tester
+[coverage-badge]: https://img.shields.io/codecov/c/github/babel-utils/babel-plugin-tester.svg?style=flat-square
+[coverage]: https://codecov.io/github/babel-utils/babel-plugin-tester
+[dependencyci-badge]: https://dependencyci.com/github/babel-utils/babel-plugin-tester/badge?style=flat-square
+[dependencyci]: https://dependencyci.com/github/babel-utils/babel-plugin-tester
 [version-badge]: https://img.shields.io/npm/v/babel-plugin-tester.svg?style=flat-square
 [package]: https://www.npmjs.com/package/babel-plugin-tester
 [downloads-badge]: https://img.shields.io/npm/dm/babel-plugin-tester.svg?style=flat-square
 [npm-stat]: http://npm-stat.com/charts.html?package=babel-plugin-tester&from=2016-04-01
 [license-badge]: https://img.shields.io/npm/l/babel-plugin-tester.svg?style=flat-square
-[license]: https://github.com/kentcdodds/babel-plugin-tester/blob/master/other/LICENSE
+[license]: https://github.com/babel-utils/babel-plugin-tester/blob/master/other/LICENSE
 [prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [prs]: http://makeapullrequest.com
 [donate-badge]: https://img.shields.io/badge/$-support-green.svg?style=flat-square
 [donate]: http://kcd.im/donate
 [coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
-[coc]: https://github.com/kentcdodds/babel-plugin-tester/blob/master/other/CODE_OF_CONDUCT.md
+[coc]: https://github.com/babel-utils/babel-plugin-tester/blob/master/other/CODE_OF_CONDUCT.md
 [roadmap-badge]: https://img.shields.io/badge/%F0%9F%93%94-roadmap-CD9523.svg?style=flat-square
-[roadmap]: https://github.com/kentcdodds/babel-plugin-tester/blob/master/other/ROADMAP.md
+[roadmap]: https://github.com/babel-utils/babel-plugin-tester/blob/master/other/ROADMAP.md
 [examples-badge]: https://img.shields.io/badge/%F0%9F%92%A1-examples-8C8E93.svg?style=flat-square
-[examples]: https://github.com/kentcdodds/babel-plugin-tester/blob/master/other/EXAMPLES.md
-[github-watch-badge]: https://img.shields.io/github/watchers/kentcdodds/babel-plugin-tester.svg?style=social
-[github-watch]: https://github.com/kentcdodds/babel-plugin-tester/watchers
-[github-star-badge]: https://img.shields.io/github/stars/kentcdodds/babel-plugin-tester.svg?style=social
-[github-star]: https://github.com/kentcdodds/babel-plugin-tester/stargazers
-[twitter]: https://twitter.com/intent/tweet?text=Check%20out%20babel-plugin-tester!%20https://github.com/kentcdodds/babel-plugin-tester%20%F0%9F%91%8D
-[twitter-badge]: https://img.shields.io/twitter/url/https/github.com/kentcdodds/babel-plugin-tester.svg?style=social
+[examples]: https://github.com/babel-utils/babel-plugin-tester/blob/master/other/EXAMPLES.md
+[github-watch-badge]: https://img.shields.io/github/watchers/babel-utils/babel-plugin-tester.svg?style=social
+[github-watch]: https://github.com/babel-utils/babel-plugin-tester/watchers
+[github-star-badge]: https://img.shields.io/github/stars/babel-utils/babel-plugin-tester.svg?style=social
+[github-star]: https://github.com/babel-utils/babel-plugin-tester/stargazers
+[twitter]: https://twitter.com/intent/tweet?text=Check%20out%20babel-plugin-tester!%20https://github.com/babel-utils/babel-plugin-tester%20%F0%9F%91%8D
+[twitter-badge]: https://img.shields.io/twitter/url/https/github.com/babel-utils/babel-plugin-tester.svg?style=social
 [emojis]: https://github.com/kentcdodds/all-contributors#emoji-key
 [all-contributors]: https://github.com/kentcdodds/all-contributors
 [lodash.merge]: https://lodash.com/docs/4.17.4#merge

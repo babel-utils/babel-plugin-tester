@@ -84,10 +84,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kentcdodds/babel-plugin-tester.git"
+    "url": "https://github.com/babel-utils/babel-plugin-tester.git"
   },
   "bugs": {
-    "url": "https://github.com/kentcdodds/babel-plugin-tester/issues"
+    "url": "https://github.com/babel-utils/babel-plugin-tester/issues"
   },
-  "homepage": "https://github.com/kentcdodds/babel-plugin-tester#readme"
+  "homepage": "https://github.com/babel-utils/babel-plugin-tester#readme"
 }
