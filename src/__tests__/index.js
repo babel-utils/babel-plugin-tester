@@ -320,6 +320,57 @@ test('can provide a test filename for code strings', () => {
   )
 })
 
+test('can provide plugin options', () => {
+  const tests = [simpleTest]
+  const pluginOptions = {
+    optionA: true,
+  }
+  pluginTester(getOptions({tests, pluginOptions}))
+  expect(transformSpy).toHaveBeenCalledTimes(1)
+  expect(transformSpy).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.objectContaining({
+      plugins: expect.arrayContaining([
+        [
+          expect.any(Function),
+          expect.objectContaining({
+            optionA: true,
+          }),
+        ],
+      ]),
+    }),
+  )
+})
+
+test('can overwrite plugin options at test level', () => {
+  const pluginOptions = {
+    optionA: false,
+  }
+  const tests = [{code: simpleTest, pluginOptions}]
+  pluginTester(
+    getOptions({
+      tests,
+      pluginOptions: {
+        optionA: true,
+      },
+    }),
+  )
+  expect(transformSpy).toHaveBeenCalledTimes(1)
+  expect(transformSpy).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.objectContaining({
+      plugins: expect.arrayContaining([
+        [
+          expect.any(Function),
+          expect.objectContaining({
+            optionA: false,
+          }),
+        ],
+      ]),
+    }),
+  )
+})
+
 test('throws invariant if snapshot and output are both provided', () => {
   const tests = [{code: simpleTest, output: 'anything', snapshot: true}]
   expect(() =>
