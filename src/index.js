@@ -23,6 +23,7 @@ function pluginTester(
     plugin = requiredParam('plugin'),
     pluginName = getPluginName(plugin),
     title: describeBlockTitle = pluginName,
+    pluginOptions,
     tests,
     fixtures,
     filename,
@@ -33,6 +34,7 @@ function pluginTester(
     testFixtures({
       plugin,
       pluginName,
+      pluginOptions,
       title: describeBlockTitle,
       fixtures,
       filename,
@@ -62,7 +64,14 @@ function pluginTester(
       } = merge(
         {},
         testerConfig,
-        toTestConfig({testConfig, index, plugin, pluginName, filename}),
+        toTestConfig({
+          testConfig,
+          index,
+          plugin,
+          pluginName,
+          pluginOptions,
+          filename,
+        }),
       )
       assert(
         (!skip && !only) || skip !== only,
@@ -146,6 +155,7 @@ function pluginTester(
 
 function testFixtures({
   plugin,
+  pluginOptions,
   title: describeBlockTitle,
   fixtures,
   filename,
@@ -164,7 +174,7 @@ function testFixtures({
           fullDefaultConfig,
           {
             babelOptions: {
-              plugins: [plugin],
+              plugins: [[plugin, pluginOptions]],
               // if they have a babelrc, then we'll let them use that
               // otherwise, we'll just use our simple config
               babelrc: pathExists.sync(babelRcPath),
@@ -204,7 +214,14 @@ function toTestArray(tests) {
   }, [])
 }
 
-function toTestConfig({testConfig, index, plugin, pluginName, filename}) {
+function toTestConfig({
+  testConfig,
+  index,
+  plugin,
+  pluginName,
+  pluginOptions,
+  filename,
+}) {
   if (typeof testConfig === 'string') {
     testConfig = {code: testConfig}
   }
@@ -214,6 +231,7 @@ function toTestConfig({testConfig, index, plugin, pluginName, filename}) {
     code = getCode(filename, fixture),
     fullTitle = `${index + 1}. ${title || pluginName}`,
     output = getCode(filename, testConfig.outputFixture),
+    pluginOptions: testOptions = pluginOptions,
   } = testConfig
   return merge(
     {
@@ -221,7 +239,7 @@ function toTestConfig({testConfig, index, plugin, pluginName, filename}) {
     },
     testConfig,
     {
-      babelOptions: {plugins: [plugin]},
+      babelOptions: {plugins: [[plugin, testOptions]]},
       title: fullTitle,
       code: stripIndent(code).trim(),
       output: stripIndent(output).trim(),

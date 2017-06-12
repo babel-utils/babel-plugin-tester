@@ -52,7 +52,8 @@
       "kentcdodds/prettier"
     ],
     "rules": {
-      "func-style": "off"
+      "func-style": "off",
+      "max-lines": ["error", 1000]
     }
   },
   "lint-staged": {

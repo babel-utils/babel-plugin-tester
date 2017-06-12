@@ -9,7 +9,7 @@ Utilities for testing babel plugins
 [![downloads][downloads-badge]][npm-stat]
 [![MIT License][license-badge]][LICENSE]
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors)
 [![PRs Welcome][prs-badge]][prs]
 [![Donate][donate-badge]][donate]
 [![Code of Conduct][coc-badge]][coc]
@@ -94,6 +94,11 @@ function identifierReversePlugin() {
 This is used for the `describe` title as well as the test titles. If it
 can be inferred from the `plugin`'s `name` then it will be and you don't need
 to provide this option.
+
+#### pluginOptions
+
+This can be used to pass options into your plugin at transform time. This option
+can be overwritten using the test object.
 
 #### title
 
@@ -247,6 +252,11 @@ pluginTester({
   // defaults to the plugin name
   title: 'describe block title',
 
+  // used to test specific plugin options
+  pluginOptions: {
+    optionA: true,
+  },
+
   // only necessary if you use fixture or outputFixture in your tests
   filename: __filename,
 
@@ -316,6 +326,14 @@ pluginTester({
       // easier to understand.
       snapshot: true,
     },
+    {
+      code: 'var hello = "hi";',
+      output: 'var olleh = "hi";',
+      // this can be used to overwrite the setting set above
+      pluginOptions: {
+        optionA: false,
+      },
+    },
   ],
 })
 ```
@@ -362,8 +380,8 @@ here!
 Thanks goes to these people ([emoji key][emojis]):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-| [<img src="https://avatars.githubusercontent.com/u/1500684?v=3" width="100px;"/><br /><sub>Kent C. Dodds</sub>](https://kentcdodds.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Documentation") [🚇](#infra-kentcdodds "Infrastructure (Hosting, Build-Tools, etc)") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Tests") | [<img src="https://avatars3.githubusercontent.com/u/952783?v=3" width="100px;"/><br /><sub>james kyle</sub>](http://thejameskyle.com/)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Documentation") [👀](#review-thejameskyle "Reviewed Pull Requests") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Tests") | [<img src="https://avatars1.githubusercontent.com/u/1894628?v=3" width="100px;"/><br /><sub>Brad Bohen</sub>](https://github.com/bbohen)<br />[🐛](https://github.com/babel-utils/babel-plugin-tester/issues?q=author%3Abbohen "Bug reports") |
-| :---: | :---: | :---: |
+| [<img src="https://avatars.githubusercontent.com/u/1500684?v=3" width="100px;"/><br /><sub>Kent C. Dodds</sub>](https://kentcdodds.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Documentation") [🚇](#infra-kentcdodds "Infrastructure (Hosting, Build-Tools, etc)") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Tests") | [<img src="https://avatars3.githubusercontent.com/u/952783?v=3" width="100px;"/><br /><sub>james kyle</sub>](http://thejameskyle.com/)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Documentation") [👀](#review-thejameskyle "Reviewed Pull Requests") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Tests") | [<img src="https://avatars1.githubusercontent.com/u/1894628?v=3" width="100px;"/><br /><sub>Brad Bohen</sub>](https://github.com/bbohen)<br />[🐛](https://github.com/babel-utils/babel-plugin-tester/issues?q=author%3Abbohen "Bug reports") | [<img src="https://avatars0.githubusercontent.com/u/1295580?v=3" width="100px;"/><br /><sub>Kyle Welch</sub>](http://www.krwelch.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Documentation") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Tests") |
+| :---: | :---: | :---: | :---: |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors][all-contributors] specification.
