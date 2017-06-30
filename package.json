@@ -16,7 +16,7 @@
   "author": "Kent C. Dodds <kent@doddsfamily.us> (http://kentcdodds.com/)",
   "license": "MIT",
   "dependencies": {
-    "babel-core": "^6.24.1",
+    "babel-core": "^6.25.0",
     "common-tags": "^1.4.0",
     "invariant": "^2.2.2",
     "lodash.merge": "^4.6.0",
@@ -26,24 +26,24 @@
   "devDependencies": {
     "all-contributors-cli": "^4.0.1",
     "babel-cli": "^6.23.0",
-    "babel-jest": "^20.0.1",
-    "babel-preset-env": "^1.2.0",
+    "babel-jest": "^20.0.3",
+    "babel-preset-env": "^1.5.2",
     "babel-preset-stage-2": "^6.22.0",
     "babel-register": "^6.23.0",
     "codecov": "^2.1.0",
     "commitizen": "^2.9.6",
     "cz-conventional-changelog": "^2.0.0",
     "eslint": "^3.17.0",
-    "eslint-config-kentcdodds": "^12.0.0",
-    "husky": "^0.13.2",
-    "jest-cli": "^20.0.1",
-    "lint-staged": "^3.3.1",
-    "nps": "^5.0.3",
+    "eslint-config-kentcdodds": "^12.4.1",
+    "husky": "^0.14.1",
+    "jest-cli": "^20.0.4",
+    "lint-staged": "^4.0.0",
+    "nps": "^5.3.2",
     "nps-utils": "^1.1.2",
     "opt-cli": "^1.5.1",
-    "prettier-eslint-cli": "^3.1.2",
+    "prettier-eslint-cli": "^4.1.1",
     "semantic-release": "^6.3.6",
-    "validate-commit-msg": "^2.11.1"
+    "validate-commit-msg": "^2.12.2"
   },
   "eslintConfig": {
     "extends": [
@@ -53,7 +53,10 @@
     ],
     "rules": {
       "func-style": "off",
-      "max-lines": ["error", 1000]
+      "max-lines": [
+        "error",
+        1000
+      ]
     }
   },
   "lint-staged": {
