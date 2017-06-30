@@ -32,7 +32,7 @@ exports[`throws error when function doesn't return true 1`] = `"test message"`;
 
 exports[`throws if output is incorrect 1`] = `"Output is incorrect."`;
 
-exports[`throws invariant if code is unchanged and snapshot is enabled 1`] = `"Code was unmodified but attempted to take a snapshot. If the code should not be modified, set \`snapshot: false\`"`;
+exports[`throws invariant if code is unchanged + snapshot enabled 1`] = `"Code was unmodified but attempted to take a snapshot. If the code should not be modified, set \`snapshot: false\`"`;
 
 exports[`throws invariant if snapshot and output are both provided 1`] = `"\`output\` cannot be provided with \`snapshot: true\`"`;
 

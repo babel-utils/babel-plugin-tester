@@ -8,6 +8,8 @@ import * as babel from 'babel-core'
 import stripIndent from 'strip-indent'
 import {oneLine} from 'common-tags'
 
+const noop = () => {}
+
 module.exports = pluginTester
 
 const fullDefaultConfig = {
@@ -43,14 +45,14 @@ function pluginTester(
   }
   const testAsArray = toTestArray(tests)
   if (!testAsArray.length) {
-    return
+    return Promise.resolve()
   }
   const testerConfig = merge({}, fullDefaultConfig, rest)
 
-  describe(describeBlockTitle, () => {
-    testAsArray.forEach((testConfig, index) => {
+  return describe(describeBlockTitle, () => {
+    const promises = testAsArray.map((testConfig, index) => {
       if (!testConfig) {
-        return
+        return Promise.resolve()
       }
       const {
         skip,
@@ -61,6 +63,8 @@ function pluginTester(
         output,
         snapshot,
         error,
+        setup = noop,
+        teardown,
       } = merge(
         {},
         testerConfig,
@@ -80,12 +84,39 @@ function pluginTester(
 
       if (skip) {
         // eslint-disable-next-line jest/no-disabled-tests
-        it.skip(title, tester)
+        return it.skip(title, testerWrapper)
       } else if (only) {
         // eslint-disable-next-line jest/no-focused-tests
-        it.only(title, tester)
+        return it.only(title, testerWrapper)
       } else {
-        it(title, tester)
+        return it(title, testerWrapper)
+      }
+
+      async function testerWrapper() {
+        const teardowns = teardown ? [teardown] : []
+        let returnedTeardown
+        try {
+          returnedTeardown = await setup()
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.error('There was a problem during setup')
+          throw e
+        }
+        if (typeof returnedTeardown === 'function') {
+          teardowns.push(returnedTeardown)
+        }
+        try {
+          tester()
+        } finally {
+          try {
+            await Promise.all(teardowns.map(t => t()))
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.error('There was a problem during teardown')
+            // eslint-disable-next-line no-unsafe-finally
+            throw e
+          }
+        }
       }
 
       // eslint-disable-next-line complexity
@@ -150,6 +181,8 @@ function pluginTester(
         }
       }
     })
+
+    return Promise.all(promises)
   })
 }
 

@@ -234,6 +234,20 @@ of the following:
 }
 ```
 
+#### setup
+
+If you need something set up before a particular test is run, you can do this
+with `setup`. This function will be run before the test runs. It can return
+a function which will be treated as a `teardown` function. It can also return
+a promise. If that promise resolves to a function, that will be treated as a
+`teardown` function.
+
+#### teardown
+
+If you set up some state, it's quite possible you want to tear it down. You can
+either define this as its own property, or you can return it from the `setup`
+function. This can likewise return a promise if it's asynchronous.
+
 ## Examples
 
 ### Full Example + Docs
@@ -241,6 +255,9 @@ of the following:
 ```javascript
 import pluginTester from 'babel-plugin-tester'
 import identifierReversePlugin from '../identifier-reverse-plugin'
+
+// NOTE: you can use beforeAll, afterAll, beforeEach, and afterEach
+// right here if you need
 
 pluginTester({
   // required
@@ -332,6 +349,20 @@ pluginTester({
       // this can be used to overwrite the setting set above
       pluginOptions: {
         optionA: false,
+      },
+    },
+    {
+      title: 'unchanged code',
+      setup() {
+        // runs before this test
+        return function teardown() {
+          // runs after this tests
+        }
+        // can also return a promise
+      },
+      teardown() {
+        // runs after this test
+        // can return a promise
       },
     },
   ],
