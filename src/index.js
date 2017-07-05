@@ -169,7 +169,7 @@ function pluginTester(
           const formattedOutput = [code, separator, result].join('')
           expect(`\n${formattedOutput}\n`).toMatchSnapshot(title)
         } else if (error) {
-          assertError(error, result)
+          assertError(result, error)
         } else if (output) {
           assert.equal(result, output, 'Output is incorrect.')
         } else {
@@ -223,7 +223,7 @@ function testFixtures({
           .readFileSync(path.join(fixtureDir, 'output.js'), 'utf8')
           .trim()
 
-        assert.equal(output, actual, 'actual output does not match output.js')
+        assert.equal(actual, output, 'actual output does not match output.js')
       })
     })
   })
@@ -298,7 +298,7 @@ function getPath(filename, basename) {
 }
 
 // eslint-disable-next-line complexity
-function assertError(error, result) {
+function assertError(result, error) {
   if (typeof error === 'function') {
     if (!(result instanceof error || error(result) === true)) {
       throw result
