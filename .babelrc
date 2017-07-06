@@ -3,7 +3,8 @@
     ["env", {
       "targets": {
         "node": "4.5"
-      }
+      },
+      "exclude": ["transform-regenerator"]
     }],
     "stage-2"
   ]
