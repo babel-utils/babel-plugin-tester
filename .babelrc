@@ -2,8 +2,9 @@
   "presets": [
     ["env", {
       "targets": {
-        "node": 6
-      }
+        "node": "4.5"
+      },
+      "exclude": ["transform-regenerator"]
     }],
     "stage-2"
   ]
