@@ -514,6 +514,17 @@ test('error logged and thrown if teardown throws', async () => {
   )
 })
 
+test('allows formatting the result', async () => {
+  const formatResultSpy = jest.fn(r => r)
+  await pluginTester(
+    getOptions({
+      tests: [{code: simpleTest, formatResult: formatResultSpy}],
+    }),
+  )
+  expect(formatResultSpy).toHaveBeenCalledTimes(1)
+  expect(formatResultSpy).toHaveBeenCalledWith(simpleTest)
+})
+
 function getOptions(overrides) {
   return {
     pluginName: 'captains-log',

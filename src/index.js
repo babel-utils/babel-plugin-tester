@@ -65,6 +65,7 @@ function pluginTester(
         error,
         setup = noop,
         teardown,
+        formatResult = r => r,
       } = merge(
         {},
         testerConfig,
@@ -141,7 +142,9 @@ function pluginTester(
         let errored = false
 
         try {
-          result = babel.transform(code, babelOptions).code.trim()
+          result = formatResult(
+            babel.transform(code, babelOptions).code.trim(),
+          )
         } catch (err) {
           if (error) {
             errored = true

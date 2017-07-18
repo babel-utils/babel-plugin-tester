@@ -248,6 +248,12 @@ If you set up some state, it's quite possible you want to tear it down. You can
 either define this as its own property, or you can return it from the `setup`
 function. This can likewise return a promise if it's asynchronous.
 
+#### formatResult
+
+This is a function and if it's specified, it allows you to format the result
+however you like. The use case for this originally was for testing codemods
+and formatting their result with `prettier-eslint`.
+
 ## Examples
 
 ### Full Example + Docs
