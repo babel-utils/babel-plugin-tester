@@ -109,7 +109,7 @@ test('calls describe and test for a group of tests', async () => {
   expect(itSpy.mock.calls).toEqual([
     [`1. ${pluginName}`, expect.any(Function)],
     [`2. ${pluginName}`, expect.any(Function)],
-    [`3. ${customTitle}`, expect.any(Function)],
+    [`${customTitle}`, expect.any(Function)],
   ])
 })
 
@@ -410,8 +410,8 @@ test('can provide an object for tests', async () => {
     [simpleTest, simpleTest, expect.any(String)],
   ])
   expect(itSpy.mock.calls).toEqual([
-    [`1. ${firstTitle}`, expect.any(Function)],
-    [`2. ${secondTitle}`, expect.any(Function)],
+    [firstTitle, expect.any(Function)],
+    [secondTitle, expect.any(Function)],
   ])
 })
 
