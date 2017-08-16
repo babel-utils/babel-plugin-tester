@@ -32,6 +32,7 @@ function pluginTester(
     ...rest
   } = {},
 ) {
+  let testNumber = 1
   if (fixtures) {
     testFixtures({
       plugin,
@@ -50,7 +51,7 @@ function pluginTester(
   const testerConfig = merge({}, fullDefaultConfig, rest)
 
   return describe(describeBlockTitle, () => {
-    const promises = testAsArray.map((testConfig, index) => {
+    const promises = testAsArray.map(testConfig => {
       if (!testConfig) {
         return Promise.resolve()
       }
@@ -66,18 +67,7 @@ function pluginTester(
         setup = noop,
         teardown,
         formatResult = r => r,
-      } = merge(
-        {},
-        testerConfig,
-        toTestConfig({
-          testConfig,
-          index,
-          plugin,
-          pluginName,
-          pluginOptions,
-          filename,
-        }),
-      )
+      } = merge({}, testerConfig, toTestConfig(testConfig))
       assert(
         (!skip && !only) || skip !== only,
         'Cannot enable both skip and only on a test',
@@ -187,6 +177,32 @@ function pluginTester(
 
     return Promise.all(promises)
   })
+
+  function toTestConfig(testConfig) {
+    if (typeof testConfig === 'string') {
+      testConfig = {code: testConfig}
+    }
+    const {
+      title,
+      fixture,
+      code = getCode(filename, fixture),
+      fullTitle = title || `${testNumber++}. ${pluginName}`,
+      output = getCode(filename, testConfig.outputFixture),
+      pluginOptions: testOptions = pluginOptions,
+    } = testConfig
+    return merge(
+      {
+        babelOptions: {filename: getPath(filename, fixture)},
+      },
+      testConfig,
+      {
+        babelOptions: {plugins: [[plugin, testOptions]]},
+        title: fullTitle,
+        code: stripIndent(code).trim(),
+        output: stripIndent(output).trim(),
+      },
+    )
+  }
 }
 
 function testFixtures({
@@ -248,39 +264,6 @@ function toTestArray(tests) {
     })
     return testsArray
   }, [])
-}
-
-function toTestConfig({
-  testConfig,
-  index,
-  plugin,
-  pluginName,
-  pluginOptions,
-  filename,
-}) {
-  if (typeof testConfig === 'string') {
-    testConfig = {code: testConfig}
-  }
-  const {
-    title,
-    fixture,
-    code = getCode(filename, fixture),
-    fullTitle = `${index + 1}. ${title || pluginName}`,
-    output = getCode(filename, testConfig.outputFixture),
-    pluginOptions: testOptions = pluginOptions,
-  } = testConfig
-  return merge(
-    {
-      babelOptions: {filename: getPath(filename, fixture)},
-    },
-    testConfig,
-    {
-      babelOptions: {plugins: [[plugin, testOptions]]},
-      title: fullTitle,
-      code: stripIndent(code).trim(),
-      output: stripIndent(output).trim(),
-    },
-  )
 }
 
 function getCode(filename, fixture) {
