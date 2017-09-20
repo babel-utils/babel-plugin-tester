@@ -1,5 +1,0 @@
-{
-  "plugins": [
-    "../../../__helpers__/identifier-reverse-plugin.js"
-  ]
-}

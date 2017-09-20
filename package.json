@@ -3,15 +3,20 @@
   "version": "0.0.0-semantically-released",
   "description": "Utilities for testing babel plugins",
   "main": "dist/index.js",
-  "scripts": {
-    "start": "nps",
-    "test": "nps test",
-    "commitmsg": "opt --in commit-msg --exec \"validate-commit-msg\"",
-    "precommit": "lint-staged && opt --in pre-commit --exec \"npm start validate\""
+  "engines": {
+    "node": "> 4",
+    "npm": "> 3"
   },
-  "files": [
-    "dist"
-  ],
+  "scripts": {
+    "add-contributor": "kcd-scripts contributors add",
+    "build": "kcd-scripts build",
+    "lint": "kcd-scripts lint",
+    "test": "kcd-scripts test",
+    "test:update": "npm test -- --updateSnapshot --coverage",
+    "validate": "kcd-scripts validate",
+    "precommit": "kcd-scripts precommit"
+  },
+  "files": ["dist"],
   "keywords": [],
   "author": "Kent C. Dodds <kent@doddsfamily.us> (http://kentcdodds.com/)",
   "license": "MIT",
@@ -24,67 +29,38 @@
     "strip-indent": "^2.0.0"
   },
   "devDependencies": {
-    "all-contributors-cli": "^4.0.1",
-    "babel-cli": "^6.23.0",
-    "babel-jest": "^20.0.3",
+    "babel-plugin-syntax-trailing-function-commas": "^6.22.0",
+    "babel-plugin-transform-async-generator-functions": "^6.24.1",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.5.2",
-    "babel-preset-stage-2": "^6.22.0",
-    "babel-register": "^6.23.0",
-    "codecov": "^2.1.0",
-    "commitizen": "^2.9.6",
-    "cz-conventional-changelog": "^2.0.0",
-    "eslint": "^3.17.0",
-    "eslint-config-kentcdodds": "^12.4.1",
-    "husky": "^0.14.1",
-    "jest-cli": "^20.0.4",
-    "lint-staged": "^4.0.0",
-    "nps": "^5.3.2",
-    "nps-utils": "^1.1.2",
-    "opt-cli": "^1.5.1",
-    "prettier-eslint-cli": "^4.1.1",
-    "semantic-release": "^6.3.6",
-    "validate-commit-msg": "^2.12.2"
+    "kcd-scripts": "^0.16.3"
   },
   "eslintConfig": {
-    "extends": [
-      "kentcdodds",
-      "kentcdodds/jest",
-      "kentcdodds/prettier"
-    ],
+    "extends": "./node_modules/kcd-scripts/eslint.js",
     "rules": {
-      "func-style": "off",
-      "max-lines": [
-        "error",
-        1000
+      "max-lines": 0
+    }
+  },
+  "eslintIgnore": ["node_modules", "coverage", "dist", "fixtures"],
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "node": "4.5"
+          },
+          "exclude": ["transform-regenerator"]
+        }
       ]
-    }
-  },
-  "lint-staged": {
-    "*.js": [
-      "prettier-eslint --write",
-      "git add"
-    ]
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "__fixtures__",
-      "__helpers__"
     ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 100,
-        "functions": 100,
-        "lines": 100,
-        "statements": 100
-      }
-    }
-  },
-  "config": {
-    "commitizen": {
-      "path": "node_modules/cz-conventional-changelog"
-    }
+    "plugins": [
+      "babel-plugin-syntax-trailing-function-commas",
+      "transform-async-to-generator",
+      "transform-async-generator-functions",
+      "transform-object-rest-spread"
+    ]
   },
   "repository": {
     "type": "git",

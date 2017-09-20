@@ -4,7 +4,7 @@ import assert from 'assert'
 import * as babel from 'babel-core'
 // eslint-disable-next-line import/default
 import pluginTester from '../'
-import identifierReversePlugin from './__helpers__/identifier-reverse-plugin'
+import identifierReversePlugin from './helpers/identifier-reverse-plugin'
 
 let errorSpy, describeSpy, itSpy, itOnlySpy, itSkipSpy, equalSpy, transformSpy
 
@@ -219,8 +219,8 @@ test('throws error if fixture provided and code changes', async () => {
 test('can resolve a fixture with the filename option', async () => {
   const tests = [
     {
-      fixture: '__fixtures__/fixture1.js',
-      outputFixture: '__fixtures__/outure1.js',
+      fixture: 'fixtures/fixture1.js',
+      outputFixture: 'fixtures/outure1.js',
     },
   ]
   try {
@@ -241,7 +241,7 @@ test('can pass tests in fixtures relative to the filename', async () => {
   await pluginTester(
     getOptions({
       filename: __filename,
-      fixtures: '__fixtures__/fixtures',
+      fixtures: 'fixtures/fixtures',
       tests: null,
     }),
   )
@@ -489,26 +489,26 @@ test('function resolved from setup promise used for teardown', async () => {
 })
 
 test('error logged and thrown if setup throws', async () => {
+  const errorToThrow = new Error('blah')
   const setupSpy = jest.fn(() => {
-    throw new Error('blah')
+    throw errorToThrow
   })
   const tests = [{code: simpleTest, setup: setupSpy}]
-  await expect(pluginTester(getOptions({tests}))).rejects.toMatchObject({
-    message: 'blah',
-  })
+  const errorThrown = await pluginTester(getOptions({tests})).catch(e => e)
+  expect(errorThrown).toBe(errorToThrow)
   expect(errorSpy).toHaveBeenCalledWith(
     expect.stringMatching(/problem.*setup/i),
   )
 })
 
 test('error logged and thrown if teardown throws', async () => {
+  const errorToThrow = new Error('blah')
   const teardownSpy = jest.fn(() => {
-    throw new Error('blah')
+    throw errorToThrow
   })
   const tests = [{code: simpleTest, teardown: teardownSpy}]
-  await expect(pluginTester(getOptions({tests}))).rejects.toMatchObject({
-    message: 'blah',
-  })
+  const errorThrown = await pluginTester(getOptions({tests})).catch(e => e)
+  expect(errorThrown).toBe(errorToThrow)
   expect(errorSpy).toHaveBeenCalledWith(
     expect.stringMatching(/problem.*teardown/i),
   )
@@ -540,7 +540,7 @@ function getFixtureContents(fixture) {
 }
 
 function getFixturePath(fixture = '') {
-  return path.join(__dirname, '__fixtures__', fixture)
+  return path.join(__dirname, 'fixtures', fixture)
 }
 
 async function snapshotOptionsError(options) {

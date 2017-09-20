@@ -132,9 +132,7 @@ function pluginTester(
         let errored = false
 
         try {
-          result = formatResult(
-            babel.transform(code, babelOptions).code.trim(),
-          )
+          result = formatResult(babel.transform(code, babelOptions).code.trim())
         } catch (err) {
           if (error) {
             errored = true
