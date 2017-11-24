@@ -409,8 +409,7 @@ I've been thinking about this for a while. The API was inspired by:
 
 ## Other Solutions
 
-I'm not aware of any, if you are please [make a pull request][prs] and add it
-here!
+- [`@babel/helper-plugin-test-runner`][@babel/helper-plugin-test-runner]
 
 ## Contributors
 
@@ -464,3 +463,4 @@ MIT
 [RuleTester]: http://eslint.org/docs/developer-guide/working-with-rules#rule-unit-tests
 [@thejameskyle]: https://github.com/thejameskyle
 [jamestweet]: https://twitter.com/thejameskyle/status/864359438819262465
+[@babel/helper-plugin-test-runner]: https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner
