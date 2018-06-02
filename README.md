@@ -154,6 +154,12 @@ specified `title` property or the `pluginName`.
 
 Read more about test objects below.
 
+#### babel
+
+Use this to provide your own implementation of babel. This is particularly
+useful if you want to use a different version of babel than what's included
+in this package.
+
 #### ...rest
 
 The rest of the options you provide will be [`lodash.merge`][lodash.merge]d

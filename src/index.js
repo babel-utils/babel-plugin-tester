@@ -4,7 +4,7 @@ import fs from 'fs'
 import pathExists from 'path-exists'
 import merge from 'lodash.merge'
 import invariant from 'invariant'
-import * as babel from 'babel-core'
+import * as babelCore from 'babel-core'
 import stripIndent from 'strip-indent'
 import {oneLine} from 'common-tags'
 
@@ -22,8 +22,10 @@ const fullDefaultConfig = {
 
 function pluginTester(
   {
+    /* istanbul ignore next (TODO: write a test for this) */
+    babel = babelCore,
     plugin = requiredParam('plugin'),
-    pluginName = getPluginName(plugin),
+    pluginName = getPluginName(plugin, babel),
     title: describeBlockTitle = pluginName,
     pluginOptions,
     tests,
@@ -41,6 +43,7 @@ function pluginTester(
       title: describeBlockTitle,
       fixtures,
       filename,
+      babel,
       ...rest,
     })
   }
@@ -209,6 +212,7 @@ function testFixtures({
   title: describeBlockTitle,
   fixtures,
   filename,
+  babel,
   ...rest
 }) {
   describe(`${describeBlockTitle} fixtures`, () => {
@@ -306,7 +310,7 @@ function requiredParam(name) {
   throw new Error(`${name} is a required parameter.`)
 }
 
-function getPluginName(plugin) {
+function getPluginName(plugin, babel) {
   let name
   try {
     name = plugin(babel).name
@@ -323,3 +327,8 @@ function getPluginName(plugin) {
   invariant(name, 'The `pluginName` must be inferable or provided.')
   return name
 }
+
+/*
+eslint
+  complexity: "off"
+*/
