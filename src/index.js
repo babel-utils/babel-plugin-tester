@@ -22,15 +22,15 @@ const fullDefaultConfig = {
 
 function pluginTester(
   {
+    /* istanbul ignore next (TODO: write a test for this) */
+    babel = babelCore,
     plugin = requiredParam('plugin'),
-    pluginName = getPluginName(plugin),
+    pluginName = getPluginName(plugin, babel),
     title: describeBlockTitle = pluginName,
     pluginOptions,
     tests,
     fixtures,
     filename,
-    /* istanbul ignore next (TODO: write a test for this) */
-    babel = babelCore,
     ...rest
   } = {},
 ) {
@@ -43,6 +43,7 @@ function pluginTester(
       title: describeBlockTitle,
       fixtures,
       filename,
+      babel,
       ...rest,
     })
   }
@@ -211,6 +212,7 @@ function testFixtures({
   title: describeBlockTitle,
   fixtures,
   filename,
+  babel,
   ...rest
 }) {
   describe(`${describeBlockTitle} fixtures`, () => {
@@ -308,7 +310,7 @@ function requiredParam(name) {
   throw new Error(`${name} is a required parameter.`)
 }
 
-function getPluginName(plugin) {
+function getPluginName(plugin, babel) {
   let name
   try {
     name = plugin(babel).name
@@ -325,3 +327,8 @@ function getPluginName(plugin) {
   invariant(name, 'The `pluginName` must be inferable or provided.')
   return name
 }
+
+/*
+eslint
+  complexity: "off"
+*/
