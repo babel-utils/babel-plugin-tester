@@ -4,7 +4,7 @@ import fs from 'fs'
 import pathExists from 'path-exists'
 import merge from 'lodash.merge'
 import invariant from 'invariant'
-import * as babel from 'babel-core'
+import * as babelCore from 'babel-core'
 import stripIndent from 'strip-indent'
 import {oneLine} from 'common-tags'
 
@@ -29,6 +29,8 @@ function pluginTester(
     tests,
     fixtures,
     filename,
+    /* istanbul ignore next (TODO: write a test for this) */
+    babel = babelCore,
     ...rest
   } = {},
 ) {
