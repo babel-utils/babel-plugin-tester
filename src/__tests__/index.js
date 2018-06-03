@@ -6,7 +6,14 @@ import * as babel from 'babel-core'
 import pluginTester from '../'
 import identifierReversePlugin from './helpers/identifier-reverse-plugin'
 
-let errorSpy, describeSpy, itSpy, itOnlySpy, itSkipSpy, equalSpy, transformSpy
+let errorSpy,
+  describeSpy,
+  itSpy,
+  itOnlySpy,
+  itSkipSpy,
+  equalSpy,
+  transformSpy,
+  writeFileSyncSpy
 
 const noop = () => {}
 const titleTesterMock = (title, testFn) => testFn()
@@ -24,6 +31,9 @@ beforeEach(() => {
   itOnlySpy = global.it.only
   itSkipSpy = global.it.skip
   transformSpy = jest.spyOn(babel, 'transform')
+  writeFileSyncSpy = jest
+    .spyOn(fs, 'writeFileSync')
+    .mockImplementation(() => {})
 })
 
 afterEach(() => {
@@ -33,6 +43,7 @@ afterEach(() => {
   itSpy.mockRestore()
   itSkipSpy.mockRestore()
   transformSpy.mockRestore()
+  writeFileSyncSpy.mockRestore()
 })
 
 test('plugin is required', () => {
@@ -246,10 +257,11 @@ test('can pass tests in fixtures relative to the filename', async () => {
     }),
   )
   expect(describeSpy).toHaveBeenCalledTimes(1)
-  expect(itSpy).toHaveBeenCalledTimes(2)
+  expect(itSpy).toHaveBeenCalledTimes(3)
   expect(itSpy.mock.calls).toEqual([
     [`changed`, expect.any(Function)],
     [`unchanged`, expect.any(Function)],
+    [`without output file`, expect.any(Function)],
   ])
 })
 
@@ -265,6 +277,21 @@ test('can fail tests in fixtures at an absolute path', async () => {
   } catch (error) {
     expect(error.message).toMatchSnapshot()
   }
+})
+
+test('creates output file for new tests', async () => {
+  await pluginTester(
+    getOptions({
+      filename: __filename,
+      fixtures: 'fixtures/fixtures',
+      tests: null,
+    }),
+  )
+
+  expect(writeFileSyncSpy.mock.calls[0]).toEqual([
+    expect.stringMatching(/\/output\.js$/),
+    "'use strict';",
+  ])
 })
 
 test('uses the fixture filename in babelOptions', async () => {

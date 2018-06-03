@@ -16,7 +16,9 @@
     "validate": "kcd-scripts validate",
     "precommit": "kcd-scripts precommit"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "keywords": [],
   "author": "Kent C. Dodds <kent@doddsfamily.us> (http://kentcdodds.com/)",
   "license": "MIT",
@@ -45,7 +47,12 @@
       "max-lines": 0
     }
   },
-  "eslintIgnore": ["node_modules", "coverage", "dist", "fixtures"],
+  "eslintIgnore": [
+    "node_modules",
+    "coverage",
+    "dist",
+    "fixtures"
+  ],
   "babel": {
     "presets": [
       [
@@ -54,7 +61,9 @@
           "targets": {
             "node": "4.5"
           },
-          "exclude": ["transform-regenerator"]
+          "exclude": [
+            "transform-regenerator"
+          ]
         }
       ]
     ],
