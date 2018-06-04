@@ -243,8 +243,15 @@ function testFixtures({
           .transformFileSync(codePath, babelOptions)
           .code.trim()
 
+        const outputPath = path.join(fixtureDir, `${fixtureOutputName}.js`)
+
+        if (!fs.existsSync(outputPath)) {
+          fs.writeFileSync(outputPath, actual)
+          return
+        }
+
         const output = fs
-          .readFileSync(path.join(fixtureDir, `${fixtureOutputName}.js`), 'utf8')
+          .readFileSync(outputPath, 'utf8')
           .trim()
 
         assert.equal(actual, output, 'actual output does not match output.js')
