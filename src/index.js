@@ -30,6 +30,7 @@ function pluginTester(
     pluginOptions,
     tests,
     fixtures,
+    fixtureOutputName = 'output',
     filename,
     ...rest
   } = {},
@@ -42,6 +43,7 @@ function pluginTester(
       pluginOptions,
       title: describeBlockTitle,
       fixtures,
+      fixtureOutputName,
       filename,
       babel,
       ...rest,
@@ -211,6 +213,7 @@ function testFixtures({
   pluginOptions,
   title: describeBlockTitle,
   fixtures,
+  fixtureOutputName,
   filename,
   babel,
   ...rest
@@ -241,7 +244,7 @@ function testFixtures({
           .code.trim()
 
         const output = fs
-          .readFileSync(path.join(fixtureDir, 'output.js'), 'utf8')
+          .readFileSync(path.join(fixtureDir, `${fixtureOutputName}.js`), 'utf8')
           .trim()
 
         assert.equal(actual, output, 'actual output does not match output.js')
