@@ -256,10 +256,12 @@ test('can pass tests in fixtures relative to the filename', async () => {
       tests: null,
     }),
   )
-  expect(describeSpy).toHaveBeenCalledTimes(1)
-  expect(itSpy).toHaveBeenCalledTimes(3)
+  expect(describeSpy).toHaveBeenCalledTimes(2)
+  expect(itSpy).toHaveBeenCalledTimes(5)
   expect(itSpy.mock.calls).toEqual([
     [`changed`, expect.any(Function)],
+    [`nested a`, expect.any(Function)],
+    [`nested b`, expect.any(Function)],
     [`unchanged`, expect.any(Function)],
     [`without output file`, expect.any(Function)],
   ])

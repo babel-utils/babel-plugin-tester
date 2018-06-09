@@ -20,21 +20,19 @@ const fullDefaultConfig = {
   },
 }
 
-function pluginTester(
-  {
-    /* istanbul ignore next (TODO: write a test for this) */
-    babel = babelCore,
-    plugin = requiredParam('plugin'),
-    pluginName = getPluginName(plugin, babel),
-    title: describeBlockTitle = pluginName,
-    pluginOptions,
-    tests,
-    fixtures,
-    fixtureOutputName = 'output',
-    filename,
-    ...rest
-  } = {},
-) {
+function pluginTester({
+  /* istanbul ignore next (TODO: write a test for this) */
+  babel = babelCore,
+  plugin = requiredParam('plugin'),
+  pluginName = getPluginName(plugin, babel),
+  title: describeBlockTitle = pluginName,
+  pluginOptions,
+  tests,
+  fixtures,
+  fixtureOutputName = 'output',
+  filename,
+  ...rest
+} = {}) {
   let testNumber = 1
   if (fixtures) {
     testFixtures({
@@ -208,55 +206,62 @@ function pluginTester(
   }
 }
 
+const createFixtureTests = (fixturesDir, options) => {
+  fs.readdirSync(fixturesDir).forEach(caseName => {
+    const fixtureDir = path.join(fixturesDir, caseName)
+    const codePath = path.join(fixtureDir, 'code.js')
+    const blockTitle = caseName.split('-').join(' ')
+
+    if (!pathExists.sync(codePath)) {
+      describe(blockTitle, () => {
+        createFixtureTests(fixtureDir, options)
+      })
+      return
+    }
+
+    it(blockTitle, () => {
+      const {plugin, pluginOptions, fixtureOutputName, babel, ...rest} = options
+
+      const babelRcPath = path.join(fixtureDir, '.babelrc')
+
+      const {babelOptions} = merge(
+        {},
+        fullDefaultConfig,
+        {
+          babelOptions: {
+            plugins: [[plugin, pluginOptions]],
+            // if they have a babelrc, then we'll let them use that
+            // otherwise, we'll just use our simple config
+            babelrc: pathExists.sync(babelRcPath),
+          },
+        },
+        rest,
+      )
+      const actual = babel.transformFileSync(codePath, babelOptions).code.trim()
+
+      const outputPath = path.join(fixtureDir, `${fixtureOutputName}.js`)
+
+      if (!fs.existsSync(outputPath)) {
+        fs.writeFileSync(outputPath, actual)
+        return
+      }
+
+      const output = fs.readFileSync(outputPath, 'utf8').trim()
+
+      assert.equal(actual, output, 'actual output does not match output.js')
+    })
+  })
+}
+
 function testFixtures({
-  plugin,
-  pluginOptions,
   title: describeBlockTitle,
   fixtures,
-  fixtureOutputName,
   filename,
-  babel,
   ...rest
 }) {
   describe(`${describeBlockTitle} fixtures`, () => {
     const fixturesDir = getPath(filename, fixtures)
-    fs.readdirSync(fixturesDir).forEach(caseName => {
-      it(caseName.split('-').join(' '), () => {
-        const fixtureDir = path.join(fixturesDir, caseName)
-        const codePath = path.join(fixtureDir, 'code.js')
-        const babelRcPath = path.join(fixtureDir, '.babelrc')
-
-        const {babelOptions} = merge(
-          {},
-          fullDefaultConfig,
-          {
-            babelOptions: {
-              plugins: [[plugin, pluginOptions]],
-              // if they have a babelrc, then we'll let them use that
-              // otherwise, we'll just use our simple config
-              babelrc: pathExists.sync(babelRcPath),
-            },
-          },
-          rest,
-        )
-        const actual = babel
-          .transformFileSync(codePath, babelOptions)
-          .code.trim()
-
-        const outputPath = path.join(fixtureDir, `${fixtureOutputName}.js`)
-
-        if (!fs.existsSync(outputPath)) {
-          fs.writeFileSync(outputPath, actual)
-          return
-        }
-
-        const output = fs
-          .readFileSync(outputPath, 'utf8')
-          .trim()
-
-        assert.equal(actual, output, 'actual output does not match output.js')
-      })
-    })
+    createFixtureTests(fixturesDir, rest)
   })
 }
 
