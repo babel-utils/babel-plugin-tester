@@ -248,7 +248,11 @@ const createFixtureTests = (fixturesDir, options) => {
 
       const output = fs.readFileSync(outputPath, 'utf8').trim()
 
-      assert.equal(actual, output, 'actual output does not match output.js')
+      assert.equal(
+        actual,
+        output,
+        `actual output does not match ${fixtureOutputName}.js`,
+      )
     })
   })
 }
