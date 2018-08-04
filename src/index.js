@@ -209,16 +209,21 @@ function pluginTester({
 const createFixtureTests = (fixturesDir, options) => {
   fs.readdirSync(fixturesDir).forEach(caseName => {
     const fixtureDir = path.join(fixturesDir, caseName)
-    const codePath = path.join(fixtureDir, 'code.js')
+    const jsCodePath = path.join(fixtureDir, 'code.js')
+    const tsCodePath = path.join(fixtureDir, 'code.ts')
     const blockTitle = caseName.split('-').join(' ')
+    const codePath =
+      (pathExists.sync(jsCodePath) && jsCodePath) ||
+      (pathExists.sync(tsCodePath) && tsCodePath)
 
-    if (!pathExists.sync(codePath)) {
+    if (!codePath) {
       describe(blockTitle, () => {
         createFixtureTests(fixtureDir, options)
       })
       return
     }
 
+    const ext = /\.ts$/.test(codePath) ? '.ts' : '.js'
     it(blockTitle, () => {
       const {plugin, pluginOptions, fixtureOutputName, babel, ...rest} = options
 
@@ -239,7 +244,7 @@ const createFixtureTests = (fixturesDir, options) => {
       )
       const actual = babel.transformFileSync(codePath, babelOptions).code.trim()
 
-      const outputPath = path.join(fixtureDir, `${fixtureOutputName}.js`)
+      const outputPath = path.join(fixtureDir, `${fixtureOutputName}${ext}`)
 
       if (!fs.existsSync(outputPath)) {
         fs.writeFileSync(outputPath, actual)
@@ -251,7 +256,7 @@ const createFixtureTests = (fixturesDir, options) => {
       assert.equal(
         actual,
         output,
-        `actual output does not match ${fixtureOutputName}.js`,
+        `actual output does not match ${fixtureOutputName}${ext}`,
       )
     })
   })

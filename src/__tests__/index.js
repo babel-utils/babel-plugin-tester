@@ -257,11 +257,12 @@ test('can pass tests in fixtures relative to the filename', async () => {
     }),
   )
   expect(describeSpy).toHaveBeenCalledTimes(2)
-  expect(itSpy).toHaveBeenCalledTimes(5)
+  expect(itSpy).toHaveBeenCalledTimes(6)
   expect(itSpy.mock.calls).toEqual([
     [`changed`, expect.any(Function)],
     [`nested a`, expect.any(Function)],
     [`nested b`, expect.any(Function)],
+    [`typescript`, expect.any(Function)],
     [`unchanged`, expect.any(Function)],
     [`without output file`, expect.any(Function)],
   ])
@@ -291,7 +292,7 @@ test('creates output file for new tests', async () => {
   )
 
   expect(writeFileSyncSpy.mock.calls[0]).toEqual([
-    expect.stringMatching(/\/output\.js$/),
+    expect.stringMatching(/\/output\.(j|t)s$/),
     "'use strict';",
   ])
 })
