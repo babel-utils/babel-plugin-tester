@@ -4,7 +4,6 @@ import fs from 'fs'
 import pathExists from 'path-exists'
 import merge from 'lodash.merge'
 import invariant from 'invariant'
-import * as babelCore from 'babel-core'
 import stripIndent from 'strip-indent'
 import {oneLine} from 'common-tags'
 
@@ -22,7 +21,7 @@ const fullDefaultConfig = {
 
 function pluginTester({
   /* istanbul ignore next (TODO: write a test for this) */
-  babel = babelCore,
+  babel = require('babel-core'),
   plugin = requiredParam('plugin'),
   pluginName = getPluginName(plugin, babel),
   title: describeBlockTitle = pluginName,
