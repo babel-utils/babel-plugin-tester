@@ -100,6 +100,24 @@ to provide this option.
 This can be used to pass options into your plugin at transform time. This option
 can be overwritten using the test object.
 
+##### babel.config.js
+
+To use [babel.config.js](https://babeljs.io/docs/en/configuration) instead of
+.babelrc, set babelOptions to the config object:
+
+```
+pluginTester({
+  plugin: yourPlugin,
+  ...
+  babelOptions: require('./babel.config.js'),
+  ...
+  tests: [
+    /* your test objects */
+  ],
+});
+
+```
+
 #### title
 
 This can be used to specify a title for the describe block (rather than using
