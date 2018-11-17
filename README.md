@@ -1,25 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-- [babel-plugin-tester](#babel-plugin-tester)
-  - [The problem](#the-problem)
-  - [This solution](#this-solution)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [import](#import)
-    - [Invoke](#invoke)
-    - [options](#options)
-    - [Test Objects](#test-objects)
-  - [Examples](#examples)
-    - [Full Example + Docs](#full-example--docs)
-    - [Simple Example](#simple-example)
-  - [Inspiration](#inspiration)
-  - [Other Solutions](#other-solutions)
-  - [Contributors](#contributors)
-  - [LICENSE](#license)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # babel-plugin-tester
 
 Utilities for testing babel plugins
@@ -51,6 +29,26 @@ You're writing a babel plugin and want to write tests for it.
 This is a fairly simple abstraction to help you write tests for your babel
 plugin. It works with `jest` (my personal favorite) and most of it should also
 work with `mocha` and `jasmine`.
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [import](#import)
+  - [Invoke](#invoke)
+  - [options](#options)
+  - [Test Objects](#test-objects)
+- [Examples](#examples)
+  - [Full Example + Docs](#full-example--docs)
+  - [Simple Example](#simple-example)
+- [Inspiration](#inspiration)
+- [Other Solutions](#other-solutions)
+- [Contributors](#contributors)
+- [LICENSE](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 ## Installation
 
