@@ -163,7 +163,7 @@ function pluginTester({
           expect(`\n${formattedOutput}\n`).toMatchSnapshot(title)
         } else if (error) {
           assertError(result, error)
-        } else if (output) {
+        } else if (typeof output === 'string') {
           assert.equal(result, output, 'Output is incorrect.')
         } else {
           assert.equal(
@@ -187,7 +187,7 @@ function pluginTester({
       fixture,
       code = getCode(filename, fixture),
       fullTitle = title || `${testNumber++}. ${pluginName}`,
-      output = getCode(filename, testConfig.outputFixture),
+      output = getCode(filename, testConfig.outputFixture) || undefined,
       pluginOptions: testOptions = pluginOptions,
     } = testConfig
     return merge(
@@ -199,7 +199,7 @@ function pluginTester({
         babelOptions: {plugins: [[plugin, testOptions]]},
         title: fullTitle,
         code: stripIndent(code).trim(),
-        output: stripIndent(output).trim(),
+        ...(output ? {output: stripIndent(output).trim()} : {}),
       },
     )
   }
