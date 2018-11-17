@@ -50,6 +50,16 @@
         "doc",
         "test"
       ]
+    },
+    {
+      "login": "kontrollanten",
+      "name": "kontrollanten",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/6680299?v=4",
+      "profile": "https://github.com/kontrollanten",
+      "contributions": [
+        "code"
+      ]
     }
-  ]
+  ],
+  "repoType": "github"
 }

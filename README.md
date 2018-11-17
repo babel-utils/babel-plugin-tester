@@ -1,3 +1,25 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [babel-plugin-tester](#babel-plugin-tester)
+  - [The problem](#the-problem)
+  - [This solution](#this-solution)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [import](#import)
+    - [Invoke](#invoke)
+    - [options](#options)
+    - [Test Objects](#test-objects)
+  - [Examples](#examples)
+    - [Full Example + Docs](#full-example--docs)
+    - [Simple Example](#simple-example)
+  - [Inspiration](#inspiration)
+  - [Other Solutions](#other-solutions)
+  - [Contributors](#contributors)
+  - [LICENSE](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # babel-plugin-tester
 
 Utilities for testing babel plugins
@@ -7,9 +29,9 @@ Utilities for testing babel plugins
 [![Dependencies][dependencyci-badge]][dependencyci]
 [![version][version-badge]][package]
 [![downloads][downloads-badge]][npm-stat]
-[![MIT License][license-badge]][LICENSE]
+[![MIT License][license-badge]][license]
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors)
 [![PRs Welcome][prs-badge]][prs]
 [![Donate][donate-badge]][donate]
 [![Code of Conduct][coc-badge]][coc]
@@ -82,7 +104,10 @@ function identifierReversePlugin() {
     name: 'identifier reverse',
     visitor: {
       Identifier(idPath) {
-        idPath.node.name = idPath.node.name.split('').reverse().join('')
+        idPath.node.name = idPath.node.name
+          .split('')
+          .reverse()
+          .join('')
       },
     },
   }
@@ -428,7 +453,7 @@ pluginTester({
 
 I've been thinking about this for a while. The API was inspired by:
 
-- ESLint's [RuleTester][RuleTester]
+- ESLint's [RuleTester][ruletester]
 - [@thejameskyle][@thejameskyle]'s [tweet][jamestweet]
 
 ## Other Solutions
@@ -440,8 +465,10 @@ I've been thinking about this for a while. The API was inspired by:
 Thanks goes to these people ([emoji key][emojis]):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-| [<img src="https://avatars.githubusercontent.com/u/1500684?v=3" width="100px;"/><br /><sub>Kent C. Dodds</sub>](https://kentcdodds.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Documentation") [🚇](#infra-kentcdodds "Infrastructure (Hosting, Build-Tools, etc)") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Tests") | [<img src="https://avatars3.githubusercontent.com/u/952783?v=3" width="100px;"/><br /><sub>james kyle</sub>](http://thejameskyle.com/)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Documentation") [👀](#review-thejameskyle "Reviewed Pull Requests") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Tests") | [<img src="https://avatars1.githubusercontent.com/u/1894628?v=3" width="100px;"/><br /><sub>Brad Bohen</sub>](https://github.com/bbohen)<br />[🐛](https://github.com/babel-utils/babel-plugin-tester/issues?q=author%3Abbohen "Bug reports") | [<img src="https://avatars0.githubusercontent.com/u/1295580?v=3" width="100px;"/><br /><sub>Kyle Welch</sub>](http://www.krwelch.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Documentation") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Tests") |
-| :---: | :---: | :---: | :---: |
+<!-- prettier-ignore -->
+| [<img src="https://avatars.githubusercontent.com/u/1500684?v=3" width="100px;"/><br /><sub><b>Kent C. Dodds</b></sub>](https://kentcdodds.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Documentation") [🚇](#infra-kentcdodds "Infrastructure (Hosting, Build-Tools, etc)") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Tests") | [<img src="https://avatars3.githubusercontent.com/u/952783?v=3" width="100px;"/><br /><sub><b>james kyle</b></sub>](http://thejameskyle.com/)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Documentation") [👀](#review-thejameskyle "Reviewed Pull Requests") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Tests") | [<img src="https://avatars1.githubusercontent.com/u/1894628?v=3" width="100px;"/><br /><sub><b>Brad Bohen</b></sub>](https://github.com/bbohen)<br />[🐛](https://github.com/babel-utils/babel-plugin-tester/issues?q=author%3Abbohen "Bug reports") | [<img src="https://avatars0.githubusercontent.com/u/1295580?v=3" width="100px;"/><br /><sub><b>Kyle Welch</b></sub>](http://www.krwelch.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Documentation") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Tests") | [<img src="https://avatars3.githubusercontent.com/u/6680299?v=4" width="100px;"/><br /><sub><b>kontrollanten</b></sub>](https://github.com/kontrollanten)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kontrollanten "Code") |
+| :---: | :---: | :---: | :---: | :---: |
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors][all-contributors] specification.
@@ -484,7 +511,7 @@ MIT
 [emojis]: https://github.com/kentcdodds/all-contributors#emoji-key
 [all-contributors]: https://github.com/kentcdodds/all-contributors
 [lodash.merge]: https://lodash.com/docs/4.17.4#merge
-[RuleTester]: http://eslint.org/docs/developer-guide/working-with-rules#rule-unit-tests
+[ruletester]: http://eslint.org/docs/developer-guide/working-with-rules#rule-unit-tests
 [@thejameskyle]: https://github.com/thejameskyle
 [jamestweet]: https://twitter.com/thejameskyle/status/864359438819262465
 [@babel/helper-plugin-test-runner]: https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner
