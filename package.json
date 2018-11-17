@@ -36,7 +36,7 @@
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.5.2",
-    "kcd-scripts": "^0.16.3"
+    "kcd-scripts": "^0.42.1"
   },
   "peerDependencies": {
     "babel-core": "^6.0.0 || ^7.0.0-alpha || ^7.0.0-beta || ^7.0.0"
@@ -44,7 +44,12 @@
   "eslintConfig": {
     "extends": "./node_modules/kcd-scripts/eslint.js",
     "rules": {
-      "max-lines": 0
+      "jest/valid-describe": 0,
+      "max-lines": 0,
+      "semi": [
+        2,
+        "never"
+      ]
     }
   },
   "eslintIgnore": [

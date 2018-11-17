@@ -189,6 +189,36 @@ test('trims and deindents code and output', async () => {
   )
 })
 
+test('accepts an empty output', async () => {
+  const tests = [
+    {
+      code: `var eraseMe = 'junk'`,
+      output: '',
+    },
+  ]
+  let errorResponse
+  try {
+    await pluginTester(
+      getOptions({
+        plugin: () => ({
+          name: 'cleanup',
+          visitor: {
+            VariableDeclaration(p) {
+              p.remove()
+            },
+          },
+        }),
+        tests,
+      }),
+    )
+    errorResponse = false
+  } catch (error) {
+    errorResponse = true
+  }
+
+  expect(errorResponse).toEqual(false)
+})
+
 test('can get a code and output fixture that is an absolute path', async () => {
   const tests = [
     {
