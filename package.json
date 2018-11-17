@@ -44,7 +44,11 @@
   "eslintConfig": {
     "extends": "./node_modules/kcd-scripts/eslint.js",
     "rules": {
-      "max-lines": 0
+      "max-lines": 0,
+      "semi": [
+        2,
+        "never"
+      ]
     }
   },
   "eslintIgnore": [
