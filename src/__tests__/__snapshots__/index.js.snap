@@ -28,7 +28,7 @@ exports[`throws error if fixture provided and code changes 1`] = `"Expected outp
 
 exports[`throws error when error expected but no error thrown 1`] = `"Expected to throw error, but it did not."`;
 
-exports[`throws error when function doesn't return true 1`] = `"test message"`;
+exports[`throws error when function doesn't return true 1`] = `"[BABEL] unknown: test message (While processing: \\"base$0\\")"`;
 
 exports[`throws if output is incorrect 1`] = `"Output is incorrect."`;
 
