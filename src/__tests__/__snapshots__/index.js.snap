@@ -1,5 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`1. captains-log 1`] = `
+"
+var hi = \\"hey\\";
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+var ih = \\"hey\\";
+"
+`;
+
 exports[`can fail tests in fixtures at an absolute path 1`] = `"actual output does not match output.js"`;
 
 exports[`default will throw if output changes 1`] = `"Expected output to not change, but it did"`;
@@ -28,7 +38,7 @@ exports[`throws error if fixture provided and code changes 1`] = `"Expected outp
 
 exports[`throws error when error expected but no error thrown 1`] = `"Expected to throw error, but it did not."`;
 
-exports[`throws error when function doesn't return true 1`] = `"test message"`;
+exports[`throws error when function doesn't return true 1`] = `"[BABEL] unknown: test message (While processing: \\"base$0\\")"`;
 
 exports[`throws if output is incorrect 1`] = `"Output is incorrect."`;
 

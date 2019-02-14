@@ -1,3 +1,5 @@
+/* eslint-disable jest/valid-describe */
+
 import assert from 'assert'
 import path from 'path'
 import fs from 'fs'
@@ -19,10 +21,9 @@ const fullDefaultConfig = {
   },
 }
 
-// eslint-disable-next-line max-lines-per-function
 function pluginTester({
   /* istanbul ignore next (TODO: write a test for this) */
-  babel = require('babel-core'),
+  babel = require('@babel/core'),
   plugin = requiredParam('plugin'),
   pluginName = getPluginName(plugin, babel),
   title: describeBlockTitle = pluginName,

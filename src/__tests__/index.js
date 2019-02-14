@@ -1,10 +1,11 @@
 import fs from 'fs'
 import path from 'path'
 import assert from 'assert'
-import * as babel from 'babel-core'
 // eslint-disable-next-line import/default
 import pluginTester from '../'
 import identifierReversePlugin from './helpers/identifier-reverse-plugin'
+
+const babel = require('@babel/core')
 
 let errorSpy,
   describeSpy,
@@ -510,7 +511,7 @@ test('throws error if there is a problem parsing', async () => {
     error = e
   }
   expect(error.constructor).toBe(SyntaxError)
-  expect(error.message.endsWith('Unexpected token (1:0)')).toBe(true)
+  expect(error.message).toContain('Unexpected token (1:0)')
 })
 
 test(`throws an error if babelrc is true with no filename`, () => {
