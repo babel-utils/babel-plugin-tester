@@ -495,7 +495,7 @@ test(`throws error when function doesn't return true`, () =>
 
 test('throws error when error expected but no error thrown', () =>
   snapshotPluginError(true, {
-    plugin: () => null,
+    plugin: () => ({}),
   }))
 
 test('throws error if there is a problem parsing', async () => {
