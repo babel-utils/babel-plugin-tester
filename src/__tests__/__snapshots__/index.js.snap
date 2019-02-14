@@ -1,15 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`1. captains-log 1`] = `
-"
-var hi = \\"hey\\";
-
-      ↓ ↓ ↓ ↓ ↓ ↓
-
-var ih = \\"hey\\";
-"
-`;
-
 exports[`can fail tests in fixtures at an absolute path 1`] = `"actual output does not match output.js"`;
 
 exports[`default will throw if output changes 1`] = `"Expected output to not change, but it did"`;

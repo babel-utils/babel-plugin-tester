@@ -317,7 +317,7 @@ function assertError(result, error) {
       throw result
     }
   } else if (typeof error === 'string') {
-    assert.equal(result.message, error, 'Error message is incorrect')
+    assert(result.message.includes(error), 'Error message is incorrect')
   } else if (error instanceof RegExp) {
     assert(
       error.test(result.message),
