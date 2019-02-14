@@ -14,7 +14,7 @@
     "test": "kcd-scripts test",
     "test:update": "npm test -- --updateSnapshot --coverage",
     "validate": "kcd-scripts validate",
-    "precommit": "kcd-scripts precommit"
+    "precommit": "kcd-scripts pre-commit"
   },
   "files": [
     "dist"
