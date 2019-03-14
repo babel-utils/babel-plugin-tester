@@ -9,7 +9,7 @@ Utilities for testing babel plugins
 [![downloads][downloads-badge]][npm-stat]
 [![MIT License][license-badge]][license]
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors)
 [![PRs Welcome][prs-badge]][prs]
 [![Donate][donate-badge]][donate]
 [![Code of Conduct][coc-badge]][coc]
@@ -48,7 +48,6 @@ work with `mocha` and `jasmine`.
 - [LICENSE](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 
 ## Installation
 
@@ -464,8 +463,8 @@ Thanks goes to these people ([emoji key][emojis]):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
-| [<img src="https://avatars.githubusercontent.com/u/1500684?v=3" width="100px;"/><br /><sub><b>Kent C. Dodds</b></sub>](https://kentcdodds.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Documentation") [🚇](#infra-kentcdodds "Infrastructure (Hosting, Build-Tools, etc)") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Tests") | [<img src="https://avatars3.githubusercontent.com/u/952783?v=3" width="100px;"/><br /><sub><b>james kyle</b></sub>](http://thejameskyle.com/)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Documentation") [👀](#review-thejameskyle "Reviewed Pull Requests") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Tests") | [<img src="https://avatars1.githubusercontent.com/u/1894628?v=3" width="100px;"/><br /><sub><b>Brad Bohen</b></sub>](https://github.com/bbohen)<br />[🐛](https://github.com/babel-utils/babel-plugin-tester/issues?q=author%3Abbohen "Bug reports") | [<img src="https://avatars0.githubusercontent.com/u/1295580?v=3" width="100px;"/><br /><sub><b>Kyle Welch</b></sub>](http://www.krwelch.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Documentation") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Tests") | [<img src="https://avatars3.githubusercontent.com/u/6680299?v=4" width="100px;"/><br /><sub><b>kontrollanten</b></sub>](https://github.com/kontrollanten)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kontrollanten "Code") |
-| :---: | :---: | :---: | :---: | :---: |
+| [<img src="https://avatars.githubusercontent.com/u/1500684?v=3" width="100px;" alt="Kent C. Dodds"/><br /><sub><b>Kent C. Dodds</b></sub>](https://kentcdodds.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Documentation") [🚇](#infra-kentcdodds "Infrastructure (Hosting, Build-Tools, etc)") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kentcdodds "Tests") | [<img src="https://avatars3.githubusercontent.com/u/952783?v=3" width="100px;" alt="james kyle"/><br /><sub><b>james kyle</b></sub>](http://thejameskyle.com/)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Documentation") [👀](#review-thejameskyle "Reviewed Pull Requests") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=thejameskyle "Tests") | [<img src="https://avatars1.githubusercontent.com/u/1894628?v=3" width="100px;" alt="Brad Bohen"/><br /><sub><b>Brad Bohen</b></sub>](https://github.com/bbohen)<br />[🐛](https://github.com/babel-utils/babel-plugin-tester/issues?q=author%3Abbohen "Bug reports") | [<img src="https://avatars0.githubusercontent.com/u/1295580?v=3" width="100px;" alt="Kyle Welch"/><br /><sub><b>Kyle Welch</b></sub>](http://www.krwelch.com)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Code") [📖](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Documentation") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=kwelch "Tests") | [<img src="https://avatars3.githubusercontent.com/u/6680299?v=4" width="100px;" alt="kontrollanten"/><br /><sub><b>kontrollanten</b></sub>](https://github.com/kontrollanten)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=kontrollanten "Code") | [<img src="https://avatars3.githubusercontent.com/u/117921?v=4" width="100px;" alt="Rubén Norte"/><br /><sub><b>Rubén Norte</b></sub>](https://github.com/rubennorte)<br />[💻](https://github.com/babel-utils/babel-plugin-tester/commits?author=rubennorte "Code") [⚠️](https://github.com/babel-utils/babel-plugin-tester/commits?author=rubennorte "Tests") |
+| :---: | :---: | :---: | :---: | :---: | :---: |
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 

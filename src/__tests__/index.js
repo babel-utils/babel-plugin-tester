@@ -14,18 +14,35 @@ let errorSpy,
   itSkipSpy,
   equalSpy,
   transformSpy,
-  writeFileSyncSpy
+  writeFileSyncSpy,
+  pendingTests
 
 const noop = () => {}
-const titleTesterMock = (title, testFn) => testFn()
+// eslint-disable-next-line require-await
+const promiseWrap = async fn => fn()
+const describeMock = (title, body) => {
+  body()
+}
+const titleTesterMock = (title, testFn) => {
+  pendingTests.push(promiseWrap(testFn))
+}
+
 const simpleTest = 'var hi = "hey";'
+
+const runPluginTester = async (...args) => {
+  pendingTests = []
+  try {
+    pluginTester(...args)
+    return await Promise.all(pendingTests)
+  } finally {
+    pendingTests = []
+  }
+}
 
 beforeEach(() => {
   equalSpy = jest.spyOn(assert, 'equal')
   errorSpy = jest.spyOn(console, 'error').mockImplementation(noop)
-  describeSpy = jest
-    .spyOn(global, 'describe')
-    .mockImplementation(titleTesterMock)
+  describeSpy = jest.spyOn(global, 'describe').mockImplementation(describeMock)
   itSpy = jest.spyOn(global, 'it').mockImplementation(titleTesterMock)
   global.it.only = jest.fn(titleTesterMock)
   global.it.skip = jest.fn(titleTesterMock)
@@ -47,50 +64,50 @@ afterEach(() => {
   writeFileSyncSpy.mockRestore()
 })
 
-test('plugin is required', () => {
-  expect(() => pluginTester()).toThrowErrorMatchingSnapshot()
+test('plugin is required', async () => {
+  await expect(runPluginTester()).rejects.toThrowErrorMatchingSnapshot()
 })
 
-test('logs when plugin name is not inferable and rethrows errors', () => {
+test('logs when plugin name is not inferable and rethrows errors', async () => {
   const error = new Error('hey there')
-  expect(() =>
-    pluginTester({
+  await expect(
+    runPluginTester({
       plugin: () => {
         throw error
       },
     }),
-  ).toThrow(error)
+  ).rejects.toThrow(error)
   expect(errorSpy).toHaveBeenCalledTimes(1)
   expect(errorSpy).toHaveBeenCalledWith(
     expect.stringMatching(/infer.*name.*plugin/),
   )
 })
 
-test('throws an invariant if the plugin name is not inferable', () => {
-  expect(() =>
-    pluginTester({
+test('throws an invariant if the plugin name is not inferable', async () => {
+  await expect(
+    runPluginTester({
       plugin: () => ({}),
     }),
-  ).toThrowErrorMatchingSnapshot()
+  ).rejects.toThrowErrorMatchingSnapshot()
 })
 
 test('exists early if no tests are supplied', async () => {
   const {plugin} = getOptions()
-  await pluginTester({plugin})
+  await runPluginTester({plugin})
   expect(describeSpy).not.toHaveBeenCalled()
   expect(itSpy).not.toHaveBeenCalled()
 })
 
 test('exits early if tests is an empty array', async () => {
   const {plugin} = getOptions()
-  await pluginTester({plugin, tests: []})
+  await runPluginTester({plugin, tests: []})
   expect(describeSpy).not.toHaveBeenCalled()
   expect(itSpy).not.toHaveBeenCalled()
 })
 
 test('accepts a title for the describe block', async () => {
   const title = 'describe block title'
-  await pluginTester(getOptions({title}))
+  await runPluginTester(getOptions({title}))
   expect(describeSpy).toHaveBeenCalledWith(title, expect.any(Function))
 })
 
@@ -99,7 +116,7 @@ test('can infer the plugin name for the describe block', async () => {
   const {plugin, tests} = getOptions({
     plugin: () => ({name, visitor: {}}),
   })
-  await pluginTester({plugin, tests})
+  await runPluginTester({plugin, tests})
   expect(describeSpy).toHaveBeenCalledTimes(1)
   expect(describeSpy).toHaveBeenCalledWith(name, expect.any(Function))
 })
@@ -111,7 +128,7 @@ test('calls describe and test for a group of tests', async () => {
     pluginName,
     tests: [simpleTest, simpleTest, {code: simpleTest, title: customTitle}],
   })
-  await pluginTester(options)
+  await runPluginTester(options)
   expect(describeSpy).toHaveBeenCalledTimes(1)
   expect(describeSpy).toHaveBeenCalledWith(
     options.pluginName,
@@ -127,26 +144,26 @@ test('calls describe and test for a group of tests', async () => {
 
 test('tests can be skipped', async () => {
   const {plugin} = getOptions()
-  await pluginTester({plugin, tests: [{skip: true, code: '"hey";'}]})
+  await runPluginTester({plugin, tests: [{skip: true, code: '"hey";'}]})
   expect(itSkipSpy).toHaveBeenCalledTimes(1)
   expect(itSpy).not.toHaveBeenCalled()
 })
 
 test('tests can be only-ed', async () => {
   const {plugin} = getOptions()
-  await pluginTester({plugin, tests: [{only: true, code: '"hey";'}]})
+  await runPluginTester({plugin, tests: [{only: true, code: '"hey";'}]})
   expect(itOnlySpy).toHaveBeenCalledTimes(1)
   expect(itSpy).not.toHaveBeenCalled()
 })
 
-test('tests cannot be both only-ed and skipped', () => {
+test('tests cannot be both only-ed and skipped', async () => {
   const {plugin} = getOptions()
-  expect(() =>
-    pluginTester({
+  await expect(
+    runPluginTester({
       plugin,
       tests: [{only: true, skip: true, code: '"hey";'}],
     }),
-  ).toThrowErrorMatchingSnapshot()
+  ).rejects.toThrowErrorMatchingSnapshot()
 })
 
 test('default will throw if output changes', async () => {
@@ -157,7 +174,7 @@ test('default will throw if output changes', async () => {
 
 test('skips falsy tests', async () => {
   const tests = [simpleTest, undefined, null, simpleTest]
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
   expect(itSpy).toHaveBeenCalledTimes(2)
 })
 
@@ -182,7 +199,7 @@ test('trims and deindents code and output', async () => {
       `,
     },
   ]
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
   expect(equalSpy).toHaveBeenCalledWith(
     `var someCode = 'cool';`,
     `var someCode = 'cool';`,
@@ -199,7 +216,7 @@ test('accepts an empty output', async () => {
   ]
   let errorResponse
   try {
-    await pluginTester(
+    await runPluginTester(
       getOptions({
         plugin: () => ({
           name: 'cleanup',
@@ -228,7 +245,7 @@ test('can get a code and output fixture that is an absolute path', async () => {
     },
   ]
   try {
-    await pluginTester(getOptions({tests}))
+    await runPluginTester(getOptions({tests}))
   } catch (error) {
     const actual = getFixtureContents('fixture1.js')
     const expected = getFixtureContents('outure1.js')
@@ -248,7 +265,7 @@ test('can pass with fixture and outputFixture', async () => {
       outputFixture: getFixturePath('fixture1.js'),
     },
   ]
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
 })
 
 test('throws error if fixture provided and code changes', async () => {
@@ -266,7 +283,7 @@ test('can resolve a fixture with the filename option', async () => {
     },
   ]
   try {
-    await pluginTester(getOptions({filename: __filename, tests}))
+    await runPluginTester(getOptions({filename: __filename, tests}))
   } catch (error) {
     const actual = getFixtureContents('fixture1.js')
     const expected = getFixtureContents('outure1.js')
@@ -280,7 +297,7 @@ test('can resolve a fixture with the filename option', async () => {
 })
 
 test('can pass tests in fixtures relative to the filename', async () => {
-  await pluginTester(
+  await runPluginTester(
     getOptions({
       filename: __filename,
       fixtures: 'fixtures/fixtures',
@@ -301,7 +318,7 @@ test('can pass tests in fixtures relative to the filename', async () => {
 
 test('can fail tests in fixtures at an absolute path', async () => {
   try {
-    await pluginTester(
+    await runPluginTester(
       getOptions({
         plugin: identifierReversePlugin,
         tests: null,
@@ -314,7 +331,7 @@ test('can fail tests in fixtures at an absolute path', async () => {
 })
 
 test('creates output file for new tests', async () => {
-  await pluginTester(
+  await runPluginTester(
     getOptions({
       filename: __filename,
       fixtures: 'fixtures/fixtures',
@@ -336,7 +353,7 @@ test('uses the fixture filename in babelOptions', async () => {
       outputFixture: getFixturePath('fixture1.js'),
     },
   ]
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
   expect(transformSpy).toHaveBeenCalledTimes(1)
   expect(transformSpy).toHaveBeenCalledWith(
     expect.any(String),
@@ -355,7 +372,7 @@ test('allows for a test babelOptions can provide a filename', async () => {
       outputFixture: getFixturePath('fixture1.js'),
     },
   ]
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
   expect(transformSpy).toHaveBeenCalledTimes(1)
   expect(transformSpy).toHaveBeenCalledWith(
     expect.any(String),
@@ -368,7 +385,7 @@ test('allows for a test babelOptions can provide a filename', async () => {
 test('can provide a test filename for code strings', async () => {
   const filename = getFixturePath('outure1.js')
   const tests = [{babelOptions: {filename}, code: simpleTest}]
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
   expect(transformSpy).toHaveBeenCalledTimes(1)
   expect(transformSpy).toHaveBeenCalledWith(
     expect.any(String),
@@ -383,7 +400,7 @@ test('can provide plugin options', async () => {
   const pluginOptions = {
     optionA: true,
   }
-  await pluginTester(getOptions({tests, pluginOptions}))
+  await runPluginTester(getOptions({tests, pluginOptions}))
   expect(transformSpy).toHaveBeenCalledTimes(1)
   expect(transformSpy).toHaveBeenCalledWith(
     expect.any(String),
@@ -405,7 +422,7 @@ test('can overwrite plugin options at test level', async () => {
     optionA: false,
   }
   const tests = [{code: simpleTest, pluginOptions}]
-  await pluginTester(
+  await runPluginTester(
     getOptions({
       tests,
       pluginOptions: {
@@ -450,7 +467,7 @@ test('takes a snapshot', async () => {
   // this case. We actually _do_ take a snapshot and that makes our test
   // work pretty well soooooo... 😀
   const tests = [simpleTest]
-  await pluginTester(
+  await runPluginTester(
     getOptions({snapshot: true, tests, plugin: identifierReversePlugin}),
   )
 })
@@ -464,7 +481,7 @@ test('can provide an object for tests', async () => {
       code: simpleTest,
     },
   }
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
   expect(equalSpy).toHaveBeenCalledTimes(2)
   expect(equalSpy.mock.calls).toEqual([
     [simpleTest, simpleTest, expect.any(String)],
@@ -501,7 +518,7 @@ test('throws error when error expected but no error thrown', () =>
 test('throws error if there is a problem parsing', async () => {
   let error
   try {
-    await pluginTester(
+    await runPluginTester(
       getOptions({
         tests: [`][fkfhgo]fo{r`],
         babelOptions: {filename: __filename},
@@ -522,14 +539,14 @@ test(`throws an error if babelrc is true with no filename`, () => {
 test('runs test setup function', async () => {
   const setupSpy = jest.fn()
   const tests = [{code: simpleTest, setup: setupSpy}]
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
   expect(setupSpy).toHaveBeenCalledTimes(1)
 })
 
 test('runs test teardown function', async () => {
   const teardownSpy = jest.fn()
   const tests = [{code: simpleTest, teardown: teardownSpy}]
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
   expect(teardownSpy).toHaveBeenCalledTimes(1)
 })
 
@@ -537,7 +554,7 @@ test('setup can return a teardown function', async () => {
   const teardownSpy = jest.fn()
   const setupSpy = jest.fn(() => teardownSpy)
   const tests = [{code: simpleTest, setup: setupSpy}]
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
   expect(teardownSpy).toHaveBeenCalledTimes(1)
 })
 
@@ -545,7 +562,7 @@ test('function resolved from setup promise used for teardown', async () => {
   const teardownSpy = jest.fn()
   const setupSpy = jest.fn(() => Promise.resolve(teardownSpy))
   const tests = [{code: simpleTest, setup: setupSpy}]
-  await pluginTester(getOptions({tests}))
+  await runPluginTester(getOptions({tests}))
   expect(teardownSpy).toHaveBeenCalledTimes(1)
 })
 
@@ -555,7 +572,7 @@ test('error logged and thrown if setup throws', async () => {
     throw errorToThrow
   })
   const tests = [{code: simpleTest, setup: setupSpy}]
-  const errorThrown = await pluginTester(getOptions({tests})).catch(e => e)
+  const errorThrown = await runPluginTester(getOptions({tests})).catch(e => e)
   expect(errorThrown).toBe(errorToThrow)
   expect(errorSpy).toHaveBeenCalledWith(
     expect.stringMatching(/problem.*setup/i),
@@ -568,7 +585,7 @@ test('error logged and thrown if teardown throws', async () => {
     throw errorToThrow
   })
   const tests = [{code: simpleTest, teardown: teardownSpy}]
-  const errorThrown = await pluginTester(getOptions({tests})).catch(e => e)
+  const errorThrown = await runPluginTester(getOptions({tests})).catch(e => e)
   expect(errorThrown).toBe(errorToThrow)
   expect(errorSpy).toHaveBeenCalledWith(
     expect.stringMatching(/problem.*teardown/i),
@@ -577,7 +594,7 @@ test('error logged and thrown if teardown throws', async () => {
 
 test('allows formatting the result', async () => {
   const formatResultSpy = jest.fn(r => r)
-  await pluginTester(
+  await runPluginTester(
     getOptions({
       tests: [{code: simpleTest, formatResult: formatResultSpy}],
     }),
@@ -607,7 +624,7 @@ function getFixturePath(fixture = '') {
 async function snapshotOptionsError(options) {
   let error
   try {
-    await pluginTester(options)
+    await runPluginTester(options)
   } catch (e) {
     error = e
   }
@@ -625,7 +642,7 @@ async function snapshotPluginError(error, overrides) {
 }
 
 function testPluginError(error, overrides) {
-  return pluginTester(
+  return runPluginTester(
     getOptions({
       plugin: () => {
         throw new SyntaxError('test message')
