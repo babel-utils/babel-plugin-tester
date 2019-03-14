@@ -50,15 +50,16 @@ function pluginTester({
   }
   const testAsArray = toTestArray(tests)
   if (!testAsArray.length) {
-    return Promise.resolve()
+    return
   }
   const testerConfig = merge({}, fullDefaultConfig, rest)
 
-  return describe(describeBlockTitle, () => {
-    const promises = testAsArray.map(testConfig => {
+  describe(describeBlockTitle, () => {
+    testAsArray.forEach(testConfig => {
       if (!testConfig) {
-        return Promise.resolve()
+        return
       }
+
       const {
         skip,
         only,
@@ -79,12 +80,12 @@ function pluginTester({
 
       if (skip) {
         // eslint-disable-next-line jest/no-disabled-tests
-        return it.skip(title, testerWrapper)
+        it.skip(title, testerWrapper)
       } else if (only) {
         // eslint-disable-next-line jest/no-focused-tests
-        return it.only(title, testerWrapper)
+        it.only(title, testerWrapper)
       } else {
-        return it(title, testerWrapper)
+        it(title, testerWrapper)
       }
 
       async function testerWrapper() {
@@ -176,8 +177,6 @@ function pluginTester({
         }
       }
     })
-
-    return Promise.all(promises)
   })
 
   function toTestConfig(testConfig) {
