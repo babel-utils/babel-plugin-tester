@@ -603,6 +603,17 @@ test('allows formatting the result', async () => {
   expect(formatResultSpy).toHaveBeenCalledWith(simpleTest)
 })
 
+test('allows formatting fixtures results', async () => {
+  const formatResultSpy = jest.fn(r => r)
+  await runPluginTester(
+    getOptions({
+      fixtures: getFixturePath('fixtures'),
+      formatResult: formatResultSpy,
+    }),
+  )
+  expect(formatResultSpy).toHaveBeenCalledTimes(7)
+})
+
 function getOptions(overrides) {
   return {
     pluginName: 'captains-log',

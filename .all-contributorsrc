@@ -69,6 +69,16 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "andrefgneves",
+      "name": "André Neves",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/3869532?v=4",
+      "profile": "http://andreneves.work",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ],
   "repoType": "github"
