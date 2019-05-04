@@ -225,7 +225,14 @@ const createFixtureTests = (fixturesDir, options) => {
 
     const ext = /\.ts$/.test(codePath) ? '.ts' : '.js'
     it(blockTitle, () => {
-      const {plugin, pluginOptions, fixtureOutputName, babel, ...rest} = options
+      const {
+        plugin,
+        pluginOptions,
+        fixtureOutputName,
+        babel,
+        formatResult = r => r,
+        ...rest
+      } = options
 
       const babelRcPath = path.join(fixtureDir, '.babelrc')
 
@@ -242,7 +249,9 @@ const createFixtureTests = (fixturesDir, options) => {
         },
         rest,
       )
-      const actual = babel.transformFileSync(codePath, babelOptions).code.trim()
+      const actual = formatResult(
+        babel.transformFileSync(codePath, babelOptions).code.trim(),
+      )
 
       const outputPath = path.join(fixtureDir, `${fixtureOutputName}${ext}`)
 
