@@ -342,7 +342,7 @@ test('creates output file for new tests', async () => {
   )
 
   expect(writeFileSyncSpy.mock.calls[0]).toEqual([
-    expect.stringMatching(/\/output\.(j|t)s$/),
+    expect.stringMatching(/(\/|\\)output\.(j|t)s$/),
     "'use strict';",
   ])
 })
