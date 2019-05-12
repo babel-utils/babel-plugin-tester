@@ -207,6 +207,8 @@ function pluginTester({
 }
 
 const createFixtureTests = (fixturesDir, options) => {
+  if (!fs.statSync(fixturesDir).isDirectory()) return
+
   fs.readdirSync(fixturesDir).forEach(caseName => {
     const fixtureDir = path.join(fixturesDir, caseName)
     const optionsPath = path.join(fixtureDir, 'options.json')
