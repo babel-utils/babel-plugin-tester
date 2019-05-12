@@ -304,7 +304,7 @@ test('can pass tests in fixtures relative to the filename', async () => {
       tests: null,
     }),
   )
-  expect(describeSpy).toHaveBeenCalledTimes(4)
+  expect(describeSpy).toHaveBeenCalledTimes(5)
   expect(itSpy).toHaveBeenCalledTimes(8)
   expect(itSpy.mock.calls).toEqual([
     [`changed`, expect.any(Function)],
@@ -617,12 +617,16 @@ test('allows formatting fixtures results', async () => {
 })
 
 test('gets options from options.json files when using fixtures', async () => {
+  const optionRootFoo = jest.fn()
   const optionFoo = jest.fn()
   const optionBar = jest.fn()
   const pluginWithOptions = jest.fn(() => {
     return {
       visitor: {
         Program(programPath, state) {
+          if (state.opts.rootFoo === 'rootBar') {
+            optionRootFoo()
+          }
           if (state.opts.foo === 'bar') {
             optionFoo()
           }
@@ -641,6 +645,7 @@ test('gets options from options.json files when using fixtures', async () => {
     }),
   )
 
+  expect(optionRootFoo).toHaveBeenCalledTimes(8)
   expect(optionFoo).toHaveBeenCalledTimes(2)
   expect(optionBar).toHaveBeenCalledTimes(1)
 })
