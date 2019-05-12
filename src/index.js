@@ -209,6 +209,12 @@ function pluginTester({
 const createFixtureTests = (fixturesDir, options) => {
   if (!fs.statSync(fixturesDir).isDirectory()) return
 
+  const rootOptionsPath = path.join(fixturesDir, 'options.json')
+  let rootFixtureOptions = {}
+  if (pathExists.sync(rootOptionsPath)) {
+    rootFixtureOptions = require(rootOptionsPath)
+  }
+
   fs.readdirSync(fixturesDir).forEach(caseName => {
     const fixtureDir = path.join(fixturesDir, caseName)
     const optionsPath = path.join(fixtureDir, 'options.json')
@@ -228,7 +234,11 @@ const createFixtureTests = (fixturesDir, options) => {
       describe(blockTitle, () => {
         createFixtureTests(fixtureDir, {
           ...options,
-          pluginOptions: {...options.pluginOptions, ...fixturePluginOptions},
+          pluginOptions: {
+            ...rootFixtureOptions,
+            ...options.pluginOptions,
+            ...fixturePluginOptions,
+          },
         })
       })
       return
@@ -252,7 +262,16 @@ const createFixtureTests = (fixturesDir, options) => {
         fullDefaultConfig,
         {
           babelOptions: {
-            plugins: [[plugin, {...pluginOptions, ...fixturePluginOptions}]],
+            plugins: [
+              [
+                plugin,
+                {
+                  ...rootFixtureOptions,
+                  ...pluginOptions,
+                  ...fixturePluginOptions,
+                },
+              ],
+            ],
             // if they have a babelrc, then we'll let them use that
             // otherwise, we'll just use our simple config
             babelrc: pathExists.sync(babelRcPath),
