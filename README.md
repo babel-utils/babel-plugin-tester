@@ -181,7 +181,7 @@ pluginTester({
 
 And it would run two tests. One for each directory in `__fixtures__`, with plugin options set to the content of `options.json`
 
-Options are inherited, placing a `options.json` file in `__fixtures__` would give those options to all fixtures.
+Options are inherited, placing a `options.json` file in `__fixtures__` would add those options to all fixtures.
 
 #### tests
 
