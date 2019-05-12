@@ -219,9 +219,7 @@ const createFixtureTests = (fixturesDir, options) => {
 
     let fixturePluginOptions = {}
     if (pathExists.sync(optionsPath)) {
-      fixturePluginOptions = JSON.parse(
-        fs.readFileSync(optionsPath, 'utf8').toString(),
-      )
+      fixturePluginOptions = require(optionsPath)
     }
 
     if (!codePath) {
