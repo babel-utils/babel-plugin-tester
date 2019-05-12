@@ -304,14 +304,16 @@ test('can pass tests in fixtures relative to the filename', async () => {
       tests: null,
     }),
   )
-  expect(describeSpy).toHaveBeenCalledTimes(2)
-  expect(itSpy).toHaveBeenCalledTimes(6)
+  expect(describeSpy).toHaveBeenCalledTimes(4)
+  expect(itSpy).toHaveBeenCalledTimes(8)
   expect(itSpy.mock.calls).toEqual([
     [`changed`, expect.any(Function)],
     [`nested a`, expect.any(Function)],
     [`nested b`, expect.any(Function)],
     [`typescript`, expect.any(Function)],
     [`unchanged`, expect.any(Function)],
+    [`nested with option`, expect.any(Function)],
+    [`nested without option`, expect.any(Function)],
     [`without output file`, expect.any(Function)],
   ])
 })
@@ -611,7 +613,36 @@ test('allows formatting fixtures results', async () => {
       formatResult: formatResultSpy,
     }),
   )
-  expect(formatResultSpy).toHaveBeenCalledTimes(7)
+  expect(formatResultSpy).toHaveBeenCalledTimes(9)
+})
+
+test('gets options from options.json files when using fixtures', async () => {
+  const optionFoo = jest.fn()
+  const optionBar = jest.fn()
+  const pluginWithOptions = jest.fn(() => {
+    return {
+      visitor: {
+        Program(programPath, state) {
+          if (state.opts.foo === 'bar') {
+            optionFoo()
+          }
+          if (state.opts.bar === 'baz') {
+            optionBar()
+          }
+        },
+      },
+    }
+  })
+
+  await runPluginTester(
+    getOptions({
+      plugin: pluginWithOptions,
+      fixtures: getFixturePath('fixtures'),
+    }),
+  )
+
+  expect(optionFoo).toHaveBeenCalledTimes(2)
+  expect(optionBar).toHaveBeenCalledTimes(1)
 })
 
 function getOptions(overrides) {
