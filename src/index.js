@@ -4,7 +4,7 @@ import assert from 'assert'
 import path from 'path'
 import fs from 'fs'
 import pathExists from 'path-exists'
-import merge from 'lodash.merge'
+import mergeWith from 'lodash.mergewith'
 import invariant from 'invariant'
 import stripIndent from 'strip-indent'
 import {oneLine} from 'common-tags'
@@ -19,6 +19,13 @@ const fullDefaultConfig = {
     generatorOpts: {},
     babelrc: false,
   },
+}
+
+function mergeCustomizer(objValue, srcValue) {
+  if (Array.isArray(objValue)) {
+    return objValue.concat(srcValue)
+  }
+  return undefined
 }
 
 function pluginTester({
@@ -52,7 +59,7 @@ function pluginTester({
   if (!testAsArray.length) {
     return
   }
-  const testerConfig = merge({}, fullDefaultConfig, rest)
+  const testerConfig = mergeWith({}, fullDefaultConfig, rest, mergeCustomizer)
 
   describe(describeBlockTitle, () => {
     testAsArray.forEach(testConfig => {
@@ -72,7 +79,7 @@ function pluginTester({
         setup = noop,
         teardown,
         formatResult = r => r,
-      } = merge({}, testerConfig, toTestConfig(testConfig))
+      } = mergeWith({}, testerConfig, toTestConfig(testConfig), mergeCustomizer)
       assert(
         (!skip && !only) || skip !== only,
         'Cannot enable both skip and only on a test',
@@ -191,7 +198,7 @@ function pluginTester({
       output = getCode(filename, testConfig.outputFixture) || undefined,
       pluginOptions: testOptions = pluginOptions,
     } = testConfig
-    return merge(
+    return mergeWith(
       {
         babelOptions: {filename: getPath(filename, fixture)},
       },
@@ -202,6 +209,7 @@ function pluginTester({
         code: stripIndent(code).trim(),
         ...(output ? {output: stripIndent(output).trim()} : {}),
       },
+      mergeCustomizer,
     )
   }
 }
@@ -257,7 +265,7 @@ const createFixtureTests = (fixturesDir, options) => {
 
       const babelRcPath = path.join(fixtureDir, '.babelrc')
 
-      const {babelOptions} = merge(
+      const {babelOptions} = mergeWith(
         {},
         fullDefaultConfig,
         {
@@ -278,6 +286,7 @@ const createFixtureTests = (fixturesDir, options) => {
           },
         },
         rest,
+        mergeCustomizer,
       )
       const actual = formatResult(
         babel.transformFileSync(codePath, babelOptions).code.trim(),
