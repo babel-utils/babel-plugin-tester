@@ -3,6 +3,7 @@
 import assert from 'assert'
 import path from 'path'
 import fs from 'fs'
+import {EOL} from 'os'
 import pathExists from 'path-exists'
 import mergeWith from 'lodash.mergewith'
 import invariant from 'invariant'
@@ -39,6 +40,7 @@ function pluginTester({
   fixtures,
   fixtureOutputName = 'output',
   filename,
+  endOfLine,
   ...rest
 } = {}) {
   let testNumber = 1
@@ -52,6 +54,7 @@ function pluginTester({
       fixtureOutputName,
       filename,
       babel,
+      endOfLine,
       ...rest,
     })
   }
@@ -144,7 +147,13 @@ function pluginTester({
         let errored = false
 
         try {
-          result = formatResult(babel.transform(code, babelOptions).code)
+          result = formatResult(
+            fixLineEndings(
+              babel.transform(code, babelOptions).code,
+              endOfLine,
+              code,
+            ),
+          )
         } catch (err) {
           if (error) {
             errored = true
@@ -214,6 +223,34 @@ function pluginTester({
   }
 }
 
+function fixLineEndings(code, endOfLine = '\n', input = '') {
+  return code.replace(/\r?\n/g, getReplacement())
+
+  function getReplacement() {
+    switch (endOfLine) {
+      case '\n': {
+        return '\n'
+      }
+      case '\r\n': {
+        return '\r\n'
+      }
+      case 'auto': {
+        return EOL
+      }
+      case 'preserve': {
+        const match = input.match(/\r?\n/)
+        if (match === null) {
+          return EOL
+        }
+        return match[0]
+      }
+      default: {
+        throw new Error("Invalid 'endOfLine' value")
+      }
+    }
+  }
+}
+
 const createFixtureTests = (fixturesDir, options) => {
   if (!fs.statSync(fixturesDir).isDirectory()) return
 
@@ -259,6 +296,7 @@ const createFixtureTests = (fixturesDir, options) => {
         pluginOptions,
         fixtureOutputName,
         babel,
+        endOfLine,
         formatResult = r => r,
         ...rest
       } = options
@@ -288,8 +326,15 @@ const createFixtureTests = (fixturesDir, options) => {
         rest,
         mergeCustomizer,
       )
+
+      const input = fs.readFileSync(codePath).toString()
       const actual = formatResult(
-        babel.transformFileSync(codePath, babelOptions).code,
+        fixLineEndings(
+          babel.transformSync(input, {...babelOptions, filename: codePath})
+            .code,
+          endOfLine,
+          input,
+        ),
       )
 
       const outputPath = path.join(fixtureDir, `${fixtureOutputName}${ext}`)
