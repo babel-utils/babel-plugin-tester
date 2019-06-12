@@ -137,7 +137,7 @@ function pluginTester({
         let errored = false
 
         try {
-          result = formatResult(babel.transform(code, babelOptions).code.trim())
+          result = formatResult(babel.transform(code, babelOptions).code)
         } catch (err) {
           if (error) {
             errored = true
@@ -170,8 +170,8 @@ function pluginTester({
           assert.equal(result, output, 'Output is incorrect.')
         } else {
           assert.equal(
-            result,
-            code,
+            result.trim(),
+            code.trim(),
             'Expected output to not change, but it did',
           )
         }
@@ -280,7 +280,7 @@ const createFixtureTests = (fixturesDir, options) => {
         rest,
       )
       const actual = formatResult(
-        babel.transformFileSync(codePath, babelOptions).code.trim(),
+        babel.transformFileSync(codePath, babelOptions).code,
       )
 
       const outputPath = path.join(fixtureDir, `${fixtureOutputName}${ext}`)
@@ -290,11 +290,11 @@ const createFixtureTests = (fixturesDir, options) => {
         return
       }
 
-      const output = fs.readFileSync(outputPath, 'utf8').trim()
+      const output = fs.readFileSync(outputPath, 'utf8')
 
       assert.equal(
-        actual,
-        output,
+        actual.trim(),
+        output.trim(),
         `actual output does not match ${fixtureOutputName}${ext}`,
       )
     })

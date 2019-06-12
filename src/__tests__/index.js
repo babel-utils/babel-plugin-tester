@@ -616,6 +616,18 @@ test('allows formatting fixtures results', async () => {
   expect(formatResultSpy).toHaveBeenCalledTimes(9)
 })
 
+test('works with a formatter adding a empty line', async () => {
+  // Simulate prettier adding an empty line at the end
+  const formatResultSpy = jest.fn(r => `${r.trim()}\n\n`)
+  await runPluginTester(
+    getOptions({
+      fixtures: getFixturePath('fixtures'),
+      formatResult: formatResultSpy,
+    }),
+  )
+  expect(formatResultSpy).toHaveBeenCalledTimes(9)
+})
+
 test('gets options from options.json files when using fixtures', async () => {
   const optionRootFoo = jest.fn()
   const optionFoo = jest.fn()
