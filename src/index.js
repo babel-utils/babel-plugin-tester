@@ -40,7 +40,7 @@ function pluginTester({
   fixtures,
   fixtureOutputName = 'output',
   filename,
-  endOfLine,
+  endOfLine = 'lf',
   ...rest
 } = {}) {
   let testNumber = 1
@@ -223,7 +223,7 @@ function pluginTester({
   }
 }
 
-function fixLineEndings(code, endOfLine = 'lf', input = '') {
+function fixLineEndings(code, endOfLine, input) {
   return code.replace(/\r?\n/g, getReplacement())
 
   function getReplacement() {
