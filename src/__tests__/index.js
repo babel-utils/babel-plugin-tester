@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import assert from 'assert'
+import {EOL} from 'os'
 // eslint-disable-next-line import/default
 import pluginTester from '../'
 import identifierReversePlugin from './helpers/identifier-reverse-plugin'
@@ -706,6 +707,61 @@ test('appends to root plugins array', async () => {
   expect(optionFoo).toHaveBeenCalledTimes(2)
   expect(optionBar).toHaveBeenCalledTimes(1)
   expect(programVisitor).toHaveBeenCalledTimes(9)
+})
+
+test('endOfLine - default - unix', async () => {
+  await runPluginTester(
+    getOptions({
+      tests: [
+        {
+          code: 'var foo = "";\nvar bar = "";',
+          output: 'var foo = "";\nvar bar = "";',
+        },
+      ],
+    }),
+  )
+})
+
+test('endOfLine - windows', async () => {
+  await runPluginTester(
+    getOptions({
+      endOfLine: '\r\n',
+      tests: [
+        {
+          code: 'var foo = "";\nvar bar = "";',
+          output: 'var foo = "";\r\nvar bar = "";',
+        },
+      ],
+    }),
+  )
+})
+
+test('endOfLine - auto', async () => {
+  await runPluginTester(
+    getOptions({
+      endOfLine: 'auto',
+      tests: [
+        {
+          code: 'var foo = "";\nvar bar = "";',
+          output: `var foo = "";${EOL}var bar = "";`,
+        },
+      ],
+    }),
+  )
+})
+
+test('endOfLine - preserve', async () => {
+  await runPluginTester(
+    getOptions({
+      endOfLine: 'preserve',
+      tests: [
+        {
+          code: 'var foo = "";\r\nvar bar = "";',
+          output: `var foo = "";\r\nvar bar = "";`,
+        },
+      ],
+    }),
+  )
 })
 
 function getOptions(overrides) {
