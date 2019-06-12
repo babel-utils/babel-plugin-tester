@@ -180,6 +180,17 @@ this value is `fixtures`. Test Object properties affected by this value are:
 absolute paths, then they will be `path.join`ed with `path.dirname` of the
 `filename`.
 
+#### endOfLine
+
+This is used to control which line endings the output from babel should have
+
+| Options    | Description                        |
+| ---------- | ---------------------------------- |
+| `\n`       | Unix - default                     |
+| `\r\n`     | Windows                            |
+| `auto`     | Use the system default             |
+| `preserve` | Use the line ending from the input |
+
 #### fixtures
 
 This is a path to a directory with this format:
