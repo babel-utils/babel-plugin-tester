@@ -25,7 +25,7 @@
   "dependencies": {
     "common-tags": "^1.4.0",
     "invariant": "^2.2.2",
-    "lodash.merge": "^4.6.0",
+    "lodash.mergewith": "^4.6.0",
     "path-exists": "^3.0.0",
     "strip-indent": "^2.0.0"
   },

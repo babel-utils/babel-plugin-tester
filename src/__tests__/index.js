@@ -650,6 +650,52 @@ test('gets options from options.json files when using fixtures', async () => {
   expect(optionBar).toHaveBeenCalledTimes(1)
 })
 
+test('appends to root plugins array', async () => {
+  const optionRootFoo = jest.fn()
+  const optionFoo = jest.fn()
+  const optionBar = jest.fn()
+  const pluginWithOptions = jest.fn(() => {
+    return {
+      visitor: {
+        Program(programPath, state) {
+          if (state.opts.rootFoo === 'rootBar') {
+            optionRootFoo()
+          }
+          if (state.opts.foo === 'bar') {
+            optionFoo()
+          }
+          if (state.opts.bar === 'baz') {
+            optionBar()
+          }
+        },
+      },
+    }
+  })
+  const programVisitor = jest.fn()
+  const otherPlugin = () => {
+    return {
+      visitor: {
+        Program: programVisitor,
+      },
+    }
+  }
+
+  await runPluginTester(
+    getOptions({
+      plugin: pluginWithOptions,
+      fixtures: getFixturePath('fixtures'),
+      babelOptions: {
+        plugins: [otherPlugin],
+      },
+    }),
+  )
+
+  expect(optionRootFoo).toHaveBeenCalledTimes(8)
+  expect(optionFoo).toHaveBeenCalledTimes(2)
+  expect(optionBar).toHaveBeenCalledTimes(1)
+  expect(programVisitor).toHaveBeenCalledTimes(9)
+})
+
 function getOptions(overrides) {
   return {
     pluginName: 'captains-log',
