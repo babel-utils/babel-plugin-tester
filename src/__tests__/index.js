@@ -778,6 +778,36 @@ test('endOfLine - preserve', async () => {
   )
 })
 
+test('endOfLine - preserve - no linefeed', async () => {
+  await runPluginTester(
+    getOptions({
+      endOfLine: 'preserve',
+      tests: [
+        {
+          code: 'var foo = "";',
+          output: 'var foo = "";',
+        },
+      ],
+    }),
+  )
+})
+
+test('endOfLine - invalid option', async () => {
+  const errorThrown = await runPluginTester(
+    getOptions({
+      endOfLine: 'invalid',
+      tests: [
+        {
+          code: 'var foo = "";',
+          output: 'var foo = "";',
+        },
+      ],
+    }),
+  ).catch(e => e)
+
+  expect(errorThrown.message).toBe("Invalid 'endOfLine' value")
+})
+
 function getOptions(overrides) {
   return {
     pluginName: 'captains-log',
