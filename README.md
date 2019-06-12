@@ -33,19 +33,45 @@ work with `mocha` and `jasmine`.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Installation](#installation)
-- [Usage](#usage)
-  - [import](#import)
-  - [Invoke](#invoke)
-  - [options](#options)
-  - [Test Objects](#test-objects)
-- [Examples](#examples)
-  - [Full Example + Docs](#full-example--docs)
-  - [Simple Example](#simple-example)
-- [Inspiration](#inspiration)
-- [Other Solutions](#other-solutions)
-- [Contributors](#contributors)
-- [LICENSE](#license)
+- [babel-plugin-tester](#babel-plugin-tester)
+  - [The problem](#the-problem)
+  - [This solution](#this-solution)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [import](#import)
+    - [Invoke](#invoke)
+    - [options](#options)
+      - [plugin](#plugin)
+      - [pluginName](#pluginname)
+      - [pluginOptions](#pluginoptions)
+        - [babel.config.js](#babelconfigjs)
+      - [title](#title)
+      - [filename](#filename)
+      - [endOfLine](#endofline)
+      - [fixtures](#fixtures)
+      - [tests](#tests)
+      - [babel](#babel)
+      - [...rest](#rest)
+    - [Test Objects](#test-objects)
+      - [code](#code)
+      - [title](#title-1)
+      - [output](#output)
+      - [fixture](#fixture)
+      - [outputFixture](#outputfixture)
+      - [only](#only)
+      - [skip](#skip)
+      - [snapshot](#snapshot)
+      - [error](#error)
+      - [setup](#setup)
+      - [teardown](#teardown)
+      - [formatResult](#formatresult)
+  - [Examples](#examples)
+    - [Full Example + Docs](#full-example--docs)
+    - [Simple Example](#simple-example)
+  - [Inspiration](#inspiration)
+  - [Other Solutions](#other-solutions)
+  - [Contributors](#contributors)
+  - [LICENSE](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -153,6 +179,17 @@ this value is `fixtures`. Test Object properties affected by this value are:
 `fixture` and `outputFixture`. If those properties are not
 absolute paths, then they will be `path.join`ed with `path.dirname` of the
 `filename`.
+
+#### endOfLine
+
+This is used to control which line endings the output from babel should have
+
+| Options    | Description                        |
+| ---------- | ---------------------------------- |
+| `lf`       | Unix - default                     |
+| `crlf`     | Windows                            |
+| `auto`     | Use the system default             |
+| `preserve` | Use the line ending from the input |
 
 #### fixtures
 
