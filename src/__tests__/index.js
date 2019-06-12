@@ -709,7 +709,7 @@ test('appends to root plugins array', async () => {
   expect(programVisitor).toHaveBeenCalledTimes(9)
 })
 
-test('endOfLine - default - unix', async () => {
+test('endOfLine - default', async () => {
   await runPluginTester(
     getOptions({
       tests: [
@@ -722,10 +722,24 @@ test('endOfLine - default - unix', async () => {
   )
 })
 
-test('endOfLine - windows', async () => {
+test('endOfLine - Unix', async () => {
   await runPluginTester(
     getOptions({
-      endOfLine: '\r\n',
+      endOfLine: 'lf',
+      tests: [
+        {
+          code: 'var foo = "";\nvar bar = "";',
+          output: 'var foo = "";\nvar bar = "";',
+        },
+      ],
+    }),
+  )
+})
+
+test('endOfLine - Windows', async () => {
+  await runPluginTester(
+    getOptions({
+      endOfLine: 'crlf',
       tests: [
         {
           code: 'var foo = "";\nvar bar = "";',

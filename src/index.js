@@ -223,15 +223,15 @@ function pluginTester({
   }
 }
 
-function fixLineEndings(code, endOfLine = '\n', input = '') {
+function fixLineEndings(code, endOfLine = 'lf', input = '') {
   return code.replace(/\r?\n/g, getReplacement())
 
   function getReplacement() {
     switch (endOfLine) {
-      case '\n': {
+      case 'lf': {
         return '\n'
       }
-      case '\r\n': {
+      case 'crlf': {
         return '\r\n'
       }
       case 'auto': {

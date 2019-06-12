@@ -186,8 +186,8 @@ This is used to control which line endings the output from babel should have
 
 | Options    | Description                        |
 | ---------- | ---------------------------------- |
-| `\n`       | Unix - default                     |
-| `\r\n`     | Windows                            |
+| `lf`       | Unix - default                     |
+| `crlf`     | Windows                            |
 | `auto`     | Use the system default             |
 | `preserve` | Use the line ending from the input |
 
