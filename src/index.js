@@ -348,7 +348,7 @@ const createFixtureTests = (fixturesDir, options) => {
 
       assert.equal(
         actual.trim(),
-        output.trim(),
+        fixLineEndings(output, endOfLine, output).trim(),
         `actual output does not match ${fixtureOutputName}${ext}`,
       )
     })
