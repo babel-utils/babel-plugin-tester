@@ -306,11 +306,14 @@ test('can pass tests in fixtures relative to the filename', async () => {
     }),
   )
   expect(describeSpy).toHaveBeenCalledTimes(5)
-  expect(itSpy).toHaveBeenCalledTimes(8)
+  expect(itSpy).toHaveBeenCalledTimes(10)
+
   expect(itSpy.mock.calls).toEqual([
     [`changed`, expect.any(Function)],
+    [`jsx support`, expect.any(Function)],
     [`nested a`, expect.any(Function)],
     [`nested b`, expect.any(Function)],
+    [`tsx support`, expect.any(Function)],
     [`typescript`, expect.any(Function)],
     [`unchanged`, expect.any(Function)],
     [`nested with option`, expect.any(Function)],
@@ -342,10 +345,21 @@ test('creates output file for new tests', async () => {
     }),
   )
 
-  expect(writeFileSyncSpy.mock.calls[0]).toEqual([
-    expect.stringMatching(/(\/|\\)output\.(j|t)s$/),
-    "'use strict';",
-  ])
+  const calls = writeFileSyncSpy.mock.calls[0]
+  const outputMatch = /(\/|\\)output\.(j|t)sx?$/
+  if (calls[0].endsWith('.jsx')) {
+    expect(calls).toEqual([
+      expect.stringMatching(outputMatch),
+      'export default <div></div>;',
+    ])
+  } else if (calls[0].endsWith('.tsx')) {
+    expect(calls).toEqual([
+      expect.stringMatching(outputMatch),
+      'export default <div></div> as any;',
+    ])
+  } else {
+    expect(calls).toEqual([expect.stringMatching(outputMatch), "'use strict';"])
+  }
 })
 
 test('uses the fixture filename in babelOptions', async () => {
@@ -614,7 +628,7 @@ test('allows formatting fixtures results', async () => {
       formatResult: formatResultSpy,
     }),
   )
-  expect(formatResultSpy).toHaveBeenCalledTimes(9)
+  expect(formatResultSpy).toHaveBeenCalledTimes(11)
 })
 
 test('works with a formatter adding a empty line', async () => {
@@ -626,7 +640,7 @@ test('works with a formatter adding a empty line', async () => {
       formatResult: formatResultSpy,
     }),
   )
-  expect(formatResultSpy).toHaveBeenCalledTimes(9)
+  expect(formatResultSpy).toHaveBeenCalledTimes(11)
 })
 
 test('gets options from options.json files when using fixtures', async () => {
@@ -658,7 +672,7 @@ test('gets options from options.json files when using fixtures', async () => {
     }),
   )
 
-  expect(optionRootFoo).toHaveBeenCalledTimes(8)
+  expect(optionRootFoo).toHaveBeenCalledTimes(10)
   expect(optionFoo).toHaveBeenCalledTimes(2)
   expect(optionBar).toHaveBeenCalledTimes(1)
 })
@@ -703,10 +717,10 @@ test('appends to root plugins array', async () => {
     }),
   )
 
-  expect(optionRootFoo).toHaveBeenCalledTimes(8)
+  expect(optionRootFoo).toHaveBeenCalledTimes(10)
   expect(optionFoo).toHaveBeenCalledTimes(2)
   expect(optionBar).toHaveBeenCalledTimes(1)
-  expect(programVisitor).toHaveBeenCalledTimes(9)
+  expect(programVisitor).toHaveBeenCalledTimes(11)
 })
 
 test('endOfLine - default', async () => {

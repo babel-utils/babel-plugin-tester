@@ -265,11 +265,14 @@ const createFixtureTests = (fixturesDir, options) => {
     const optionsPath = path.join(fixtureDir, 'options.json')
     const jsCodePath = path.join(fixtureDir, 'code.js')
     const tsCodePath = path.join(fixtureDir, 'code.ts')
+    const jsxCodePath = path.join(fixtureDir, 'code.jsx')
+    const tsxCodePath = path.join(fixtureDir, 'code.tsx')
     const blockTitle = caseName.split('-').join(' ')
     const codePath =
       (pathExists.sync(jsCodePath) && jsCodePath) ||
-      (pathExists.sync(tsCodePath) && tsCodePath)
-
+      (pathExists.sync(tsCodePath) && tsCodePath) || 
+      (pathExists.sync(jsxCodePath) && jsxCodePath) ||
+      (pathExists.sync(tsxCodePath) && tsxCodePath)
     let fixturePluginOptions = {}
     if (pathExists.sync(optionsPath)) {
       fixturePluginOptions = require(optionsPath)
@@ -289,7 +292,7 @@ const createFixtureTests = (fixturesDir, options) => {
       return
     }
 
-    const ext = /\.ts$/.test(codePath) ? '.ts' : '.js'
+    const ext = `.${ codePath.split('.').pop() }`;
     it(blockTitle, () => {
       const {
         plugin,
