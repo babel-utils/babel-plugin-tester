@@ -6,6 +6,7 @@
   ],
   "imageSize": 100,
   "commit": false,
+  "repoType": "github",
   "contributors": [
     {
       "login": "kentcdodds",
@@ -89,6 +90,5 @@
         "code"
       ]
     }
-  ],
-  "repoType": "github"
+  ]
 }
