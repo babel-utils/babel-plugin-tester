@@ -15,13 +15,9 @@ const noop = () => {}
 // NOTE: I tried doing the "proper thing" using Symbol.hasInstance
 // but no matter what that did, I couldn't make that work with a SyntaxError
 // because SyntaxError[Symbol.hasInstance]() returns false. What. The. Heck!?
-// So I'm doing this hacky try/catch garbage :-/
+// So I'm doing this .prototype stuff :-/
 function instanceOf(inst, cls) {
-  try {
-    return inst instanceof cls
-  } catch (error) {
-    return false
-  }
+  return cls.prototype !== undefined && inst instanceof cls
 }
 
 module.exports = pluginTester
