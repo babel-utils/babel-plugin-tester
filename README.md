@@ -4,18 +4,10 @@ Utilities for testing babel plugins
 
 [![Build Status][build-badge]][build]
 [![Code Coverage][coverage-badge]][coverage]
-[![Dependencies][dependencyci-badge]][dependencyci]
-[![version][version-badge]][package] [![downloads][downloads-badge]][npm-stat]
+[![version][version-badge]][package] [![downloads][downloads-badge]][npmtrends]
 [![MIT License][license-badge]][license]
-
 [![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
-[![PRs Welcome][prs-badge]][prs] [![Donate][donate-badge]][donate]
-[![Code of Conduct][coc-badge]][coc] [![Roadmap][roadmap-badge]][roadmap]
-[![Examples][examples-badge]][examples]
-
-[![Watch on GitHub][github-watch-badge]][github-watch]
-[![Star on GitHub][github-star-badge]][github-star]
-[![Tweet][twitter-badge]][twitter]
+[![PRs Welcome][prs-badge]][prs] [![Code of Conduct][coc-badge]][coc]
 
 ## The problem
 
@@ -508,16 +500,12 @@ MIT
 [coverage-badge]:
   https://img.shields.io/codecov/c/github/babel-utils/babel-plugin-tester.svg?style=flat-square
 [coverage]: https://codecov.io/github/babel-utils/babel-plugin-tester
-[dependencyci-badge]:
-  https://dependencyci.com/github/babel-utils/babel-plugin-tester/badge?style=flat-square
-[dependencyci]: https://dependencyci.com/github/babel-utils/babel-plugin-tester
 [version-badge]:
   https://img.shields.io/npm/v/babel-plugin-tester.svg?style=flat-square
 [package]: https://www.npmjs.com/package/babel-plugin-tester
 [downloads-badge]:
   https://img.shields.io/npm/dm/babel-plugin-tester.svg?style=flat-square
-[npm-stat]:
-  http://npm-stat.com/charts.html?package=babel-plugin-tester&from=2016-04-01
+[npmtrends]: https://www.npmtrends.com/babel-plugin-tester
 [license-badge]:
   https://img.shields.io/npm/l/babel-plugin-tester.svg?style=flat-square
 [license]:
@@ -525,9 +513,6 @@ MIT
 [prs-badge]:
   https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [prs]: http://makeapullrequest.com
-[donate-badge]:
-  https://img.shields.io/badge/$-support-green.svg?style=flat-square
-[donate]: http://kcd.im/donate
 [coc-badge]:
   https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
 [coc]:
