@@ -1,5 +1,3 @@
-/* eslint-disable jest/valid-describe */
-
 import assert from 'assert'
 import path from 'path'
 import fs from 'fs'
@@ -11,6 +9,20 @@ import stripIndent from 'strip-indent'
 import {oneLine} from 'common-tags'
 
 const noop = () => {}
+
+// thanks to node throwing an error if you try to use instanceof with an arrow
+// function we have to have this function. I guess it's spec... SMH...
+// NOTE: I tried doing the "proper thing" using Symbol.hasInstance
+// but no matter what that did, I couldn't make that work with a SyntaxError
+// because SyntaxError[Symbol.hasInstance]() returns false. What. The. Heck!?
+// So I'm doing this hacky try/catch garbage :-/
+function instanceOf(inst, cls) {
+  try {
+    return inst instanceof cls
+  } catch (error) {
+    return false
+  }
+}
 
 module.exports = pluginTester
 
@@ -270,7 +282,7 @@ const createFixtureTests = (fixturesDir, options) => {
     const blockTitle = caseName.split('-').join(' ')
     const codePath =
       (pathExists.sync(jsCodePath) && jsCodePath) ||
-      (pathExists.sync(tsCodePath) && tsCodePath) || 
+      (pathExists.sync(tsCodePath) && tsCodePath) ||
       (pathExists.sync(jsxCodePath) && jsxCodePath) ||
       (pathExists.sync(tsxCodePath) && tsxCodePath)
     let fixturePluginOptions = {}
@@ -292,7 +304,7 @@ const createFixtureTests = (fixturesDir, options) => {
       return
     }
 
-    const ext = `.${ codePath.split('.').pop() }`;
+    const ext = `.${codePath.split('.').pop()}`
     it(blockTitle, () => {
       const {
         plugin,
@@ -408,7 +420,7 @@ function getPath(filename, basename) {
 // eslint-disable-next-line complexity
 function assertError(result, error) {
   if (typeof error === 'function') {
-    if (!(result instanceof error || error(result) === true)) {
+    if (!(instanceOf(result, error) || error(result) === true)) {
       throw result
     }
   } else if (typeof error === 'string') {
@@ -450,5 +462,6 @@ function getPluginName(plugin, babel) {
 
 /*
 eslint
-  complexity: "off"
+  complexity: "off",
+  jest/valid-describe: "off"
 */

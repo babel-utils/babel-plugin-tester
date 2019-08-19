@@ -5,15 +5,12 @@ Utilities for testing babel plugins
 [![Build Status][build-badge]][build]
 [![Code Coverage][coverage-badge]][coverage]
 [![Dependencies][dependencyci-badge]][dependencyci]
-[![version][version-badge]][package]
-[![downloads][downloads-badge]][npm-stat]
+[![version][version-badge]][package] [![downloads][downloads-badge]][npm-stat]
 [![MIT License][license-badge]][license]
 
 [![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors)
-[![PRs Welcome][prs-badge]][prs]
-[![Donate][donate-badge]][donate]
-[![Code of Conduct][coc-badge]][coc]
-[![Roadmap][roadmap-badge]][roadmap]
+[![PRs Welcome][prs-badge]][prs] [![Donate][donate-badge]][donate]
+[![Code of Conduct][coc-badge]][coc] [![Roadmap][roadmap-badge]][roadmap]
 [![Examples][examples-badge]][examples]
 
 [![Watch on GitHub][github-watch-badge]][github-watch]
@@ -33,45 +30,19 @@ work with `mocha` and `jasmine`.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [babel-plugin-tester](#babel-plugin-tester)
-  - [The problem](#the-problem)
-  - [This solution](#this-solution)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [import](#import)
-    - [Invoke](#invoke)
-    - [options](#options)
-      - [plugin](#plugin)
-      - [pluginName](#pluginname)
-      - [pluginOptions](#pluginoptions)
-        - [babel.config.js](#babelconfigjs)
-      - [title](#title)
-      - [filename](#filename)
-      - [endOfLine](#endofline)
-      - [fixtures](#fixtures)
-      - [tests](#tests)
-      - [babel](#babel)
-      - [...rest](#rest)
-    - [Test Objects](#test-objects)
-      - [code](#code)
-      - [title](#title-1)
-      - [output](#output)
-      - [fixture](#fixture)
-      - [outputFixture](#outputfixture)
-      - [only](#only)
-      - [skip](#skip)
-      - [snapshot](#snapshot)
-      - [error](#error)
-      - [setup](#setup)
-      - [teardown](#teardown)
-      - [formatResult](#formatresult)
-  - [Examples](#examples)
-    - [Full Example + Docs](#full-example--docs)
-    - [Simple Example](#simple-example)
-  - [Inspiration](#inspiration)
-  - [Other Solutions](#other-solutions)
-  - [Contributors](#contributors)
-  - [LICENSE](#license)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [import](#import)
+  - [Invoke](#invoke)
+  - [options](#options)
+  - [Test Objects](#test-objects)
+- [Examples](#examples)
+  - [Full Example + Docs](#full-example--docs)
+  - [Simple Example](#simple-example)
+- [Inspiration](#inspiration)
+- [Other Solutions](#other-solutions)
+- [Contributors](#contributors)
+- [LICENSE](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -139,9 +110,9 @@ function identifierReversePlugin() {
 
 #### pluginName
 
-This is used for the `describe` title as well as the test titles. If it
-can be inferred from the `plugin`'s `name` then it will be and you don't need
-to provide this option.
+This is used for the `describe` title as well as the test titles. If it can be
+inferred from the `plugin`'s `name` then it will be and you don't need to
+provide this option.
 
 #### pluginOptions
 
@@ -176,9 +147,8 @@ the `pluginName`).
 Relative paths from the other options will be relative to this. Normally you'll
 provide this as `filename: __filename`. The only `options` property affected by
 this value is `fixtures`. Test Object properties affected by this value are:
-`fixture` and `outputFixture`. If those properties are not
-absolute paths, then they will be `path.join`ed with `path.dirname` of the
-`filename`.
+`fixture` and `outputFixture`. If those properties are not absolute paths, then
+they will be `path.join`ed with `path.dirname` of the `filename`.
 
 #### endOfLine
 
@@ -216,9 +186,11 @@ pluginTester({
 })
 ```
 
-And it would run two tests. One for each directory in `__fixtures__`, with plugin options set to the content of `options.json`
+And it would run two tests. One for each directory in `__fixtures__`, with
+plugin options set to the content of `options.json`
 
-Options are inherited, placing a `options.json` file in `__fixtures__` would add those options to all fixtures.
+Options are inherited, placing a `options.json` file in `__fixtures__` would add
+those options to all fixtures.
 
 #### tests
 
@@ -237,13 +209,13 @@ Read more about test objects below.
 #### babel
 
 Use this to provide your own implementation of babel. This is particularly
-useful if you want to use a different version of babel than what's included
-in this package.
+useful if you want to use a different version of babel than what's included in
+this package.
 
 #### ...rest
 
-The rest of the options you provide will be [`lodash.merge`][lodash.merge]d
-with each test object. Read more about those next!
+The rest of the options you provide will be [`lodash.merge`][lodash.merge]d with
+each test object. Read more about those next!
 
 ### Test Objects
 
@@ -257,9 +229,9 @@ Here are the available properties if you provide an object:
 #### code
 
 The code that you want to run through your babel plugin. This must be provided
-unless you provide a `fixture` instead. If there's no `output` or `outputFixture`
-and `snapshot` is not `true`, then the assertion is that this code is unchanged
-by the plugin.
+unless you provide a `fixture` instead. If there's no `output` or
+`outputFixture` and `snapshot` is not `true`, then the assertion is that this
+code is unchanged by the plugin.
 
 #### title
 
@@ -297,13 +269,13 @@ not yet supported.
 
 If you'd prefer to take a snapshot of your output rather than compare it to
 something you hard-code, then specify `snapshot: true`. This will take a
-snapshot with both the source code and the output, making the snapshot easier
-to understand.
+snapshot with both the source code and the output, making the snapshot easier to
+understand.
 
 #### error
 
-If a particular test case should be throwing an error, you can that using one
-of the following:
+If a particular test case should be throwing an error, you can that using one of
+the following:
 
 ```javascript
 {
@@ -323,9 +295,9 @@ of the following:
 #### setup
 
 If you need something set up before a particular test is run, you can do this
-with `setup`. This function will be run before the test runs. It can return
-a function which will be treated as a `teardown` function. It can also return
-a promise. If that promise resolves to a function, that will be treated as a
+with `setup`. This function will be run before the test runs. It can return a
+function which will be treated as a `teardown` function. It can also return a
+promise. If that promise resolves to a function, that will be treated as a
 `teardown` function.
 
 #### teardown
@@ -337,8 +309,8 @@ function. This can likewise return a promise if it's asynchronous.
 #### formatResult
 
 This is a function and if it's specified, it allows you to format the result
-however you like. The use case for this originally was for testing codemods
-and formatting their result with `prettier-eslint`.
+however you like. The use case for this originally was for testing codemods and
+formatting their result with `prettier-eslint`.
 
 ## Examples
 
@@ -518,38 +490,60 @@ MIT
 
 [npm]: https://www.npmjs.com/
 [node]: https://nodejs.org
-[build-badge]: https://img.shields.io/travis/babel-utils/babel-plugin-tester.svg?style=flat-square
+[build-badge]:
+  https://img.shields.io/travis/babel-utils/babel-plugin-tester.svg?style=flat-square
 [build]: https://travis-ci.org/babel-utils/babel-plugin-tester
-[coverage-badge]: https://img.shields.io/codecov/c/github/babel-utils/babel-plugin-tester.svg?style=flat-square
+[coverage-badge]:
+  https://img.shields.io/codecov/c/github/babel-utils/babel-plugin-tester.svg?style=flat-square
 [coverage]: https://codecov.io/github/babel-utils/babel-plugin-tester
-[dependencyci-badge]: https://dependencyci.com/github/babel-utils/babel-plugin-tester/badge?style=flat-square
+[dependencyci-badge]:
+  https://dependencyci.com/github/babel-utils/babel-plugin-tester/badge?style=flat-square
 [dependencyci]: https://dependencyci.com/github/babel-utils/babel-plugin-tester
-[version-badge]: https://img.shields.io/npm/v/babel-plugin-tester.svg?style=flat-square
+[version-badge]:
+  https://img.shields.io/npm/v/babel-plugin-tester.svg?style=flat-square
 [package]: https://www.npmjs.com/package/babel-plugin-tester
-[downloads-badge]: https://img.shields.io/npm/dm/babel-plugin-tester.svg?style=flat-square
-[npm-stat]: http://npm-stat.com/charts.html?package=babel-plugin-tester&from=2016-04-01
-[license-badge]: https://img.shields.io/npm/l/babel-plugin-tester.svg?style=flat-square
-[license]: https://github.com/babel-utils/babel-plugin-tester/blob/master/other/LICENSE
-[prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
+[downloads-badge]:
+  https://img.shields.io/npm/dm/babel-plugin-tester.svg?style=flat-square
+[npm-stat]:
+  http://npm-stat.com/charts.html?package=babel-plugin-tester&from=2016-04-01
+[license-badge]:
+  https://img.shields.io/npm/l/babel-plugin-tester.svg?style=flat-square
+[license]:
+  https://github.com/babel-utils/babel-plugin-tester/blob/master/other/LICENSE
+[prs-badge]:
+  https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [prs]: http://makeapullrequest.com
-[donate-badge]: https://img.shields.io/badge/$-support-green.svg?style=flat-square
+[donate-badge]:
+  https://img.shields.io/badge/$-support-green.svg?style=flat-square
 [donate]: http://kcd.im/donate
-[coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
-[coc]: https://github.com/babel-utils/babel-plugin-tester/blob/master/other/CODE_OF_CONDUCT.md
-[roadmap-badge]: https://img.shields.io/badge/%F0%9F%93%94-roadmap-CD9523.svg?style=flat-square
-[roadmap]: https://github.com/babel-utils/babel-plugin-tester/blob/master/other/ROADMAP.md
-[examples-badge]: https://img.shields.io/badge/%F0%9F%92%A1-examples-8C8E93.svg?style=flat-square
-[examples]: https://github.com/babel-utils/babel-plugin-tester/blob/master/other/EXAMPLES.md
-[github-watch-badge]: https://img.shields.io/github/watchers/babel-utils/babel-plugin-tester.svg?style=social
+[coc-badge]:
+  https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
+[coc]:
+  https://github.com/babel-utils/babel-plugin-tester/blob/master/other/CODE_OF_CONDUCT.md
+[roadmap-badge]:
+  https://img.shields.io/badge/%F0%9F%93%94-roadmap-CD9523.svg?style=flat-square
+[roadmap]:
+  https://github.com/babel-utils/babel-plugin-tester/blob/master/other/ROADMAP.md
+[examples-badge]:
+  https://img.shields.io/badge/%F0%9F%92%A1-examples-8C8E93.svg?style=flat-square
+[examples]:
+  https://github.com/babel-utils/babel-plugin-tester/blob/master/other/EXAMPLES.md
+[github-watch-badge]:
+  https://img.shields.io/github/watchers/babel-utils/babel-plugin-tester.svg?style=social
 [github-watch]: https://github.com/babel-utils/babel-plugin-tester/watchers
-[github-star-badge]: https://img.shields.io/github/stars/babel-utils/babel-plugin-tester.svg?style=social
+[github-star-badge]:
+  https://img.shields.io/github/stars/babel-utils/babel-plugin-tester.svg?style=social
 [github-star]: https://github.com/babel-utils/babel-plugin-tester/stargazers
-[twitter]: https://twitter.com/intent/tweet?text=Check%20out%20babel-plugin-tester!%20https://github.com/babel-utils/babel-plugin-tester%20%F0%9F%91%8D
-[twitter-badge]: https://img.shields.io/twitter/url/https/github.com/babel-utils/babel-plugin-tester.svg?style=social
+[twitter]:
+  https://twitter.com/intent/tweet?text=Check%20out%20babel-plugin-tester!%20https://github.com/babel-utils/babel-plugin-tester%20%F0%9F%91%8D
+[twitter-badge]:
+  https://img.shields.io/twitter/url/https/github.com/babel-utils/babel-plugin-tester.svg?style=social
 [emojis]: https://github.com/kentcdodds/all-contributors#emoji-key
 [all-contributors]: https://github.com/kentcdodds/all-contributors
 [lodash.mergewith]: https://lodash.com/docs/4.17.4#mergeWith
-[ruletester]: http://eslint.org/docs/developer-guide/working-with-rules#rule-unit-tests
+[ruletester]:
+  http://eslint.org/docs/developer-guide/working-with-rules#rule-unit-tests
 [@thejameskyle]: https://github.com/thejameskyle
 [jamestweet]: https://twitter.com/thejameskyle/status/864359438819262465
-[@babel/helper-plugin-test-runner]: https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner
+[@babel/helper-plugin-test-runner]:
+  https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner

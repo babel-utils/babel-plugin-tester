@@ -4,21 +4,24 @@
   "description": "Utilities for testing babel plugins",
   "main": "dist/index.js",
   "engines": {
-    "node": "> 4",
-    "npm": "> 3"
+    "node": ">=8",
+    "npm": ">=6"
   },
   "scripts": {
-    "add-contributor": "kcd-scripts contributors add",
     "build": "kcd-scripts build",
     "lint": "kcd-scripts lint",
     "test": "kcd-scripts test",
     "test:update": "npm test -- --updateSnapshot --coverage",
-    "validate": "kcd-scripts validate",
-    "precommit": "kcd-scripts pre-commit"
+    "validate": "kcd-scripts validate"
   },
   "files": [
     "dist"
   ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "kcd-scripts pre-commit"
+    }
+  },
   "keywords": [],
   "author": "Kent C. Dodds <kent@doddsfamily.us> (http://kentcdodds.com/)",
   "license": "MIT",
@@ -26,8 +29,8 @@
     "common-tags": "^1.4.0",
     "invariant": "^2.2.2",
     "lodash.mergewith": "^4.6.0",
-    "path-exists": "^3.0.0",
-    "strip-indent": "^2.0.0"
+    "path-exists": "^4.0.0",
+    "strip-indent": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.2.0",
@@ -36,7 +39,7 @@
     "@babel/plugin-syntax-typescript": "^7.3.3",
     "@babel/plugin-transform-async-to-generator": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
-    "kcd-scripts": "^0.49.0"
+    "kcd-scripts": "^1.7.0"
   },
   "peerDependencies": {
     "@babel/core": "^7.0.0"
@@ -67,7 +70,7 @@
         "@babel/preset-env",
         {
           "targets": {
-            "node": "4.5"
+            "node": "8"
           },
           "exclude": [
             "transform-regenerator"
@@ -80,13 +83,6 @@
       "@babel/plugin-proposal-async-generator-functions",
       "@babel/plugin-proposal-object-rest-spread"
     ]
-  },
-  "prettier": {
-    "printWidth": 80,
-    "bracketSpacing": false,
-    "semi": false,
-    "singleQuote": true,
-    "trailingComma": "all"
   },
   "repository": {
     "type": "git",
