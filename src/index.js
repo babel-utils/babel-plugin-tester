@@ -5,7 +5,6 @@ import {EOL} from 'os'
 import mergeWith from 'lodash.mergewith'
 import invariant from 'invariant'
 import stripIndent from 'strip-indent'
-import {oneLine} from 'common-tags'
 
 const noop = () => {}
 
@@ -136,10 +135,7 @@ function pluginTester({
       function tester() {
         invariant(
           code,
-          oneLine`
-            A string or object with a \`code\` or
-            \`fixture\` property must be provided
-          `,
+          'A string or object with a `code` or `fixture` property must be provided',
         )
         invariant(
           !babelOptions.babelrc || babelOptions.filename,
@@ -179,10 +175,7 @@ function pluginTester({
         if (snapshot) {
           invariant(
             result !== code,
-            oneLine`
-              Code was unmodified but attempted to take a snapshot.
-              If the code should not be modified, set \`snapshot: false\`
-            `,
+            'Code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`',
           )
           const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n'
           const formattedOutput = [code, separator, result].join('')
@@ -444,10 +437,7 @@ function getPluginName(plugin, babel) {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(
-      oneLine`
-        Attempting to infer the name of your plugin failed.
-        Tried to invoke the plugin which threw the error.
-      `,
+      'Attempting to infer the name of your plugin failed. Tried to invoke the plugin which threw the error.',
     )
     throw error
   }
