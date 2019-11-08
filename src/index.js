@@ -3,7 +3,6 @@ import path from 'path'
 import fs from 'fs'
 import {EOL} from 'os'
 import mergeWith from 'lodash.mergewith'
-import invariant from 'invariant'
 import stripIndent from 'strip-indent'
 
 const noop = () => {}
@@ -133,15 +132,15 @@ function pluginTester({
 
       // eslint-disable-next-line complexity
       function tester() {
-        invariant(
+        assert(
           code,
           'A string or object with a `code` or `fixture` property must be provided',
         )
-        invariant(
+        assert(
           !babelOptions.babelrc || babelOptions.filename,
           'babelrc set to true, but no filename specified in babelOptions',
         )
-        invariant(
+        assert(
           !snapshot || !output,
           '`output` cannot be provided with `snapshot: true`',
         )
@@ -173,7 +172,7 @@ function pluginTester({
         )
 
         if (snapshot) {
-          invariant(
+          assert(
             result !== code,
             'Code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`',
           )
@@ -419,7 +418,7 @@ function assertError(result, error) {
       `Expected ${result.message} to match ${error}`,
     )
   } else {
-    invariant(
+    assert(
       typeof error === 'boolean',
       'The given `error` must be a function, string, boolean, or RegExp',
     )
@@ -441,7 +440,7 @@ function getPluginName(plugin, babel) {
     )
     throw error
   }
-  invariant(name, 'The `pluginName` must be inferable or provided.')
+  assert(name, 'The `pluginName` must be inferable or provided.')
   return name
 }
 
