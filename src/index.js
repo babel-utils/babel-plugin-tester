@@ -2,7 +2,6 @@ import assert from 'assert'
 import path from 'path'
 import fs from 'fs'
 import {EOL} from 'os'
-import pathExists from 'path-exists'
 import mergeWith from 'lodash.mergewith'
 import invariant from 'invariant'
 import stripIndent from 'strip-indent'
@@ -264,7 +263,7 @@ const createFixtureTests = (fixturesDir, options) => {
 
   const rootOptionsPath = path.join(fixturesDir, 'options.json')
   let rootFixtureOptions = {}
-  if (pathExists.sync(rootOptionsPath)) {
+  if (fs.existsSync(rootOptionsPath)) {
     rootFixtureOptions = require(rootOptionsPath)
   }
 
@@ -277,12 +276,12 @@ const createFixtureTests = (fixturesDir, options) => {
     const tsxCodePath = path.join(fixtureDir, 'code.tsx')
     const blockTitle = caseName.split('-').join(' ')
     const codePath =
-      (pathExists.sync(jsCodePath) && jsCodePath) ||
-      (pathExists.sync(tsCodePath) && tsCodePath) ||
-      (pathExists.sync(jsxCodePath) && jsxCodePath) ||
-      (pathExists.sync(tsxCodePath) && tsxCodePath)
+      (fs.existsSync(jsCodePath) && jsCodePath) ||
+      (fs.existsSync(tsCodePath) && tsCodePath) ||
+      (fs.existsSync(jsxCodePath) && jsxCodePath) ||
+      (fs.existsSync(tsxCodePath) && tsxCodePath)
     let fixturePluginOptions = {}
-    if (pathExists.sync(optionsPath)) {
+    if (fs.existsSync(optionsPath)) {
       fixturePluginOptions = require(optionsPath)
     }
 
@@ -331,7 +330,7 @@ const createFixtureTests = (fixturesDir, options) => {
             ],
             // if they have a babelrc, then we'll let them use that
             // otherwise, we'll just use our simple config
-            babelrc: pathExists.sync(babelRcPath),
+            babelrc: fs.existsSync(babelRcPath),
           },
         },
         rest,

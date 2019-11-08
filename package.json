@@ -29,7 +29,6 @@
     "common-tags": "^1.4.0",
     "invariant": "^2.2.2",
     "lodash.mergewith": "^4.6.0",
-    "path-exists": "^4.0.0",
     "strip-indent": "^3.0.0"
   },
   "devDependencies": {
