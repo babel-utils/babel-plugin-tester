@@ -2,11 +2,8 @@ import assert from 'assert'
 import path from 'path'
 import fs from 'fs'
 import {EOL} from 'os'
-import pathExists from 'path-exists'
 import mergeWith from 'lodash.mergewith'
-import invariant from 'invariant'
 import stripIndent from 'strip-indent'
-import {oneLine} from 'common-tags'
 
 const noop = () => {}
 
@@ -135,18 +132,15 @@ function pluginTester({
 
       // eslint-disable-next-line complexity
       function tester() {
-        invariant(
+        assert(
           code,
-          oneLine`
-            A string or object with a \`code\` or
-            \`fixture\` property must be provided
-          `,
+          'A string or object with a `code` or `fixture` property must be provided',
         )
-        invariant(
+        assert(
           !babelOptions.babelrc || babelOptions.filename,
           'babelrc set to true, but no filename specified in babelOptions',
         )
-        invariant(
+        assert(
           !snapshot || !output,
           '`output` cannot be provided with `snapshot: true`',
         )
@@ -178,12 +172,9 @@ function pluginTester({
         )
 
         if (snapshot) {
-          invariant(
+          assert(
             result !== code,
-            oneLine`
-              Code was unmodified but attempted to take a snapshot.
-              If the code should not be modified, set \`snapshot: false\`
-            `,
+            'Code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`',
           )
           const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n'
           const formattedOutput = [code, separator, result].join('')
@@ -264,7 +255,7 @@ const createFixtureTests = (fixturesDir, options) => {
 
   const rootOptionsPath = path.join(fixturesDir, 'options.json')
   let rootFixtureOptions = {}
-  if (pathExists.sync(rootOptionsPath)) {
+  if (fs.existsSync(rootOptionsPath)) {
     rootFixtureOptions = require(rootOptionsPath)
   }
 
@@ -277,12 +268,12 @@ const createFixtureTests = (fixturesDir, options) => {
     const tsxCodePath = path.join(fixtureDir, 'code.tsx')
     const blockTitle = caseName.split('-').join(' ')
     const codePath =
-      (pathExists.sync(jsCodePath) && jsCodePath) ||
-      (pathExists.sync(tsCodePath) && tsCodePath) ||
-      (pathExists.sync(jsxCodePath) && jsxCodePath) ||
-      (pathExists.sync(tsxCodePath) && tsxCodePath)
+      (fs.existsSync(jsCodePath) && jsCodePath) ||
+      (fs.existsSync(tsCodePath) && tsCodePath) ||
+      (fs.existsSync(jsxCodePath) && jsxCodePath) ||
+      (fs.existsSync(tsxCodePath) && tsxCodePath)
     let fixturePluginOptions = {}
-    if (pathExists.sync(optionsPath)) {
+    if (fs.existsSync(optionsPath)) {
       fixturePluginOptions = require(optionsPath)
     }
 
@@ -331,7 +322,7 @@ const createFixtureTests = (fixturesDir, options) => {
             ],
             // if they have a babelrc, then we'll let them use that
             // otherwise, we'll just use our simple config
-            babelrc: pathExists.sync(babelRcPath),
+            babelrc: fs.existsSync(babelRcPath),
           },
         },
         rest,
@@ -427,7 +418,7 @@ function assertError(result, error) {
       `Expected ${result.message} to match ${error}`,
     )
   } else {
-    invariant(
+    assert(
       typeof error === 'boolean',
       'The given `error` must be a function, string, boolean, or RegExp',
     )
@@ -445,17 +436,17 @@ function getPluginName(plugin, babel) {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(
-      oneLine`
-        Attempting to infer the name of your plugin failed.
-        Tried to invoke the plugin which threw the error.
-      `,
+      'Attempting to infer the name of your plugin failed. Tried to invoke the plugin which threw the error.',
     )
     throw error
   }
-  invariant(name, 'The `pluginName` must be inferable or provided.')
+  assert(name, 'The `pluginName` must be inferable or provided.')
   return name
 }
 
+// unfortunately the ESLint plugin for Jest thinks this is a test file
+// a better solution might be to adjust the eslint config so it doesn't
+// but I don't have time to do that at the moment.
 /*
 eslint
   complexity: off,

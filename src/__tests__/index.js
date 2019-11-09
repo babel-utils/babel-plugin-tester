@@ -84,7 +84,7 @@ test('logs when plugin name is not inferable and rethrows errors', async () => {
   )
 })
 
-test('throws an invariant if the plugin name is not inferable', async () => {
+test('assert throws if the plugin name is not inferable', async () => {
   await expect(
     runPluginTester({
       plugin: () => ({}),
@@ -184,7 +184,7 @@ test('throws if output is incorrect', async () => {
   await snapshotOptionsError(getOptions({tests}))
 })
 
-test(`throws invariant if there's no code`, async () => {
+test(`assert throws if there's no code`, async () => {
   const tests = [{}]
   await snapshotOptionsError(getOptions({tests}))
 })
@@ -447,7 +447,7 @@ test('can overwrite plugin options at test level', async () => {
   )
 })
 
-test('throws invariant if snapshot and output are both provided', async () => {
+test('assert throws if snapshot and output are both provided', async () => {
   const tests = [{code: simpleTest, output: 'anything', snapshot: true}]
   await snapshotOptionsError(getOptions({tests}))
 })
@@ -457,7 +457,7 @@ test('snapshot option can be derived from the root config', async () => {
   await snapshotOptionsError(getOptions({snapshot: true, tests}))
 })
 
-test('throws invariant if code is unchanged + snapshot enabled', async () => {
+test('assert throws if code is unchanged + snapshot enabled', async () => {
   const tests = [simpleTest]
   await snapshotOptionsError(getOptions({snapshot: true, tests}))
 })
