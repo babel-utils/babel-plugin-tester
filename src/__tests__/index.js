@@ -245,18 +245,15 @@ test('can get a code and output fixture that is an absolute path', async () => {
       outputFixture: getFixturePath('outure1.js'),
     },
   ]
-  try {
-    await runPluginTester(getOptions({tests}))
-  } catch (error) {
-    const actual = getFixtureContents('fixture1.js')
-    const expected = getFixtureContents('outure1.js')
-    expect(error).toMatchObject({
-      name: expect.stringMatching(/AssertionError/),
-      message: 'Output is incorrect.',
-      actual,
-      expected,
-    })
-  }
+  const error = await runPluginTester(getOptions({tests})).catch(e => e)
+  const actual = getFixtureContents('fixture1.js')
+  const expected = getFixtureContents('outure1.js')
+  expect(error).toMatchObject({
+    name: expect.stringMatching(/AssertionError/),
+    message: 'Output is incorrect.',
+    actual,
+    expected,
+  })
 })
 
 test('can pass with fixture and outputFixture', async () => {
@@ -283,18 +280,17 @@ test('can resolve a fixture with the filename option', async () => {
       outputFixture: 'fixtures/outure1.js',
     },
   ]
-  try {
-    await runPluginTester(getOptions({filename: __filename, tests}))
-  } catch (error) {
-    const actual = getFixtureContents('fixture1.js')
-    const expected = getFixtureContents('outure1.js')
-    expect(error).toMatchObject({
-      name: expect.stringMatching(/AssertionError/),
-      message: 'Output is incorrect.',
-      actual,
-      expected,
-    })
-  }
+  const error = await runPluginTester(
+    getOptions({filename: __filename, tests}),
+  ).catch(e => e)
+  const actual = getFixtureContents('fixture1.js')
+  const expected = getFixtureContents('outure1.js')
+  expect(error).toMatchObject({
+    name: expect.stringMatching(/AssertionError/),
+    message: 'Output is incorrect.',
+    actual,
+    expected,
+  })
 })
 
 test('can pass tests in fixtures relative to the filename', async () => {
@@ -323,17 +319,14 @@ test('can pass tests in fixtures relative to the filename', async () => {
 })
 
 test('can fail tests in fixtures at an absolute path', async () => {
-  try {
-    await runPluginTester(
-      getOptions({
-        plugin: identifierReversePlugin,
-        tests: null,
-        fixtures: getFixturePath('failing-fixtures'),
-      }),
-    )
-  } catch (error) {
-    expect(error.message).toMatchSnapshot()
-  }
+  const error = await runPluginTester(
+    getOptions({
+      plugin: identifierReversePlugin,
+      tests: null,
+      fixtures: getFixturePath('failing-fixtures'),
+    }),
+  ).catch(e => e)
+  expect(error.message).toMatchSnapshot()
 })
 
 test('creates output file for new tests', async () => {
@@ -347,19 +340,10 @@ test('creates output file for new tests', async () => {
 
   const calls = writeFileSyncSpy.mock.calls[0]
   const outputMatch = /(\/|\\)output\.(j|t)sx?$/
-  if (calls[0].endsWith('.jsx')) {
-    expect(calls).toEqual([
-      expect.stringMatching(outputMatch),
-      'export default <div></div>;',
-    ])
-  } else if (calls[0].endsWith('.tsx')) {
-    expect(calls).toEqual([
-      expect.stringMatching(outputMatch),
-      'export default <div></div> as any;',
-    ])
-  } else {
-    expect(calls).toEqual([expect.stringMatching(outputMatch), "'use strict';"])
-  }
+  expect(calls).toEqual([
+    expect.stringMatching(outputMatch),
+    'export default <div></div>;',
+  ])
 })
 
 test('uses the fixture filename in babelOptions', async () => {
