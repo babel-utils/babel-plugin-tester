@@ -450,8 +450,8 @@ function getPluginName(plugin, babel) {
 /*
 eslint
   complexity: "off",
-  jest/valid-describe: "off"
-  jest/no-export: "off"
-  jest/valid-title: "off"
-  jest/no-if: "off"
+  jest/valid-describe: "off",
+  jest/no-export: "off",
+  jest/valid-title: "off",
+  jest/no-if: "off",
 */
