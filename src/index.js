@@ -444,8 +444,14 @@ function getPluginName(plugin, babel) {
   return name
 }
 
+// unfortunately the ESLint plugin for Jest thinks this is a test file
+// a better solution might be to adjust the eslint config so it doesn't
+// but I don't have time to do that at the moment.
 /*
 eslint
   complexity: "off",
   jest/valid-describe: "off"
+  jest/no-export: "off"
+  jest/valid-title: "off"
+  jest/no-if: "off"
 */
