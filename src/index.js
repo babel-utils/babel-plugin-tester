@@ -303,7 +303,9 @@ const createFixtureTests = (fixturesDir, options) => {
         ...rest
       } = options
 
-      const babelRcPath = path.join(fixtureDir, '.babelrc')
+      const hasBabelrc = ['.babelrc', '.babelrc.js', '.babelrc.cjs'].some(
+        babelrc => fs.existsSync(path.join(fixtureDir, babelrc)),
+      )
 
       const {babelOptions} = mergeWith(
         {},
@@ -322,7 +324,7 @@ const createFixtureTests = (fixturesDir, options) => {
             ],
             // if they have a babelrc, then we'll let them use that
             // otherwise, we'll just use our simple config
-            babelrc: fs.existsSync(babelRcPath),
+            babelrc: hasBabelrc,
           },
         },
         rest,
