@@ -336,17 +336,16 @@ test('creates output file for new tests', async () => {
   await runPluginTester(
     getOptions({
       filename: __filename,
-      fixtures: 'fixtures/fixtures',
+      fixtures: 'fixtures/creates-output-file',
       tests: null,
     }),
   )
 
-  const calls = writeFileSyncSpy.mock.calls[0]
-  const outputMatch = /(\/|\\)output\.(j|t)sx?$/
-  expect(calls).toEqual([
-    expect.stringMatching(outputMatch),
-    'export default <div></div>;',
-  ])
+  expect(writeFileSyncSpy).toHaveBeenCalledWith(
+    path.join(__dirname, './fixtures/creates-output-file/fixture/output.js'),
+    `console.log('hello');`,
+  )
+  expect(writeFileSyncSpy).toHaveBeenCalledTimes(1)
 })
 
 test('uses the fixture filename in babelOptions', async () => {
