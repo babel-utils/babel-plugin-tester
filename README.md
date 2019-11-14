@@ -339,6 +339,7 @@ pluginTester({
     parserOpts: {},
     generatorOpts: {},
     babelrc: false,
+    configFile: false,
   },
   snapshot: false, // use jest snapshots (only works with jest)
 

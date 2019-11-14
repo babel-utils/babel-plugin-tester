@@ -24,6 +24,7 @@ const fullDefaultConfig = {
     parserOpts: {},
     generatorOpts: {},
     babelrc: false,
+    configFile: false,
   },
 }
 
@@ -303,9 +304,11 @@ const createFixtureTests = (fixturesDir, options) => {
         ...rest
       } = options
 
-      const hasBabelrc = ['.babelrc', '.babelrc.js', '.babelrc.cjs'].some(
-        babelrc => fs.existsSync(path.join(fixtureDir, babelrc)),
-      )
+      const hasBabelrc = [
+        '.babelrc',
+        '.babelrc.js',
+        '.babelrc.cjs',
+      ].some(babelrc => fs.existsSync(path.join(fixtureDir, babelrc)))
 
       const {babelOptions} = mergeWith(
         {},
