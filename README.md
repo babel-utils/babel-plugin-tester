@@ -31,6 +31,9 @@ work with `mocha` and `jasmine`.
 - [Examples](#examples)
   - [Full Example + Docs](#full-example--docs)
   - [Simple Example](#simple-example)
+- [Defaults](#defaults)
+  - [Un-string snapshot serializer](#un-string-snapshot-serializer)
+  - [Prettier formatter](#prettier-formatter)
 - [Inspiration](#inspiration)
 - [Other Solutions](#other-solutions)
 - [Contributors](#contributors)
@@ -64,9 +67,9 @@ import yourPlugin from '../your-plugin'
 
 pluginTester({
   plugin: yourPlugin,
-  tests: [
+  tests: {
     /* your test objects */
-  ],
+  },
 })
 ```
 
@@ -79,9 +82,9 @@ Your babel plugin. For example:
 ```javascript
 pluginTester({
   plugin: identifierReversePlugin,
-  tests: [
+  tests: {
     /* your test objects */
-  ],
+  },
 })
 
 // normally you would import this from your plugin module
@@ -122,9 +125,9 @@ pluginTester({
   ...
   babelOptions: require('./babel.config.js'),
   ...
-  tests: [
+  tests: {
     /* your test objects */
-  ],
+  },
 });
 
 ```
@@ -300,9 +303,23 @@ function. This can likewise return a promise if it's asynchronous.
 
 #### formatResult
 
-This is a function and if it's specified, it allows you to format the result
-however you like. The use case for this originally was for testing codemods and
-formatting their result with `prettier-eslint`.
+This defaults to a function which formats your code output with prettier. If you
+have prettier configured, then it will use your configuration. If you don't then
+it will be default configuration.
+
+If you'd like to specify your own, then feel free to do so. Here's the API:
+
+```javascript
+function customFormatter(code, {filename}) {
+  // format the code
+  return formattedCode
+}
+```
+
+Learn more about the built-in formatter below.
+
+The use case for this originally was for testing codemods and formatting their
+result with `prettier-eslint`.
 
 ## Examples
 
@@ -341,7 +358,12 @@ pluginTester({
     babelrc: false,
     configFile: false,
   },
-  snapshot: false, // use jest snapshots (only works with jest)
+
+  // use jest snapshots (only works with jest)
+  snapshot: false,
+
+  // defaults to a function that formats with prettier
+  formatResult: customFormatFunction,
 
   // tests as objects
   tests: {
@@ -448,6 +470,42 @@ pluginTester({
       console.log(sayHi('Jenny'))
     `,
   ],
+})
+```
+
+## Defaults
+
+### Un-string snapshot serializer
+
+If you're using jest and snapshots, then the snapshot output could have a bunch
+of bothersome `\"` to escape quotes because when Jest serializes a string, it
+will wrap everything in double quotes. This isn't a huge deal, but it makes the
+snapshots harder to read. So we automatically add a snapshot serializer for you
+to remove those.
+
+If you don't like that, then do this:
+
+```diff
+- import pluginTester from 'babel-plugin-tester'
++ import pluginTester from 'babel-plugin-tester/pure'
+```
+
+### Prettier formatter
+
+By default, a formatter is included which formats your results with
+[`prettier`](https://prettier.io). It will look for a prettier configuration
+relative to the file that's being tested or the current working directory. If it
+can't find one, then it uses the default configuration for prettier.
+
+This makes your snapshots easier to read. But if you'd like to not have that,
+then you can either import the `pure` file (as shown above) or you can override
+the `formatResult` option:
+
+```javascript
+pluginTester({
+  // ... other options
+  formatResult: r => r,
+  // ... more options
 })
 ```
 
