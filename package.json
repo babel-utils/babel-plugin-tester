@@ -15,7 +15,8 @@
     "validate": "kcd-scripts validate"
   },
   "files": [
-    "dist"
+    "dist",
+    "pure.js"
   ],
   "husky": {
     "hooks": {
@@ -27,6 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "lodash.mergewith": "^4.6.2",
+    "prettier": "^1.19.1",
     "strip-indent": "^3.0.0"
   },
   "devDependencies": {
