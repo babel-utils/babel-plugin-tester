@@ -100,8 +100,18 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "eps1lon",
+      "name": "Sebastian Silbermann",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/12292047?v=4",
+      "profile": "https://solverfox.dev",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "repoHost": "https://github.com",
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "skipCi": true
 }
