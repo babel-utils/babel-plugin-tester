@@ -3,7 +3,7 @@ import prettierFormatter from './formatters/prettier'
 import unstringSnapshotSerializer from './unstring-snapshot-serializer'
 
 // istanbul ignore else (it's not worth testing)
-if (expect.addSnapshotSerializer) {
+if (typeof expect !== 'undefined' && expect.addSnapshotSerializer) {
   expect.addSnapshotSerializer(unstringSnapshotSerializer)
 }
 
