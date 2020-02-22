@@ -57,7 +57,7 @@ npm install --save-dev babel-plugin-tester
 ```javascript
 import pluginTester from 'babel-plugin-tester'
 // or
-const pluginTester = require('babel-plugin-tester')
+const pluginTester = require('babel-plugin-tester').default;
 ```
 
 ### Invoke
