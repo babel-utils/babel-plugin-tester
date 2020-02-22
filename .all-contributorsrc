@@ -118,6 +118,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "charlesbodman",
+      "name": "Charles Bodman",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/231894?v=4",
+      "profile": "https://github.com/charlesbodman",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "repoHost": "https://github.com",
