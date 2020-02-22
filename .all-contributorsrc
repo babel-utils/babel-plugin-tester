@@ -109,6 +109,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "RIP21",
+      "name": "Andrey Los",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/3940079?v=4",
+      "profile": "http://ololos.space/",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "repoHost": "https://github.com",
