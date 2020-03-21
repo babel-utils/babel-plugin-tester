@@ -1,13 +1,24 @@
-# babel-plugin-tester
+<div>
+<h1>babel-plugin-tester</h1>
 
-Utilities for testing babel plugins
+<p>Utilities for testing babel plugins</p>
+</div>
 
+---
+
+<!-- prettier-ignore-start -->
 [![Build Status][build-badge]][build]
 [![Code Coverage][coverage-badge]][coverage]
-[![version][version-badge]][package] [![downloads][downloads-badge]][npmtrends]
+[![version][version-badge]][package]
+[![downloads][downloads-badge]][npmtrends]
 [![MIT License][license-badge]][license]
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
-[![PRs Welcome][prs-badge]][prs] [![Code of Conduct][coc-badge]][coc]
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+[![PRs Welcome][prs-badge]][prs]
+[![Code of Conduct][coc-badge]][coc]
+<!-- prettier-ignore-end -->
 
 ## The problem
 
@@ -36,7 +47,10 @@ work with `mocha` and `jasmine`.
   - [Prettier formatter](#prettier-formatter)
 - [Inspiration](#inspiration)
 - [Other Solutions](#other-solutions)
-- [Contributors](#contributors)
+- [Issues](#issues)
+  - [🐛 Bugs](#-bugs)
+  - [💡 Feature Requests](#-feature-requests)
+- [Contributors ✨](#contributors-)
 - [LICENSE](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -57,7 +71,7 @@ npm install --save-dev babel-plugin-tester
 ```javascript
 import pluginTester from 'babel-plugin-tester'
 // or
-const pluginTester = require('babel-plugin-tester').default;
+const pluginTester = require('babel-plugin-tester').default
 ```
 
 ### Invoke
@@ -520,7 +534,25 @@ I've been thinking about this for a while. The API was inspired by:
 
 - [`@babel/helper-plugin-test-runner`][@babel/helper-plugin-test-runner]
 
-## Contributors
+## Issues
+
+_Looking to contribute? Look for the [Good First Issue][good-first-issue]
+label._
+
+### 🐛 Bugs
+
+Please file an issue for bugs, missing documentation, or unexpected behavior.
+
+[**See Bugs**][bugs]
+
+### 💡 Feature Requests
+
+Please file an issue to suggest new features. Vote on feature requests by adding
+a 👍. This helps maintainers prioritize what to work on.
+
+[**See Feature Requests**][requests]
+
+## Contributors ✨
 
 Thanks goes to these people ([emoji key][emojis]):
 
@@ -548,6 +580,7 @@ Thanks goes to these people ([emoji key][emojis]):
 
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors][all-contributors] specification.
@@ -557,55 +590,29 @@ Contributions of any kind welcome!
 
 MIT
 
-[npm]: https://www.npmjs.com/
+<!-- prettier-ignore-start -->
+[npm]: https://www.npmjs.com
 [node]: https://nodejs.org
-[build-badge]:
-  https://img.shields.io/travis/babel-utils/babel-plugin-tester.svg?style=flat-square
+[build-badge]: https://img.shields.io/travis/babel-utils/babel-plugin-tester.svg?style=flat-square
 [build]: https://travis-ci.org/babel-utils/babel-plugin-tester
-[coverage-badge]:
-  https://img.shields.io/codecov/c/github/babel-utils/babel-plugin-tester.svg?style=flat-square
+[coverage-badge]: https://img.shields.io/codecov/c/github/babel-utils/babel-plugin-tester.svg?style=flat-square
 [coverage]: https://codecov.io/github/babel-utils/babel-plugin-tester
-[version-badge]:
-  https://img.shields.io/npm/v/babel-plugin-tester.svg?style=flat-square
+[version-badge]: https://img.shields.io/npm/v/babel-plugin-tester.svg?style=flat-square
 [package]: https://www.npmjs.com/package/babel-plugin-tester
-[downloads-badge]:
-  https://img.shields.io/npm/dm/babel-plugin-tester.svg?style=flat-square
+[downloads-badge]: https://img.shields.io/npm/dm/babel-plugin-tester.svg?style=flat-square
 [npmtrends]: https://www.npmtrends.com/babel-plugin-tester
-[license-badge]:
-  https://img.shields.io/npm/l/babel-plugin-tester.svg?style=flat-square
-[license]:
-  https://github.com/babel-utils/babel-plugin-tester/blob/master/other/LICENSE
-[prs-badge]:
-  https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
+[license-badge]: https://img.shields.io/npm/l/babel-plugin-tester.svg?style=flat-square
+[license]: https://github.com/babel-utils/babel-plugin-tester/blob/master/other/LICENSE
+[prs-badge]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [prs]: http://makeapullrequest.com
-[coc-badge]:
-  https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
-[coc]:
-  https://github.com/babel-utils/babel-plugin-tester/blob/master/other/CODE_OF_CONDUCT.md
-[roadmap-badge]:
-  https://img.shields.io/badge/%F0%9F%93%94-roadmap-CD9523.svg?style=flat-square
-[roadmap]:
-  https://github.com/babel-utils/babel-plugin-tester/blob/master/other/ROADMAP.md
-[examples-badge]:
-  https://img.shields.io/badge/%F0%9F%92%A1-examples-8C8E93.svg?style=flat-square
-[examples]:
-  https://github.com/babel-utils/babel-plugin-tester/blob/master/other/EXAMPLES.md
-[github-watch-badge]:
-  https://img.shields.io/github/watchers/babel-utils/babel-plugin-tester.svg?style=social
-[github-watch]: https://github.com/babel-utils/babel-plugin-tester/watchers
-[github-star-badge]:
-  https://img.shields.io/github/stars/babel-utils/babel-plugin-tester.svg?style=social
-[github-star]: https://github.com/babel-utils/babel-plugin-tester/stargazers
-[twitter]:
-  https://twitter.com/intent/tweet?text=Check%20out%20babel-plugin-tester!%20https://github.com/babel-utils/babel-plugin-tester%20%F0%9F%91%8D
-[twitter-badge]:
-  https://img.shields.io/twitter/url/https/github.com/babel-utils/babel-plugin-tester.svg?style=social
-[emojis]: https://github.com/kentcdodds/all-contributors#emoji-key
-[all-contributors]: https://github.com/kentcdodds/all-contributors
-[lodash.mergewith]: https://lodash.com/docs/4.17.4#mergeWith
-[ruletester]:
-  http://eslint.org/docs/developer-guide/working-with-rules#rule-unit-tests
+[coc-badge]: https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
+[coc]: https://github.com/babel-utils/babel-plugin-tester/blob/master/other/CODE_OF_CONDUCT.md
+[emojis]: https://github.com/all-contributors/all-contributors#emoji-key
+[all-contributors]: https://github.com/all-contributors/all-contributors
+
+[@babel/helper-plugin-test-runner]: https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner
 [@thejameskyle]: https://github.com/thejameskyle
 [jamestweet]: https://twitter.com/thejameskyle/status/864359438819262465
-[@babel/helper-plugin-test-runner]:
-  https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner
+[lodash.mergewith]: https://lodash.com/docs/4.17.4#mergeWith
+[ruletester]: http://eslint.org/docs/developer-guide/working-with-rules#rule-unit-tests
+<!-- prettier-ignore-end -->
