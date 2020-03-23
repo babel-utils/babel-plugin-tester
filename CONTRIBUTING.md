@@ -16,7 +16,7 @@ series [How to Contribute to an Open Source Project on GitHub][egghead]
 > pull requests from branches on your fork. To do this, run:
 >
 > ```
-> git remote add upstream https://github.com/babel-utils/babel-plugin-tester.git
+> git remote add upstream https://github.com/babel-utils/babel-plugin-tester
 > git fetch upstream
 > git branch --set-upstream-to=upstream/master master
 > ```
@@ -40,7 +40,8 @@ Please checkout the [the open issues][issues]
 Also, please watch the repo and respond to questions/bug reports/feature
 requests! Thanks!
 
-[egghead]:
-  https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github
-[all-contributors]: https://github.com/kentcdodds/all-contributors
-[issues]: https://github.com/babel-utils/babel-plugin-tester/issues
+<!-- prettier-ignore-start -->
+[egghead]: https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github
+[all-contributors]: https://github.com/all-contributors/all-contributors
+[issues]: https://github.com/kentcdodds/generator-kcd-oss/issues
+<!-- prettier-ignore-end -->
