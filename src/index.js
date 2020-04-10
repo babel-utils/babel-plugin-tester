@@ -187,7 +187,7 @@ function pluginTester({
         } else {
           assert.equal(
             result.trim(),
-            fixLineEndings(code+'', endOfLine, code).trim(),
+            fixLineEndings(code, endOfLine, code).trim(),
             'Expected output to not change, but it did',
           )
         }
@@ -348,7 +348,7 @@ const createFixtureTests = (fixturesDir, options) => {
 
       assert.equal(
         actual.trim(),
-        fixLineEndings(output+'', endOfLine, output).trim(),
+        fixLineEndings(output, endOfLine, output).trim(),
         `actual output does not match ${fixtureOutputName}${ext}`,
       )
     })
