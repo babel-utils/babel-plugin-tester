@@ -23,6 +23,7 @@
   "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com)",
   "license": "MIT",
   "dependencies": {
+    "@types/babel-plugin-tester": "^9.0.0",
     "lodash.mergewith": "^4.6.2",
     "prettier": "^2.0.1",
     "strip-indent": "^3.0.0"
