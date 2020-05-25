@@ -305,13 +305,14 @@ test('can pass tests in fixtures relative to the filename', async () => {
     }),
   )
   expect(describeSpy).toHaveBeenCalledTimes(6)
-  expect(itSpy).toHaveBeenCalledTimes(13)
+  expect(itSpy).toHaveBeenCalledTimes(14)
 
   expect(itSpy.mock.calls).toEqual([
     [`cjs`, expect.any(Function)],
     [`js`, expect.any(Function)],
     [`normal`, expect.any(Function)],
     [`changed`, expect.any(Function)],
+    [`fixtureOutputExt`, expect.any(Function)],
     [`jsx support`, expect.any(Function)],
     [`nested a`, expect.any(Function)],
     [`nested b`, expect.any(Function)],
@@ -620,7 +621,7 @@ test('allows formatting fixtures results', async () => {
       formatResult: formatResultSpy,
     }),
   )
-  expect(formatResultSpy).toHaveBeenCalledTimes(14)
+  expect(formatResultSpy).toHaveBeenCalledTimes(15)
 })
 
 test('works with a formatter adding a empty line', async () => {
@@ -632,7 +633,7 @@ test('works with a formatter adding a empty line', async () => {
       formatResult: formatResultSpy,
     }),
   )
-  expect(formatResultSpy).toHaveBeenCalledTimes(14)
+  expect(formatResultSpy).toHaveBeenCalledTimes(15)
 })
 
 test('prettier formatter supported', async () => {
@@ -682,7 +683,7 @@ test('gets options from options.json files when using fixtures', async () => {
     }),
   )
 
-  expect(optionRootFoo).toHaveBeenCalledTimes(13)
+  expect(optionRootFoo).toHaveBeenCalledTimes(14)
   expect(optionFoo).toHaveBeenCalledTimes(2)
   expect(optionBar).toHaveBeenCalledTimes(1)
 })
@@ -727,10 +728,10 @@ test('appends to root plugins array', async () => {
     }),
   )
 
-  expect(optionRootFoo).toHaveBeenCalledTimes(13)
+  expect(optionRootFoo).toHaveBeenCalledTimes(14)
   expect(optionFoo).toHaveBeenCalledTimes(2)
   expect(optionBar).toHaveBeenCalledTimes(1)
-  expect(programVisitor).toHaveBeenCalledTimes(14)
+  expect(programVisitor).toHaveBeenCalledTimes(15)
 })
 
 test('endOfLine - default', async () => {
