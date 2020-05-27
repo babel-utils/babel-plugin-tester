@@ -293,7 +293,6 @@ const createFixtureTests = (fixturesDir, options) => {
       return
     }
 
-    const ext = `.${codePath.split('.').pop()}`
     it(blockTitle, () => {
       const {
         plugin,
@@ -344,6 +343,14 @@ const createFixtureTests = (fixturesDir, options) => {
           input,
         ),
       )
+
+      const {fixtureOutputExt} = fixturePluginOptions
+      let ext
+      if (fixtureOutputExt) {
+        ext = fixtureOutputExt
+      } else {
+        ext = `.${codePath.split('.').pop()}`
+      }
 
       const outputPath = path.join(fixtureDir, `${fixtureOutputName}${ext}`)
 

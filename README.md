@@ -218,6 +218,12 @@ Use this to provide your own implementation of babel. This is particularly
 useful if you want to use a different version of babel than what's included in
 this package.
 
+#### fixtureOutputExt
+
+Use this to provide your own fixture output file extension. This is particularly
+useful if you are testing typescript input. If ommited fixture input file extension
+will be used.
+
 #### ...rest
 
 The rest of the options you provide will be [`lodash.merge`][lodash.merge]d with
