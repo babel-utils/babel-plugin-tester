@@ -148,6 +148,17 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "CzBuCHi",
+      "name": "Marek Buchar",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/12444673?v=4",
+      "profile": "https://github.com/CzBuCHi",
+      "contributions": [
+        "code",
+        "test",
+        "doc"
+      ]
     }
   ]
 }
