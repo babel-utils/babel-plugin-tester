@@ -169,7 +169,9 @@ function pluginTester({
         }
 
         if (verbose) {
+          // eslint-disable-next-line no-console
           console.log(testFilename)
+          // eslint-disable-next-line no-console
           console.log({code, output, result})
         }
 
