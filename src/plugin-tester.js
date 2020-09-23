@@ -88,6 +88,7 @@ function pluginTester({
         formatResult = r => r,
         fixture,
         testFilepath: testFilename = fixture || filename,
+        verbose,
       } = mergeWith({}, testerConfig, toTestConfig(testConfig), mergeCustomizer)
       assert(
         (!skip && !only) || skip !== only,
@@ -165,6 +166,11 @@ function pluginTester({
           } else {
             throw err
           }
+        }
+
+        if (verbose) {
+          console.log(testFilename)
+          console.log({code, output, result})
         }
 
         const expectedToThrowButDidNot = error && !errored
