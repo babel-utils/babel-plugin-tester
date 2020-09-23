@@ -338,6 +338,10 @@ Learn more about the built-in formatter below.
 The use case for this originally was for testing codemods and formatting their
 result with `prettier-eslint`.
 
+## verbose
+
+By enabling this option, you can see the input and transformations output of your babel plugin's tests.
+
 ## Examples
 
 ### Full Example + Docs
@@ -381,6 +385,9 @@ pluginTester({
 
   // defaults to a function that formats with prettier
   formatResult: customFormatFunction,
+
+  // verbose transformations
+  verbose: false,
 
   // tests as objects
   tests: {
