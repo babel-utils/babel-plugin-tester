@@ -470,4 +470,5 @@ eslint
   jest/valid-title: off,
   jest/no-export: off,
   jest/no-try-expect: off,
+  jest/no-conditional-expect: off,
 */
