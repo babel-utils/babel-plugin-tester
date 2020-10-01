@@ -37,7 +37,7 @@ function pluginTester({
   /* istanbul ignore next (TODO: write a test for this) */
   babel = require('@babel/core'),
   plugin = requiredParam('plugin'),
-  pluginName = getPluginName(plugin, babel),
+  pluginName = 'unknown plugin',
   title: describeBlockTitle = pluginName,
   pluginOptions,
   tests,
@@ -440,21 +440,6 @@ function assertError(result, error) {
 
 function requiredParam(name) {
   throw new Error(`${name} is a required parameter.`)
-}
-
-function getPluginName(plugin, babel) {
-  let name
-  try {
-    name = plugin(babel).name
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(
-      'Attempting to infer the name of your plugin failed. Tried to invoke the plugin which threw the error.',
-    )
-    throw error
-  }
-  assert(name, 'The `pluginName` must be inferable or provided.')
-  return name
 }
 
 export default pluginTester

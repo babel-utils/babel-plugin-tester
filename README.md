@@ -116,9 +116,7 @@ function identifierReversePlugin() {
 
 #### pluginName
 
-This is used for the `describe` title as well as the test titles. If it can be
-inferred from the `plugin`'s `name` then it will be and you don't need to
-provide this option.
+This is used for the `describe` title as well as the test titles.
 
 #### pluginOptions
 
@@ -221,8 +219,8 @@ this package.
 #### fixtureOutputExt
 
 Use this to provide your own fixture output file extension. This is particularly
-useful if you are testing typescript input. If ommited fixture input file extension
-will be used.
+useful if you are testing typescript input. If ommited fixture input file
+extension will be used.
 
 #### ...rest
 
@@ -588,6 +586,7 @@ Thanks goes to these people ([emoji key][emojis]):
 
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors][all-contributors] specification.
