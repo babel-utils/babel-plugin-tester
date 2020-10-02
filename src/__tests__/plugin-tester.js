@@ -72,29 +72,6 @@ test('plugin is required', async () => {
   await expect(runPluginTester()).rejects.toThrowErrorMatchingSnapshot()
 })
 
-test('logs when plugin name is not inferable and rethrows errors', async () => {
-  const error = new Error('hey there')
-  await expect(
-    runPluginTester({
-      plugin: () => {
-        throw error
-      },
-    }),
-  ).rejects.toThrow(error)
-  expect(errorSpy).toHaveBeenCalledTimes(1)
-  expect(errorSpy).toHaveBeenCalledWith(
-    expect.stringMatching(/infer.*name.*plugin/),
-  )
-})
-
-test('assert throws if the plugin name is not inferable', async () => {
-  await expect(
-    runPluginTester({
-      plugin: () => ({}),
-    }),
-  ).rejects.toThrowErrorMatchingSnapshot()
-})
-
 test('exists early if no tests are supplied', async () => {
   const {plugin} = getOptions()
   await runPluginTester({plugin})
@@ -113,16 +90,6 @@ test('accepts a title for the describe block', async () => {
   const title = 'describe block title'
   await runPluginTester(getOptions({title}))
   expect(describeSpy).toHaveBeenCalledWith(title, expect.any(Function))
-})
-
-test('can infer the plugin name for the describe block', async () => {
-  const name = 'super-great'
-  const {plugin, tests} = getOptions({
-    plugin: () => ({name, visitor: {}}),
-  })
-  await runPluginTester({plugin, tests})
-  expect(describeSpy).toHaveBeenCalledTimes(1)
-  expect(describeSpy).toHaveBeenCalledWith(name, expect.any(Function))
 })
 
 test('calls describe and test for a group of tests', async () => {

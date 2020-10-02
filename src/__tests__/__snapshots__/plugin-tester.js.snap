@@ -4,8 +4,6 @@ exports[`assert throws if code is unchanged + snapshot enabled 1`] = `Code was u
 
 exports[`assert throws if snapshot and output are both provided 1`] = `\`output\` cannot be provided with \`snapshot: true\``;
 
-exports[`assert throws if the plugin name is not inferable 1`] = `The \`pluginName\` must be inferable or provided.`;
-
 exports[`assert throws if there's no code 1`] = `A string or object with a \`code\` or \`fixture\` property must be provided`;
 
 exports[`can fail tests in fixtures at an absolute path 1`] = `actual output does not match output.js`;
