@@ -159,6 +159,15 @@
         "test",
         "doc"
       ]
+    },
+    {
+      "login": "jayphelps",
+      "name": "Jay Phelps",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/762949?v=4",
+      "profile": "https://twitter.com/_jayphelps",
+      "contributions": [
+        "review"
+      ]
     }
   ]
 }
