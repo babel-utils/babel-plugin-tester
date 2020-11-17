@@ -1,5 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`allows formatting error in snapshot: 1. captains-log 1`] = `
+
+var hi = "hey";
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+[BABEL] unknown: test message (While processing: "base$0")
+
+`;
+
 exports[`assert throws if code is unchanged + snapshot enabled 1`] = `Code was unmodified but attempted to take a snapshot. If the code should not be modified, set \`snapshot: false\``;
 
 exports[`assert throws if snapshot and output are both provided 1`] = `\`output\` cannot be provided with \`snapshot: true\``;

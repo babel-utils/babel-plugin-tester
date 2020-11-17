@@ -178,6 +178,11 @@ function pluginTester({
             result !== code,
             'Code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`',
           )
+          if (errored) {
+            result = formatResult(result.message, {
+              filename: testFilename,
+            })
+          }
           const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n'
           const formattedOutput = [code, separator, result].join('')
           expect(`\n${formattedOutput}\n`).toMatchSnapshot(title)

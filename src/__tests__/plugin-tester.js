@@ -591,6 +591,28 @@ test('allows formatting fixtures results', async () => {
   expect(formatResultSpy).toHaveBeenCalledTimes(15)
 })
 
+test('allows formatting error in snapshot', async () => {
+  const formatResultSpy = jest.fn(r => r)
+  await runPluginTester(
+    getOptions({
+      plugin: () => {
+        throw new Error('test message')
+      },
+      filename: __filename,
+      tests: [{code: simpleTest, formatResult: formatResultSpy}],
+      snapshot: true,
+      error: true,
+    }),
+  )
+  expect(formatResultSpy).toHaveBeenCalledTimes(1)
+  expect(formatResultSpy).toHaveBeenCalledWith(
+    `[BABEL] unknown: test message (While processing: "base$0")`,
+    {
+      filename: __filename,
+    },
+  )
+})
+
 test('works with a formatter adding a empty line', async () => {
   // Simulate prettier adding an empty line at the end
   const formatResultSpy = jest.fn(r => `${r.trim()}\n\n`)
