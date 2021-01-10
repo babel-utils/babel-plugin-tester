@@ -351,7 +351,7 @@ pluginTester({
   // required
   plugin: identifierReversePlugin,
 
-  // unnecessary if it's returned with the plugin
+  // will default to 'unknown plugin'
   pluginName: 'identifier reverse',
 
   // defaults to the plugin name
