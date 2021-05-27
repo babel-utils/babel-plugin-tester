@@ -118,7 +118,7 @@ function pluginTester({
           teardowns.push(returnedTeardown)
         }
         try {
-          tester()
+          await tester()
         } finally {
           try {
             await Promise.all(teardowns.map(t => t()))
@@ -132,7 +132,7 @@ function pluginTester({
       }
 
       // eslint-disable-next-line complexity
-      function tester() {
+      async function tester() {
         assert(
           code,
           'A string or object with a `code` or `fixture` property must be provided',
@@ -146,16 +146,17 @@ function pluginTester({
           '`output` cannot be provided with `snapshot: true`',
         )
 
-        let result
+        let result, transformed
         let errored = false
 
         try {
+          if (babel.transformAsync) {
+            transformed = await babel.transformAsync(code, babelOptions)
+          } else {
+            transformed = babel.transform(code, babelOptions)
+          }
           result = formatResult(
-            fixLineEndings(
-              babel.transform(code, babelOptions).code,
-              endOfLine,
-              code,
-            ),
+            fixLineEndings(transformed.code, endOfLine, code),
             {filename: testFilename},
           )
         } catch (err) {
@@ -293,7 +294,7 @@ const createFixtureTests = (fixturesDir, options) => {
       return
     }
 
-    it(blockTitle, () => {
+    it(blockTitle, async () => {
       const {
         plugin,
         pluginOptions,
@@ -335,17 +336,23 @@ const createFixtureTests = (fixturesDir, options) => {
       )
 
       const input = fs.readFileSync(codePath).toString()
+      let transformed, ext
+      if (babel.transformAsync) {
+        transformed = await babel.transformAsync(input, {
+          ...babelOptions,
+          filename: codePath,
+        })
+      } else {
+        transformed = babel.transform(input, {
+          ...babelOptions,
+          filename: codePath,
+        })
+      }
       const actual = formatResult(
-        fixLineEndings(
-          babel.transformSync(input, {...babelOptions, filename: codePath})
-            .code,
-          endOfLine,
-          input,
-        ),
+        fixLineEndings(transformed.code, endOfLine, input),
       )
 
       const {fixtureOutputExt} = fixturePluginOptions
-      let ext
       if (fixtureOutputExt) {
         ext = fixtureOutputExt
       } else {
