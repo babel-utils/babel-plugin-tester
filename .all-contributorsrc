@@ -177,6 +177,16 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "moon-stripe",
+      "name": "joe moon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/40330875?v=4",
+      "profile": "http://go/moon",
+      "contributions": [
+        "code",
+        "test"
+      ]
     }
   ]
 }
