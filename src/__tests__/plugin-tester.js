@@ -52,7 +52,7 @@ beforeEach(() => {
   global.it.skip = jest.fn(titleTesterMock)
   itOnlySpy = global.it.only
   itSkipSpy = global.it.skip
-  transformSpy = jest.spyOn(babel, 'transform')
+  transformSpy = jest.spyOn(babel, 'transformAsync')
   writeFileSyncSpy = jest
     .spyOn(fs, 'writeFileSync')
     .mockImplementation(() => {})
@@ -367,6 +367,24 @@ test('can provide a test filename for code strings', async () => {
       filename,
     }),
   )
+})
+
+test('works with versions of babel without `.transformSync` method', async () => {
+  const tests = [simpleTest]
+  const oldBabel = {
+    transform: babel.transform,
+  }
+  const transformSyncSpy = jest.spyOn(oldBabel, 'transform')
+  await runPluginTester(
+    getOptions({
+      babel: oldBabel,
+      filename: __filename,
+      fixtures: 'fixtures/fixtures',
+      tests,
+    }),
+  )
+  expect(transformSpy).not.toHaveBeenCalled()
+  expect(transformSyncSpy).toHaveBeenCalledTimes(15)
 })
 
 test('can provide plugin options', async () => {
