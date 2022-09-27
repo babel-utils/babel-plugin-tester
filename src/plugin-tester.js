@@ -89,6 +89,7 @@ function pluginTester({
         fixture,
         testFilepath: testFilename = fixture || filename,
       } = mergeWith({}, testerConfig, toTestConfig(testConfig), mergeCustomizer)
+
       assert(
         (!skip && !only) || skip !== only,
         'Cannot enable both skip and only on a test',
@@ -275,9 +276,9 @@ const createFixtureTests = (fixturesDir, options) => {
       (fs.existsSync(tsCodePath) && tsCodePath) ||
       (fs.existsSync(jsxCodePath) && jsxCodePath) ||
       (fs.existsSync(tsxCodePath) && tsxCodePath)
-    let fixturePluginOptions = {}
+    let localFixtureOptions = {}
     if (fs.existsSync(optionsPath)) {
-      fixturePluginOptions = require(optionsPath)
+      localFixtureOptions = require(optionsPath)
     }
 
     if (!codePath) {
@@ -287,14 +288,20 @@ const createFixtureTests = (fixturesDir, options) => {
           pluginOptions: {
             ...rootFixtureOptions,
             ...options.pluginOptions,
-            ...fixturePluginOptions,
+            ...localFixtureOptions,
           },
         })
       })
       return
     }
 
-    it(blockTitle, async () => {
+    const {only, skip, title} = localFixtureOptions
+
+    assert(
+      (!skip && !only) || skip !== only,
+      'Cannot enable both skip and only on a test',
+    )
+    ;(only ? it.only : skip ? it.skip : it)(title || blockTitle, async () => {
       const {
         plugin,
         pluginOptions,
@@ -322,7 +329,7 @@ const createFixtureTests = (fixturesDir, options) => {
                 {
                   ...rootFixtureOptions,
                   ...pluginOptions,
-                  ...fixturePluginOptions,
+                  ...localFixtureOptions,
                 },
               ],
             ],
@@ -352,7 +359,7 @@ const createFixtureTests = (fixturesDir, options) => {
         fixLineEndings(transformed.code, endOfLine, input),
       )
 
-      const {fixtureOutputExt} = fixturePluginOptions
+      const {fixtureOutputExt} = localFixtureOptions
       if (fixtureOutputExt) {
         ext = fixtureOutputExt
       } else {

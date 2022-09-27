@@ -137,6 +137,55 @@ test('tests cannot be both only-ed and skipped', async () => {
   ).rejects.toThrowErrorMatchingSnapshot()
 })
 
+test('fixture tests can be skipped', async () => {
+  await runPluginTester(
+    getOptions({
+      fixtures: getFixturePath('skip-fixtures'),
+      tests: null,
+    }),
+  )
+
+  expect(itSkipSpy).toHaveBeenCalledTimes(1)
+  expect(itSpy).not.toHaveBeenCalled()
+})
+
+test('fixture tests can be only-ed', async () => {
+  await runPluginTester(
+    getOptions({
+      fixtures: getFixturePath('only-fixtures'),
+      tests: null,
+    }),
+  )
+
+  expect(itOnlySpy).toHaveBeenCalledTimes(1)
+  expect(itSpy).not.toHaveBeenCalled()
+})
+
+test('fixture tests cannot be both only-ed and skipped', async () => {
+  await expect(
+    runPluginTester(
+      getOptions({
+        fixtures: getFixturePath('skip-only-fixtures'),
+        tests: null,
+      }),
+    ),
+  ).rejects.toThrowErrorMatchingSnapshot()
+})
+
+test('fixture tests accept custom test title', async () => {
+  await runPluginTester(
+    getOptions({
+      fixtures: getFixturePath('custom-title-fixtures'),
+      tests: null,
+    }),
+  )
+
+  expect(itSpy).toHaveBeenCalledWith(
+    'custom fixture test title',
+    expect.any(Function),
+  )
+})
+
 test('default will throw if output changes', async () => {
   const tests = ['var hello = "hi";']
   const options = getOptions({plugin: identifierReversePlugin, tests})
