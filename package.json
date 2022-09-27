@@ -1,12 +1,27 @@
 {
   "name": "babel-plugin-tester",
-  "version": "0.0.0-semantically-released",
+  "version": "0.0.0-develop",
   "description": "Utilities for testing babel plugins",
-  "main": "dist/index.js",
-  "engines": {
-    "node": ">=10.13",
-    "npm": ">=6"
+  "keywords": [
+    "babel",
+    "plugin",
+    "tester"
+  ],
+  "homepage": "https://github.com/Xunnamius/babel-plugin-tester",
+  "bugs": {
+    "url": "https://github.com/Xunnamius/babel-plugin-tester/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Xunnamius/babel-plugin-tester"
+  },
+  "license": "MIT",
+  "author": "Xunnamius",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "kcd-scripts build",
     "lint": "kcd-scripts lint",
@@ -15,13 +30,36 @@
     "test:update": "npm test -- --updateSnapshot --coverage",
     "validate": "kcd-scripts validate"
   },
-  "files": [
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": "maintained node versions"
+        }
+      ]
+    ]
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/kcd-scripts/eslint.js",
+    "rules": {
+      "max-lines": 0,
+      "max-lines-per-function": 0,
+      "no-useless-catch": 0,
+      "prefer-object-spread": 0,
+      "babel/camelcase": 0,
+      "babel/no-unused-expressions": 0,
+      "babel/quotes": 0,
+      "babel/valid-typeof": 0,
+      "jest/prefer-todo": 0
+    }
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "coverage",
     "dist",
-    "pure.js"
+    "fixtures"
   ],
-  "keywords": [],
-  "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com)",
-  "license": "MIT",
   "dependencies": {
     "@types/babel-plugin-tester": "^9.0.0",
     "lodash.mergewith": "^4.6.2",
@@ -42,52 +80,7 @@
   "peerDependencies": {
     "@babel/core": "^7.11.6"
   },
-  "eslintConfig": {
-    "extends": "./node_modules/kcd-scripts/eslint.js",
-    "rules": {
-      "max-lines": 0,
-      "max-lines-per-function": 0,
-      "prefer-object-spread": 0,
-      "no-useless-catch": 0,
-      "babel/camelcase": 0,
-      "babel/valid-typeof": 0,
-      "babel/no-unused-expressions": 0,
-      "babel/quotes": 0,
-      "jest/prefer-todo": 0
-    }
-  },
-  "eslintIgnore": [
-    "node_modules",
-    "coverage",
-    "dist",
-    "fixtures"
-  ],
-  "babel": {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "node": "8"
-          },
-          "exclude": [
-            "transform-regenerator"
-          ]
-        }
-      ]
-    ],
-    "plugins": [
-      "@babel/plugin-transform-async-to-generator",
-      "@babel/plugin-proposal-async-generator-functions",
-      "@babel/plugin-proposal-object-rest-spread"
-    ]
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/babel-utils/babel-plugin-tester"
-  },
-  "bugs": {
-    "url": "https://github.com/babel-utils/babel-plugin-tester/issues"
-  },
-  "homepage": "https://github.com/babel-utils/babel-plugin-tester#readme"
+  "engines": {
+    "node": "^14.20.0 || ^16.16.0 || >=18.5.0"
+  }
 }
