@@ -275,20 +275,22 @@ const createFixtureTests = (fixturesDir, options) => {
       (fs.existsSync(tsCodePath) && tsCodePath) ||
       (fs.existsSync(jsxCodePath) && jsxCodePath) ||
       (fs.existsSync(tsxCodePath) && tsxCodePath)
-    let fixturePluginOptions = {}
+    let localFixtureOptions = {}
     if (fs.existsSync(optionsPath)) {
-      fixturePluginOptions = require(optionsPath)
+      localFixtureOptions = require(optionsPath)
+    }
+
+    const mergedFixtureAndPluginOptions = {
+      ...rootFixtureOptions,
+      ...options.pluginOptions,
+      ...localFixtureOptions,
     }
 
     if (!codePath) {
       describe(blockTitle, () => {
         createFixtureTests(fixtureDir, {
           ...options,
-          pluginOptions: {
-            ...rootFixtureOptions,
-            ...options.pluginOptions,
-            ...fixturePluginOptions,
-          },
+          pluginOptions: mergedFixtureAndPluginOptions,
         })
       })
       return
@@ -316,16 +318,7 @@ const createFixtureTests = (fixturesDir, options) => {
         fullDefaultConfig,
         {
           babelOptions: {
-            plugins: [
-              [
-                plugin,
-                {
-                  ...rootFixtureOptions,
-                  ...pluginOptions,
-                  ...fixturePluginOptions,
-                },
-              ],
-            ],
+            plugins: [[plugin, mergedFixtureAndPluginOptions]],
             // if they have a babelrc, then we'll let them use that
             // otherwise, we'll just use our simple config
             babelrc: hasBabelrc,
@@ -352,7 +345,8 @@ const createFixtureTests = (fixturesDir, options) => {
         fixLineEndings(transformed.code, endOfLine, input),
       )
 
-      const {fixtureOutputExt} = fixturePluginOptions
+      const {fixtureOutputExt} = mergedFixtureAndPluginOptions
+
       if (fixtureOutputExt) {
         ext = fixtureOutputExt
       } else {
