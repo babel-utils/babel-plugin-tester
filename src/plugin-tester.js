@@ -316,6 +316,16 @@ const createFixtureTests = (fixturesDir, options) => {
         fullDefaultConfig,
         {
           babelOptions: {
+            // if they have a babelrc, then we'll let them use that
+            // otherwise, we'll just use our simple config
+            babelrc: hasBabelrc,
+          },
+        },
+        rest,
+        {
+          babelOptions: {
+            // Ensure `rest` comes before `babelOptions.plugins` to preserve
+            // default plugin run order
             plugins: [
               [
                 plugin,
@@ -326,12 +336,8 @@ const createFixtureTests = (fixturesDir, options) => {
                 },
               ],
             ],
-            // if they have a babelrc, then we'll let them use that
-            // otherwise, we'll just use our simple config
-            babelrc: hasBabelrc,
           },
         },
-        rest,
         mergeCustomizer,
       )
 
