@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import assert from 'assert'
 import {EOL} from 'os'
-import pluginTester from '../plugin-tester'
+import pluginTester, {runPluginUnderTestHere} from '../plugin-tester'
 import prettierFormatter from '../formatters/prettier'
 import unstringSnapshotSerializer from '../unstring-snapshot-serializer'
 import identifierReversePlugin from './helpers/identifier-reverse-plugin'
@@ -795,6 +795,46 @@ test('fixtures run plugins in the same order as tests', async () => {
 
   expect(runOrder1).toStrictEqual([1, 3, 2])
   expect(runOrder2).toStrictEqual(runOrder1)
+})
+
+test('can use runPluginUnderTestHere symbol to alter plugin run order in tests', async () => {
+  const runOrder = []
+
+  await runPluginTester(
+    getOptions({
+      plugin: pluginWithOrderTracking(runOrder, 2),
+      babelOptions: {
+        plugins: [
+          pluginWithOrderTracking(runOrder, 1),
+          runPluginUnderTestHere,
+          pluginWithOrderTracking(runOrder, 3),
+        ],
+      },
+    }),
+  )
+
+  expect(runOrder).toStrictEqual([1, 2, 3])
+})
+
+test('can use runPluginUnderTestHere symbol to alter plugin run order in fixtures', async () => {
+  const runOrder = []
+
+  await runPluginTester(
+    getOptions({
+      plugin: pluginWithOrderTracking(runOrder, 2),
+      tests: null,
+      fixtures: getFixturePath('creates-output-file'),
+      babelOptions: {
+        plugins: [
+          pluginWithOrderTracking(runOrder, 1),
+          runPluginUnderTestHere,
+          pluginWithOrderTracking(runOrder, 3),
+        ],
+      },
+    }),
+  )
+
+  expect(runOrder).toStrictEqual([1, 2, 3])
 })
 
 test('endOfLine - default', async () => {
