@@ -5,6 +5,8 @@ import {EOL} from 'os'
 import mergeWith from 'lodash.mergewith'
 import stripIndent from 'strip-indent'
 
+export const runPluginUnderTestHere = Symbol('run-plugin-under-test-here')
+
 const noop = () => {}
 
 // thanks to node throwing an error if you try to use instanceof with an arrow
@@ -93,6 +95,8 @@ function pluginTester({
         (!skip && !only) || skip !== only,
         'Cannot enable both skip and only on a test',
       )
+
+      finalizePluginRunOrder(babelOptions)
 
       if (skip) {
         // eslint-disable-next-line jest/no-disabled-tests
@@ -341,6 +345,8 @@ const createFixtureTests = (fixturesDir, options) => {
         mergeCustomizer,
       )
 
+      finalizePluginRunOrder(babelOptions)
+
       const input = fs.readFileSync(codePath).toString()
       let transformed, ext
       if (babel.transformAsync) {
@@ -453,6 +459,16 @@ function assertError(result, error) {
 
 function requiredParam(name) {
   throw new Error(`${name} is a required parameter.`)
+}
+
+function finalizePluginRunOrder(babelOptions) {
+  if (babelOptions.plugins.includes(runPluginUnderTestHere)) {
+    babelOptions.plugins.splice(
+      babelOptions.plugins.indexOf(runPluginUnderTestHere),
+      1,
+      babelOptions.plugins.pop(),
+    )
+  }
 }
 
 export default pluginTester

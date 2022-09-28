@@ -1,4 +1,4 @@
-import pluginTester from './plugin-tester'
+import pluginTester, {runPluginUnderTestHere} from './plugin-tester'
 import prettierFormatter from './formatters/prettier'
 import unstringSnapshotSerializer from './unstring-snapshot-serializer'
 
@@ -7,7 +7,7 @@ if (typeof expect !== 'undefined' && expect.addSnapshotSerializer) {
   expect.addSnapshotSerializer(unstringSnapshotSerializer)
 }
 
-export {unstringSnapshotSerializer, prettierFormatter}
+export {unstringSnapshotSerializer, prettierFormatter, runPluginUnderTestHere}
 
 function defaultPluginTester(options) {
   return pluginTester({formatResult: prettierFormatter, ...options})
