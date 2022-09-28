@@ -35,16 +35,17 @@ work with `mocha` and `jasmine`.
 
 - [Installation](#installation)
 - [Usage](#usage)
-  - [import](#import)
+  - [Import](#import)
   - [Invoke](#invoke)
-  - [options](#options)
+  - [Options](#options)
   - [Test Objects](#test-objects)
 - [Examples](#examples)
   - [Full Example + Docs](#full-example--docs)
   - [Simple Example](#simple-example)
+- [`pluginName` Inference Caveat](#pluginname-inference-caveat)
 - [Defaults](#defaults)
-  - [Un-string snapshot serializer](#un-string-snapshot-serializer)
-  - [Prettier formatter](#prettier-formatter)
+  - [Un-string Snapshot Serializer](#un-string-snapshot-serializer)
+  - [Prettier Formatter](#prettier-formatter)
 - [Inspiration](#inspiration)
 - [Other Solutions](#other-solutions)
 - [Issues](#issues)
@@ -66,7 +67,7 @@ npm install --save-dev babel-plugin-tester
 
 ## Usage
 
-### import
+### Import
 
 ```javascript
 import pluginTester from 'babel-plugin-tester'
@@ -87,7 +88,7 @@ pluginTester({
 })
 ```
 
-### options
+### Options
 
 #### plugin
 
@@ -116,17 +117,32 @@ function identifierReversePlugin() {
 
 #### pluginName
 
-This is used for the `describe` title as well as the test titles.
+This is used for the `describe` title as well as the test titles. If it can be
+inferred from the `plugin`'s `name`, then it will be and you don't need to
+provide this option. If it cannot be inferred for whatever reason, it will
+default to "unknown plugin".
+
+Note that there is a small [caveat](#pluginname-inference-caveat) when relying
+on `pluginName` inference.
 
 #### pluginOptions
 
 This can be used to pass options into your plugin at transform time. This option
 can be overwritten using the test object.
 
-##### babel.config.js
+#### babelOptions
 
-To use [babel.config.js](https://babeljs.io/docs/en/configuration) instead of
-.babelrc, set babelOptions to the config object:
+This can be used to configure babel. If provided, it will be
+[`lodash.mergewith`][lodash.mergewith]'d with hardcoded defaults, Test Object
+configurations, and fixtures configuration.
+
+Note that [`babelrc`](https://babeljs.io/docs/en/options#babelrc) and
+[`configFile`](https://babeljs.io/docs/en/options#configfile) are set to `false`
+by default. See [Examples](#full-example--docs) for the default `babelOptions`
+used.
+
+To use [`babel.config.js`](https://babeljs.io/docs/en/configuration) instead of
+`.babelrc`, set `babelOptions` to the config object:
 
 ```
 pluginTester({
@@ -138,7 +154,71 @@ pluginTester({
     /* your test objects */
   },
 });
+```
 
+##### Custom Plugin Run Order
+
+By default, when you include a custom list of
+[plugins](https://babeljs.io/docs/en/options#plugins) in `babelOptions`, the
+plugin under test will always be the final plugin to run.
+
+For example:
+
+```javascript
+import pluginTester, {runPluginUnderTestHere} from 'babel-plugin-tester'
+
+pluginTester({
+  plugin: myPlugin,
+  pluginName: 'my-plugin',
+  babelOptions: {
+    plugins: [
+      ['@babel/plugin-syntax-decorators', {legacy: true}],
+      ['@babel/plugin-proposal-class-properties', {loose: true}],
+    ],
+  },
+})
+```
+
+`myPlugin` will be invoked _after_ `@babel/plugin-syntax-decorators` and
+`@babel/plugin-proposal-class-properties`. It is possible to specify a custom
+ordering using the exported `runPluginUnderTestHere` symbol.
+
+For example, to run `myPlugin` _after_ `@babel/plugin-syntax-decorators` but
+_before_ `@babel/plugin-proposal-class-properties`:
+
+```javascript
+import pluginTester, {runPluginUnderTestHere} from 'babel-plugin-tester'
+
+pluginTester({
+  plugin: myPlugin,
+  pluginName: 'my-plugin',
+  babelOptions: {
+    plugins: [
+      ['@babel/plugin-syntax-decorators', {legacy: true}],
+      runPluginUnderTestHere,
+      ['@babel/plugin-proposal-class-properties', {loose: true}],
+    ],
+  },
+})
+```
+
+Or to run `myPlugin` _before_ both `@babel/plugin-syntax-decorators` and
+`@babel/plugin-proposal-class-properties`:
+
+```javascript
+import pluginTester, {runPluginUnderTestHere} from 'babel-plugin-tester'
+
+pluginTester({
+  plugin: myPlugin,
+  pluginName: 'my-plugin',
+  babelOptions: {
+    plugins: [
+      runPluginUnderTestHere,
+      ['@babel/plugin-syntax-decorators', {legacy: true}],
+      ['@babel/plugin-proposal-class-properties', {loose: true}],
+    ],
+  },
+})
 ```
 
 #### title
@@ -167,7 +247,7 @@ This is used to control which line endings the output from babel should have
 
 #### fixtures
 
-This is a path to a directory with this format:
+This is a path to a directory with this structure:
 
 ```
 __fixtures__
@@ -190,11 +270,24 @@ pluginTester({
 })
 ```
 
-And it would run two tests. One for each directory in `__fixtures__`, with
-plugin options set to the content of `options.json`
+And it would run two tests, one for each directory in `__fixtures__`.
 
-Options are inherited, placing a `options.json` file in `__fixtures__` would add
-those options to all fixtures.
+The contents of `options.json` are merged with `pluginOptions` (above) and
+passed to the plugin under test. Additionally, `options.json` files recognize a
+subset of Test Object properties: `skip`, `only`, and `title`.
+
+Fixtures support deeply nested directory structures as well as shared "root"
+`options.json` files. For example, placing an `options.json` file in the
+`__fixtures__` directory would make its contents the global configuration for
+all fixtures under `__fixtures__`; each fixture would merge these global options
+with `pluginOptions` (above) and their local `options.json` file if it exists.
+
+##### fixtureOutputExt
+
+Use this in your `options.json` files to provide your own fixture output file
+extension. This is particularly useful if you are testing typescript input. If
+omitted, the fixture's input file extension will be used instead (defaults to
+`.js`).
 
 #### tests
 
@@ -216,16 +309,11 @@ Use this to provide your own implementation of babel. This is particularly
 useful if you want to use a different version of babel than what's included in
 this package.
 
-#### fixtureOutputExt
-
-Use this to provide your own fixture output file extension. This is particularly
-useful if you are testing typescript input. If ommited fixture input file
-extension will be used.
-
 #### ...rest
 
-The rest of the options you provide will be [`lodash.merge`][lodash.merge]d with
-each test object. Read more about those next!
+The rest of the options you provide will be
+[`lodash.mergewith`][lodash.mergewith]'d with each test object. Read more about
+those next!
 
 ### Test Objects
 
@@ -351,7 +439,8 @@ pluginTester({
   // required
   plugin: identifierReversePlugin,
 
-  // will default to 'unknown plugin'
+  // usually unnecessary if returned with the plugin
+  // will default to 'unknown plugin' if a name cannot otherwise be inferred
   pluginName: 'identifier reverse',
 
   // defaults to the plugin name
@@ -365,7 +454,7 @@ pluginTester({
   // only necessary if you use fixture or outputFixture in your tests
   filename: __filename,
 
-  // these will be `lodash.mergeWith`d with the test objects
+  // these will be `lodash.mergeWith`'d with the test objects
   // below are the defaults:
   babelOptions: {
     parserOpts: {},
@@ -488,9 +577,137 @@ pluginTester({
 })
 ```
 
+## `pluginName` Inference Caveat
+
+Note that `pluginName` inference requires invoking the plugin _twice_: once to
+check for the plugin's name and then again when run by babel. This is irrelevant
+to `babel-plugin-tester` (even if your plugin crashes the first time) and to the
+overwhelming majority of babel plugins in existence. This is only a problem if
+your plugin is _aggressively stateful_, which is against the
+[babel handbook on plugin design](https://github.com/jamiebuilds/babel-handbook/blob/master/translations/en/plugin-handbook.md#state).
+
+For example, the following plugin which replaces an import specifier using a
+regular expression will exhibit strange behavior due to being invoked twice:
+
+```javascript
+/*  -*-*-  BAD CODE DO NOT USE  -*-*-  */
+
+let source
+// vvv when first invoked, all arguments are passed as non-functional mocks vvv
+function badNotGoodPlugin({assertVersion, types: t}) {
+  // ^^^ which means assertVersion is mocked and t is undefined ^^^
+  assertVersion(7)
+
+  // vvv hence, don't memoize t here vvv
+  if (!source) {
+    source = (value, original, replacement) => {
+      return t.stringLiteral(value.replace(original, replacement))
+    }
+  }
+
+  return {
+    name: 'bad-bad-not-good',
+    visitor: {
+      ImportDeclaration(path, state) {
+        path.node.source = source(
+          path.node.source.value,
+          state.opts.originalRegExp,
+          state.opts.replacementString,
+        )
+      },
+    },
+  }
+}
+
+pluginTester({
+  plugin: badNotGoodPlugin,
+  pluginOptions: {originalRegExp: /^y$/, replacementString: 'z'},
+  tests: [{code: 'import { x } from "y";', output: 'import { x } from "z";'}],
+})
+
+// Result: error!
+// TypeError: unknown file: Cannot read properties of undefined (reading 'stringLiteral')
+```
+
+If you still want to use global state despite the babel devs' advice, either
+initialize global state within your visitor:
+
+```javascript
+let source
+function okayPlugin({assertVersion, types: t}) {
+  assertVersion(7)
+
+  return {
+    name: 'okay',
+    visitor: {
+      Program: {
+        enter() {
+          // vvv initialize global state in a safe place vvv
+          if (!source) {
+            source = (value, original, replacement) => {
+              return t.stringLiteral(value.replace(original, replacement))
+            }
+          }
+        },
+      },
+      ImportDeclaration(path, state) {
+        path.node.source = source(
+          path.node.source.value,
+          state.opts.originalRegExp,
+          state.opts.replacementString,
+        )
+      },
+    },
+  }
+}
+
+pluginTester({
+  plugin: okayPlugin,
+  pluginOptions: {originalRegExp: /^y$/, replacementString: 'z'},
+  tests: [{code: 'import { x } from "y";', output: 'import { x } from "z";'}],
+})
+
+// Result: works!
+```
+
+Or just use local state instead:
+
+```javascript
+// let source
+function betterPlugin({assertVersion, types: t}) {
+  assertVersion(7)
+
+  // vvv use local state instead so t is memoized properly vvv
+  const source = (value, original, replacement) => {
+    return t.stringLiteral(value.replace(original, replacement))
+  }
+
+  return {
+    name: 'better',
+    visitor: {
+      ImportDeclaration(path, state) {
+        path.node.source = source(
+          path.node.source.value,
+          state.opts.originalRegExp,
+          state.opts.replacementString,
+        )
+      },
+    },
+  }
+}
+
+pluginTester({
+  plugin: betterPlugin,
+  pluginOptions: {originalRegExp: /^y$/, replacementString: 'z'},
+  tests: [{code: 'import { x } from "y";', output: 'import { x } from "z";'}],
+})
+
+// Result: works!
+```
+
 ## Defaults
 
-### Un-string snapshot serializer
+### Un-string Snapshot Serializer
 
 If you're using jest and snapshots, then the snapshot output could have a bunch
 of bothersome `\"` to escape quotes because when Jest serializes a string, it
@@ -505,7 +722,7 @@ If you don't like that, then do this:
 + import pluginTester from 'babel-plugin-tester/pure'
 ```
 
-### Prettier formatter
+### Prettier Formatter
 
 By default, a formatter is included which formats your results with
 [`prettier`](https://prettier.io). It will look for a prettier configuration
@@ -624,4 +841,7 @@ MIT
 [jamestweet]: https://twitter.com/thejameskyle/status/864359438819262465
 [lodash.mergewith]: https://lodash.com/docs/4.17.4#mergeWith
 [ruletester]: http://eslint.org/docs/developer-guide/working-with-rules#rule-unit-tests
+[good-first-issue]: https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
+[bugs]: https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22bug%22
+[requests]: https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22enhancement%22
 <!-- prettier-ignore-end -->
