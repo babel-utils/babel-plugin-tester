@@ -91,6 +91,7 @@ function pluginTester({
         fixture,
         testFilepath: testFilename = fixture || filename,
       } = mergeWith({}, testerConfig, toTestConfig(testConfig), mergeCustomizer)
+
       assert(
         (!skip && !only) || skip !== only,
         'Cannot enable both skip and only on a test',
@@ -300,7 +301,13 @@ const createFixtureTests = (fixturesDir, options) => {
       return
     }
 
-    it(blockTitle, async () => {
+    const {only, skip, title} = localFixtureOptions
+
+    assert(
+      (!skip && !only) || skip !== only,
+      'Cannot enable both skip and only on a test',
+    )
+    ;(only ? it.only : skip ? it.skip : it)(title || blockTitle, async () => {
       const {
         plugin,
         pluginOptions,
