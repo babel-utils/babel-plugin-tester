@@ -43,6 +43,16 @@ const runPluginTester = async (...args) => {
   }
 }
 
+const pluginWithOrderTracking = (orderArray, orderInt) => () => {
+  return {
+    visitor: {
+      Program() {
+        orderArray.push(orderInt)
+      },
+    },
+  }
+}
+
 beforeEach(() => {
   equalSpy = jest.spyOn(assert, 'equal')
   errorSpy = jest.spyOn(console, 'error').mockImplementation(noop)
@@ -751,6 +761,40 @@ test('appends to root plugins array', async () => {
   expect(optionFoo).toHaveBeenCalledTimes(2)
   expect(optionBar).toHaveBeenCalledTimes(1)
   expect(programVisitor).toHaveBeenCalledTimes(15)
+})
+
+test('fixtures run plugins in the same order as tests', async () => {
+  const runOrder1 = []
+  const runOrder2 = []
+
+  await runPluginTester(
+    getOptions({
+      plugin: pluginWithOrderTracking(runOrder1, 2),
+      babelOptions: {
+        plugins: [
+          pluginWithOrderTracking(runOrder1, 1),
+          pluginWithOrderTracking(runOrder1, 3),
+        ],
+      },
+    }),
+  )
+
+  await runPluginTester(
+    getOptions({
+      plugin: pluginWithOrderTracking(runOrder2, 2),
+      tests: null,
+      fixtures: getFixturePath('creates-output-file'),
+      babelOptions: {
+        plugins: [
+          pluginWithOrderTracking(runOrder2, 1),
+          pluginWithOrderTracking(runOrder2, 3),
+        ],
+      },
+    }),
+  )
+
+  expect(runOrder1).toStrictEqual([1, 3, 2])
+  expect(runOrder2).toStrictEqual(runOrder1)
 })
 
 test('endOfLine - default', async () => {
