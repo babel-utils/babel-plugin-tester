@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import assert from 'assert'
 import {EOL} from 'os'
+import {declare} from '@babel/helper-plugin-utils'
 import pluginTester from '../plugin-tester'
 import prettierFormatter from '../formatters/prettier'
 import unstringSnapshotSerializer from '../unstring-snapshot-serializer'
@@ -86,7 +87,79 @@ test('exits early if tests is an empty array', async () => {
   expect(itSpy).not.toHaveBeenCalled()
 })
 
-test('accepts a title for the describe block', async () => {
+test('uses inferred plugin name as title if available otherwise uses default', async () => {
+  await runPluginTester(
+    getOptions({
+      pluginName: undefined,
+      plugin: () => ({name: 'captains-journal', visitor: {}}),
+    }),
+  )
+  expect(describeSpy).toHaveBeenCalledTimes(1)
+  expect(describeSpy).toHaveBeenCalledWith(
+    'captains-journal',
+    expect.any(Function),
+  )
+})
+
+test('can infer plugin name from packages using @babel/helper-plugin-utils', async () => {
+  await runPluginTester(
+    getOptions({
+      pluginName: undefined,
+      plugin: declare((api, options, dirname) => {
+        api.assertVersion(7)
+        api.targets()
+        api.assumption('some-assumption')
+
+        const {version} = options
+        assert(dirname, 'expected dirname to be polyfilled (defined)')
+        assert(!version, 'expected version to be polyfilled (undefined)')
+
+        return {name: 'captains-journal', visitor: {}}
+      }),
+    }),
+  )
+  expect(describeSpy).toHaveBeenCalledWith(
+    'captains-journal',
+    expect.any(Function),
+  )
+})
+
+test('uses "unknown plugin" without crashing if plugin crashes while inferring name', async () => {
+  let called = false
+
+  await runPluginTester(
+    getOptions({
+      pluginName: undefined,
+      plugin: () => {
+        if (called) {
+          return {visitor: {}}
+        } else {
+          called = true
+          throw new Error('plugin crashed was unhandled')
+        }
+      },
+    }),
+  )
+  expect(describeSpy).toHaveBeenCalledWith(
+    'unknown plugin',
+    expect.any(Function),
+  )
+})
+
+test('uses "unknown plugin" if no custom title or plugin name is available', async () => {
+  await runPluginTester(
+    getOptions({
+      pluginName: undefined,
+      plugin: () => ({visitor: {}}),
+    }),
+  )
+  expect(describeSpy).toHaveBeenCalledWith(
+    'unknown plugin',
+    expect.any(Function),
+  )
+})
+
+test('accepts a custom title for the describe block', async () => {
   const title = 'describe block title'
   await runPluginTester(getOptions({title}))
   expect(describeSpy).toHaveBeenCalledWith(title, expect.any(Function))

@@ -37,8 +37,8 @@ function pluginTester({
   /* istanbul ignore next (TODO: write a test for this) */
   babel = require('@babel/core'),
   plugin = requiredParam('plugin'),
-  pluginName = 'unknown plugin',
-  title: describeBlockTitle = pluginName,
+  pluginName,
+  title: describeBlockTitle,
   pluginOptions,
   tests,
   fixtures,
@@ -47,6 +47,22 @@ function pluginTester({
   endOfLine = 'lf',
   ...rest
 } = {}) {
+  const tryInferPluginName = () => {
+    try {
+      // https://github.com/babel/babel/blob/abb26aaac2c0f6d7a8a8a1d03cde3ebc5c3c42ae/packages/babel-helper-plugin-utils/src/index.ts#L53-L70
+      return plugin(
+        {assertVersion: () => {}, targets: () => ({}), assumption: () => {}},
+        {},
+        process.cwd(),
+      ).name
+    } catch {
+      return undefined
+    }
+  }
+
+  pluginName = pluginName || tryInferPluginName() || 'unknown plugin'
+  describeBlockTitle = describeBlockTitle || pluginName
+
   let testNumber = 1
   if (fixtures) {
     testFixtures({
