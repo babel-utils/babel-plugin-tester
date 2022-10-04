@@ -704,7 +704,7 @@ it will use default configuration.
 If you'd like to specify your own, then feel free to do so. Here's the API:
 
 ```JavaScript
-function customFormatter(code, {filename}) {
+function customFormatter(code, {filepath}) {
   // Format the code
   return formattedCode
 }
