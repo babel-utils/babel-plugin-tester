@@ -444,6 +444,8 @@ However, note that this file cannot appear in the same directory as
 
 ##### `options.json` (or `options.js`)
 
+TODO: rewrite/update this
+
 For each fixture, the contents of `options.json` are merged with
 [`pluginOptions`][31]/[`presetOptions`][29] and passed to the plugin/preset
 under test. For added flexibility, `options.json` can be specified as
@@ -470,6 +472,10 @@ provided as an option to babel-plugin-tester.
 
 This is used to pass options into your plugin at transform time, overriding the
 [`pluginOptions`][31] provided as an option to babel-plugin-tester.
+
+###### fixtureOutputName
+
+Use this to provide your own fixture output file name. Defaults to `output`.
 
 ###### fixtureOutputExt
 
