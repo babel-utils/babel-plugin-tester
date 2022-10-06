@@ -461,6 +461,16 @@ contents of their local `options.json` (or `options.js`) file if it exists.
 What follows are the available properties. All of them are optional and will not
 be passed to the plugin/preset under test:
 
+###### babelOptions
+
+This is used to configure babel, overriding the [`babelOptions`](#babelOptions)
+provided as an option to babel-plugin-tester.
+
+###### pluginOptions
+
+This is used to pass options into your plugin at transform time, overriding the
+[`pluginOptions`][31] provided as an option to babel-plugin-tester.
+
 ###### fixtureOutputExt
 
 Use this to provide your own fixture output file extension. This is particularly
@@ -694,6 +704,16 @@ Learn more about the built-in formatter [below][20].
 
 > The use case for this originally was for testing transforms and formatting
 > their result with `prettier-eslint`.
+
+###### babelOptions
+
+This is used to configure babel, overriding the [`babelOptions`](#babelOptions)
+provided as an option to babel-plugin-tester.
+
+###### pluginOptions
+
+This is used to pass options into your plugin at transform time, overriding the
+[`pluginOptions`][31] provided as an option to babel-plugin-tester.
 
 #### ...rest
 
