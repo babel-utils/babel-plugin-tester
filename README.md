@@ -83,7 +83,7 @@ CJS:
 const { pluginTester } = require('babel-plugin-tester');
 ```
 
-> For backwards compatibility reasons, a default export is also available.
+> For backwards compatibility reasons, a default export is also available but its use [should be avoided](https://basarat.gitbook.io/typescript/main-1/defaultisbad).
 
 ### Invoke
 
