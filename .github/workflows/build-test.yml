@@ -1,0 +1,288 @@
+name: build-test
+
+on:
+  workflow_dispatch: # * Treated like a `push` event with a user-defined ref
+
+  push:
+    tags-ignore: ['**']
+    branches-ignore: ['dependabot/**', 'snyk-**', 'no-ci/**']
+
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [main, canary]
+
+env:
+  # * Selectively enable debugger verbose output in the pipeline
+  # ? See also: https://www.npmjs.com/package/debug#wildcards
+  # DEBUG: '@xunnamius/dummy-pkg-2:*'
+
+  # * The version of node to load into each job. Must NOT be quoted!
+  NODE_CURRENT_VERSION: 18.x
+
+  # * Node versions to test against (NODE_CURRENT_VERSION included
+  # * automatically). Must be quoted!
+  NODE_TEST_VERSIONS: '"14.x", "16.x"'
+
+  # * Regular expressions (w/ proper escaping) for skipping CI/CD
+  # ! These also have to be updated in .changelogrc.js and cleanup.yml
+  CI_SKIP_REGEX: '\[skip ci\]|\[ci skip\]'
+
+jobs:
+  metadata:
+    name: 'gather-metadata'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      should-skip-ci: ${{ steps.skip.outputs.should-skip-ci == 'true' }}
+      node-matrix: ${{ steps.set-matrix.outputs.node-matrix }}
+      has-integration-node:
+        ${{ steps.data.outputs.has-integration-node == 'true' }}
+      has-integration-client:
+        ${{ steps.data.outputs.has-integration-client == 'true' }}
+    steps:
+      - name: Report DEBUG mode status
+        run: |
+          if ! [ -z "$DEBUG" ]; then
+            echo 'PIPELINE IS RUNNING IN DEBUG MODE!'
+          else
+            echo '(pipeline is not running in debug mode)'
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1 # ! We only skip if the tippy top commit says so!
+
+      - name: Determine should-skip
+        id: skip
+        run: |
+          set +e
+          LAST_COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          ! [ -z "$DEBUG" ] && echo "LAST_COMMIT_MSG=$LAST_COMMIT_MSG" || true
+
+          echo "$LAST_COMMIT_MSG" | grep -qE "$CI_SKIP_REGEX"
+          [ $? -ne 0 ] && CI_SKIP=false || CI_SKIP=true
+          ! [ -z "$DEBUG" ] && echo "CI_SKIP=$CI_SKIP" || true
+
+          echo "::set-output name=should-skip-ci::$CI_SKIP"
+          ! [ -z "$DEBUG" ] && echo "set-output name=should-skip-ci::$CI_SKIP" || true
+
+      - name: Determine matrixes
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        id: set-matrix
+        run: |
+          echo "::set-output name=node-matrix::{\"node\":[$NODE_TEST_VERSIONS, \"$NODE_CURRENT_VERSION\"]}"
+          ! [ -z "$DEBUG" ] && echo "set-output name=node-matrix::{\"node\":[$NODE_TEST_VERSIONS, \"$NODE_CURRENT_VERSION\"]}" || true
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Gather remaining metadata
+        if: steps.skip.outputs.should-skip-ci != 'true'
+        id: data
+        run: |
+          set +e
+          NPMR=`npm run list-tasks`
+          CODE=$?
+
+          ! [ -z "$DEBUG" ] && echo 'NPMR=' $NPMR || true
+
+          if [ $CODE -ne 0 ]; then
+            echo '::error::npm script "list-tasks" failed'
+            exit 1
+          fi
+
+          echo $NPMR | grep -qe '\stest-integration-node\s'
+          if [ $? -eq 0 ]; then HAS_NODE=true; else HAS_NODE=false; fi
+          echo $NPMR | grep -qe '\stest-integration-client\s'
+          if [ $? -eq 0 ]; then HAS_CLIENT=true; else HAS_CLIENT=false; fi
+
+          echo "::set-output name=has-integration-node::$HAS_NODE"
+          echo "::set-output name=has-integration-client::$HAS_CLIENT"
+
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-node::$HAS_NODE" || true
+          ! [ -z "$DEBUG" ] && echo "set-output name=has-integration-client::$HAS_CLIENT" || true
+
+  check-audit:
+    name: '[CI] check-audit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: metadata
+    if: needs.metadata.outputs.should-skip-ci != 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Npm audit
+        run: npm audit --audit-level=${{ env.NPM_AUDIT_FAIL_LEVEL }}
+
+  lint:
+    name: '[CI] lint'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: metadata
+    if: needs.metadata.outputs.should-skip-ci != 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Cache npm
+        uses: actions/cache@v2.1.4
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+  test-unit:
+    name: '[CI] test-unit'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: metadata
+    if: needs.metadata.outputs.should-skip-ci != 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          # ? codecov-action requires access to git history
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Cache npm
+        uses: actions/cache@v2.1.4
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: npm ci
+
+      - name: Test unit
+        run: npm run test:unit
+
+  test-integration-node:
+    name: '[CI] test-integration-node'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: metadata
+    if: |
+      needs.metadata.outputs.should-skip-ci != 'true'
+      && needs.metadata.outputs.has-integration-node == 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.metadata.outputs.node-matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ matrix.node }}
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Cache npm
+        uses: actions/cache@v2.1.4
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: npm ci
+
+      - name: Build distributables
+        run: npm run build:dist
+
+      - name: Test integration
+        env:
+          MATRIX_NODE_VERSION: ${{ matrix.node }}
+        run: npm run test:integration:node
+
+  test-integration-client:
+    name: '[CI] test-integration-client'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: metadata
+    if: |
+      needs.metadata.outputs.should-skip-ci != 'true'
+      && needs.metadata.outputs.has-integration-client == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Reconfigure git auth
+        run:
+          git config --global url."https://${{ secrets.GH_TOKEN }}@github.com/".insteadOf ssh://git@github.com/
+
+      - name: Use node ${{ env.NODE_CURRENT_VERSION }}
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: ${{ env.NODE_CURRENT_VERSION }}
+
+      - name: Cache npm
+        uses: actions/cache@v2.1.4
+        id: cache-npm
+        with:
+          key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.npm
+          restore-keys: npm-${{ runner.os }}-
+
+      - name: Install CI dependencies
+        run: npm ci
+
+      - name: Build distributables
+        run: npm run build:dist
+
+      - name: Test integration
+        run: npm run test:integration:client
