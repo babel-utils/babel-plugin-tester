@@ -110,5 +110,5 @@ module.exports = {
       '.*/bin/.*'
     ]
   },
-  ignorePatterns: ['coverage', 'dist']
+  ignorePatterns: ['coverage', 'dist', 'fixtures', '__fixtures__', '__snapshots__']
 };

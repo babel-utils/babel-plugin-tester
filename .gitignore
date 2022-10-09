@@ -1,4 +1,10 @@
+*.ignore
+*.ignore.*
+ignore.*
+*.tsbuildinfo
+dist
+build
+.vscode
 node_modules
 coverage
-dist
 .DS_Store
