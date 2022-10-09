@@ -10,6 +10,8 @@ exports[`can fail tests in fixtures at an absolute path 1`] = `actual output doe
 
 exports[`default will throw if output changes 1`] = `Expected output to not change, but it did`;
 
+exports[`fixture tests cannot be both only-ed and skipped 1`] = `Cannot enable both skip and only on a test`;
+
 exports[`plugin is required 1`] = `plugin is a required parameter.`;
 
 exports[`snapshot option can be derived from the root config 1`] = `\`output\` cannot be provided with \`snapshot: true\``;
