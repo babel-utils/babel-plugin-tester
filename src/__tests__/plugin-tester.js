@@ -639,7 +639,7 @@ test('prettier formatter supported', async () => {
   )
 })
 
-test('gets options from options.json files when using fixtures', async () => {
+test('gets options from local and root options.json files when using fixtures', async () => {
   const optionRootFoo = jest.fn()
   const optionFoo = jest.fn()
   const optionBar = jest.fn()
@@ -671,6 +671,40 @@ test('gets options from options.json files when using fixtures', async () => {
   expect(optionRootFoo).toHaveBeenCalledTimes(14)
   expect(optionFoo).toHaveBeenCalledTimes(2)
   expect(optionBar).toHaveBeenCalledTimes(1)
+})
+
+test('respects fixtureOutputExt from root options.json file when using fixtures', async () => {
+  await runPluginTester(
+    getOptions({
+      fixtures: getFixturePath('root-fixtureOutputExt'),
+      tests: null,
+    }),
+  )
+
+  expect(writeFileSyncSpy).toHaveBeenCalledTimes(0)
+
+  expect(equalSpy).toHaveBeenCalledWith(
+    getFixtureContents('root-fixtureOutputExt/root/fixture/code.ts'),
+    getFixtureContents('root-fixtureOutputExt/root/fixture/output.js'),
+    expect.any(String),
+  )
+})
+
+test('respects fixtureOutputExt from local options.json file when using fixtures', async () => {
+  await runPluginTester(
+    getOptions({
+      fixtures: getFixturePath('fixtureOutputExt'),
+      tests: null,
+    }),
+  )
+
+  expect(writeFileSyncSpy).toHaveBeenCalledTimes(0)
+
+  expect(equalSpy).toHaveBeenCalledWith(
+    getFixtureContents('fixtureOutputExt/fixture/code.ts'),
+    getFixtureContents('fixtureOutputExt/fixture/output.js'),
+    expect.any(String),
+  )
 })
 
 test('appends to root plugins array', async () => {
