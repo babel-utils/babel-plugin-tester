@@ -32,9 +32,9 @@ any more of you than that.
 As a maintainer, you're fine to make your branches on the main repo or on your
 own fork. Either way is fine.
 
-When we receive a pull request, a travis build is kicked off automatically (see
-the `.travis.yml` for what runs in the travis build). We avoid merging anything
-that breaks the travis build.
+When we receive a pull request, a GitHub Actions build is kicked off
+automatically (see [`.github/workflows`](./github/workflows)). We avoid merging
+anything that fails the Actions workflow.
 
 Please review PRs and focus on the code rather than the individual. You never
 know when this is someone's first ever PR and we want their experience to be as
@@ -49,7 +49,7 @@ to release. See the next section on Releases for more about that.
 ## Release
 
 Our releases are automatic. They happen whenever code lands into `master`. A
-travis build gets kicked off and if it's successful, a tool called
+GitHub Actions build gets kicked off and if it's successful, a tool called
 [`semantic-release`](https://github.com/semantic-release/semantic-release) is
 used to automatically publish a new release to npm as well as a changelog to
 GitHub. It is only able to determine the version and whether a release is
@@ -61,6 +61,51 @@ necessary by the git commit messages. With this in mind, **please brush up on
 > version. I've been burned by this more than once where someone will include
 > "BREAKING CHANGE: None" and it will end up releasing a new major version. Not
 > a huge deal honestly, but kind of annoying...
+
+### Manual Releases
+
+This project has an automated release set up. So things are only released when
+there are useful changes in the code that justify a release. But sometimes
+things get messed up one way or another and we need to trigger the release
+ourselves. When this happens, simply bump the number below and commit that with
+the following commit message based on your needs:
+
+#### Major
+
+```
+fix(release): manually release a major version
+
+There was an issue with a major release, so this manual-releases.md
+change is to release a new major version.
+
+Reference: #<the number of a relevant pull request, issue, or commit>
+
+BREAKING CHANGE: <mention any relevant breaking changes (this is what triggers the major version change so don't skip this!)>
+```
+
+#### Minor
+
+```
+feat(release): manually release a minor version
+
+There was an issue with a minor release, so this manual-releases.md
+change is to release a new minor version.
+
+Reference: #<the number of a relevant pull request, issue, or commit>
+```
+
+#### Patch
+
+```
+fix(release): manually release a patch version
+
+There was an issue with a patch release, so this manual-releases.md
+change is to release a new patch version.
+
+Reference: #<the number of a relevant pull request, issue, or commit>
+```
+
+The number of times we've had to do a manual release is: 1
 
 ## Thanks!
 
