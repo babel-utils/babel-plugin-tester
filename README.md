@@ -5,6 +5,7 @@ Utilities for testing babel plugins and presets.
 ---
 
 <!-- prettier-ignore-start -->
+
 [![Build Status][build-badge]][build]
 [![Code Coverage][coverage-badge]][coverage]
 [![Version][version-badge]][package]
@@ -14,8 +15,10 @@ Utilities for testing babel plugins and presets.
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-19-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
+
 [![PRs Welcome][prs-badge]][prs]
 [![Code of Conduct][coc-badge]][coc]
+
 <!-- prettier-ignore-end -->
 
 ## The Problem
@@ -31,31 +34,33 @@ functionality should work with [Mocha][6], [Jasmine][7], and any other framework
 that defines standard `it`/`describe`/`expect` globals.
 
 <!-- prettier-ignore-start -->
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
-- [Installation][8]
-- [Usage][9]
-  - [Import][10]
-  - [Invoke][11]
-  - [Options][12]
-- [Examples][13]
-  - [Simple Example][14]
-  - [Full Example][15]
-- [Documentation][16]
-  - [Using Babel For Configuration Loading][17]
-  - [`pluginName` Inference Caveat][18]
-  - [Un-string Snapshot Serializer][19]
-  - [Prettier Formatter][20]
-- [Inspiration][21]
-- [Issues][22]
-  - [🐛 Bugs][23]
-  - [💡 Feature Requests][24]
-- [Contributors ✨][1]
-- [LICENSE][25]
+*   [Installation][8]
+*   [Usage][9]
+    *   [Import][10]
+    *   [Invoke][11]
+    *   [Options][12]
+*   [Examples][13]
+    *   [Simple Example][14]
+    *   [Full Example][15]
+*   [Documentation][16]
+    *   [Using Babel For Configuration Loading][17]
+    *   [`pluginName` Inference Caveat][18]
+    *   [Un-string Snapshot Serializer][19]
+    *   [Prettier Formatter][20]
+*   [Inspiration][21]
+*   [Issues][22]
+    *   [🐛 Bugs][23]
+    *   [💡 Feature Requests][24]
+*   [Contributors ✨][1]
+*   [LICENSE][25]
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 <!-- prettier-ignore-end -->
 
 ## Installation
@@ -84,8 +89,7 @@ const { pluginTester } = require('babel-plugin-tester');
 ```
 
 > For backwards compatibility reasons, a default export is also available but
-> its use
-> [should be avoided](https://basarat.gitbook.io/typescript/main-1/defaultisbad).
+> its use [should be avoided][76].
 
 ### Invoke
 
@@ -467,8 +471,8 @@ be passed to the plugin/preset under test:
 
 ###### babelOptions
 
-This is used to configure babel, overriding the [`babelOptions`](#babelOptions)
-provided as an option to babel-plugin-tester.
+This is used to configure babel, overriding the [`babelOptions`][77] provided as
+an option to babel-plugin-tester.
 
 ###### pluginOptions
 
@@ -717,8 +721,8 @@ Learn more about the built-in formatter [below][20].
 
 ###### babelOptions
 
-This is used to configure babel, overriding the [`babelOptions`](#babelOptions)
-provided as an option to babel-plugin-tester.
+This is used to configure babel, overriding the [`babelOptions`][77] provided as
+an option to babel-plugin-tester.
 
 ###### pluginOptions
 
@@ -1202,6 +1206,7 @@ Thanks goes to these people ([emoji key][emojis]):
 </table>
 
 <!-- markdownlint-restore -->
+
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
@@ -1329,3 +1334,7 @@ MIT
 [74]:
   https://github.com/jamiebuilds/babel-handbook/blob/c6828415127f27fedcc51299e98eaf47b3e26b5f/translations/en/plugin-handbook.md#state
 [75]: https://prettier.io
+[2]:
+  https://img.shields.io/badge/all_contributors-19-orange.svg?style=flat-square
+[76]: https://basarat.gitbook.io/typescript/main-1/defaultisbad
+[77]: #babelOptions
