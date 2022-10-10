@@ -33,8 +33,11 @@
   },
   "typesVersions": {
     "*": {
+      "pure": [
+        "./dist/plugin-tester.d.ts"
+      ],
       "*": [
-        "dist/types/src/index.d.ts"
+        "./dist/index.d.ts"
       ]
     }
   },

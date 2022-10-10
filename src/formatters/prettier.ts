@@ -6,7 +6,7 @@ import {
   type Options as PrettierOptions
 } from 'prettier';
 
-import type { ResultFormatter } from '.';
+import type { ResultFormatter } from '..';
 
 type MaybePrettierOptions = PrettierOptions | null;
 const configDirCache: Record<string, MaybePrettierOptions> = Object.create(null);

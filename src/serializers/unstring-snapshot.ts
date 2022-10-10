@@ -1,4 +1,4 @@
-import type { SnapshotSerializer } from '.';
+import type { SnapshotSerializer } from '..';
 
 export const unstringSnapshotSerializer: SnapshotSerializer = {
   test: (val: unknown) => typeof val === 'string',

@@ -8,13 +8,13 @@ import stripIndent from 'strip-indent';
 
 import {
   runPluginUnderTestHere,
+  type ResultFormatter,
   type PluginTesterOptions,
   type TestObject,
   type FixtureOptions,
   type ErrorExpectation
 } from '.';
 
-import type { ResultFormatter } from './formatters';
 import type { Class } from 'type-fest';
 
 type PluginTesterOptionsWithBabel = Omit<PluginTesterOptions, 'babel'> & {
@@ -304,6 +304,7 @@ function assertError(result: unknown, errorExpectation: ErrorExpectation) {
   }
 }
 
+export default pluginTester;
 export function pluginTester({
   babel = require('@babel/core'),
   plugin,
