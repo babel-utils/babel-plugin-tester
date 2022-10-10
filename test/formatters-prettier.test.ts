@@ -11,6 +11,6 @@ test('uses default format with no available config', () => {
 test('defaults all options', () => {
   expect.hasAssertions();
 
-  const result = prettierFormatter(`var a = "hi";`, {});
+  const result = prettierFormatter(`var a = "hi";`);
   expect(result).toBe(`var a = 'hi';\n`);
 });
