@@ -83,7 +83,9 @@ CJS:
 const { pluginTester } = require('babel-plugin-tester');
 ```
 
-> For backwards compatibility reasons, a default export is also available but its use [should be avoided](https://basarat.gitbook.io/typescript/main-1/defaultisbad).
+> For backwards compatibility reasons, a default export is also available but
+> its use
+> [should be avoided](https://basarat.gitbook.io/typescript/main-1/defaultisbad).
 
 ### Invoke
 
@@ -675,6 +677,8 @@ one of the following:
 
 > For backwards compatibility reasons, `error` is synonymous with `throws`. They
 > can be used interchangeably.
+
+Note that this property is ignored when using the [`exec`][62] property.
 
 ###### setup
 
