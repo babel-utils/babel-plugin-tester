@@ -4,5 +4,7 @@ module.exports = {
   reject: [
     // ? Pin the CJS version of strip-indent
     'strip-indent',
-  ],
-}
+    // ? Pin the CJS version of execa
+    'execa'
+  ]
+};

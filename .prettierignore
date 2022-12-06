@@ -1,4 +1,11 @@
+# Paths below are ignored by prettier as well as remark and doctoc when called
+# with npm run format)
+build
+external-scripts/bin
 node_modules
-coverage
 dist
+coverage
+package-lock.json
 fixtures
+docs
+CHANGELOG.md
