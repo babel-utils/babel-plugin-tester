@@ -70,34 +70,42 @@ the following commit message based on your needs:
 
 #### Major
 
-    fix(release): manually release a major version
+```text
+fix(release): manually release a major version
 
-    There was an issue with a major release, so this manual-releases.md
-    change is to release a new major version.
+There was an issue with a major release, so this manual-releases.md
+change is to release a new major version.
 
-    Reference: #<the number of a relevant pull request, issue, or commit>
+Reference: #<the number of a relevant pull request, issue, or commit>
 
-    BREAKING CHANGE: <mention any relevant breaking changes (this is what triggers the major version change so don't skip this!)>
+BREAKING CHANGE: <mention any relevant breaking changes (this is what triggers the major version change so don't skip this!)>
+```
 
 #### Minor
 
-    feat(release): manually release a minor version
+```text
+feat(release): manually release a minor version
 
-    There was an issue with a minor release, so this manual-releases.md
-    change is to release a new minor version.
+There was an issue with a minor release, so this manual-releases.md
+change is to release a new minor version.
 
-    Reference: #<the number of a relevant pull request, issue, or commit>
+Reference: #<the number of a relevant pull request, issue, or commit>
+```
 
 #### Patch
 
-    fix(release): manually release a patch version
+```text
+fix(release): manually release a patch version
 
-    There was an issue with a patch release, so this manual-releases.md
-    change is to release a new patch version.
+There was an issue with a patch release, so this manual-releases.md
+change is to release a new patch version.
 
-    Reference: #<the number of a relevant pull request, issue, or commit>
+Reference: #<the number of a relevant pull request, issue, or commit>
+```
 
 The number of times we've had to do a manual release is: 1
+
+<!-- lint ignore -->
 
 ## Thanks!
 
@@ -106,6 +114,6 @@ Thank you so much for helping to maintain this project!
 [commit]:
   https://github.com/conventional-changelog-archived-repos/conventional-changelog-angular/blob/ed32559941719a130bb0327f886d6a32a8cbc2ba/convention.md
 [1]: http://makeapullrequest.com
-[2]: ./github/workflows
-[3]: https://help.github.com/articles/merging-a-pull-request/
+[2]: ./.github/workflows
+[3]: https://help.github.com/articles/merging-a-pull-request
 [4]: https://github.com/semantic-release/semantic-release
