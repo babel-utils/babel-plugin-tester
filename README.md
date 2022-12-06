@@ -802,7 +802,8 @@ The rest of the options you pass to babel-plugin-tester will be
 [`lodash.mergewith`][lodash.mergewith]'d with each [test object][19] and
 [fixture options][20] with the latter taking precedence.
 
-Invalid options will trigger a warning.
+Invalid options will trigger a warning. Invalid option combinations will throw
+an error.
 
 ## Examples
 
