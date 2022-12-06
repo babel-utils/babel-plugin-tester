@@ -53,7 +53,7 @@ that defines standard `it`/`describe`/`expect` globals.
   - [Using Babel for Configuration Loading](#using-babel-for-configuration-loading)
   - [`pluginName` Inference Caveat](#pluginname-inference-caveat)
   - [Custom Snapshot Serialization](#custom-snapshot-serialization)
-  - [Formatting Results with Prettier](#formatting-results-with-prettier)
+  - [Formatting Output with Prettier](#formatting-output-with-prettier)
   - [Built-In Debugging Support](#built-in-debugging-support)
   - [`TEST_ONLY` and `TEST_SKIP` Environment Variables](#test_only-and-test_skip-environment-variables)
 - [Inspiration](#inspiration)
@@ -356,7 +356,7 @@ everything else).
 #### `filepath`
 
 This is used to resolve relative paths provided by the [`fixtures`][30] option
-and the two [test object][19] properties [`fixture`][31] and
+and the two test object properties [`codeFixture`][31] and
 [`outputFixture`][32]. If these are not absolute paths, they will be
 [`path.join`][33]'d with the [directory name][34] of `filepath`.
 
@@ -367,8 +367,9 @@ Defaults to the absolute path of the file that [invoked the `pluginTester`
 function][37].
 
 > For backwards compatibility reasons, `filepath` is synonymous with `filename`.
-> They can be used interchangeably, though care must be taken not to confuse
-> `options.filename` with `babelOptions.filename`. They are NOT the same!
+> They can be used interchangeably, though care must be taken not to confuse the
+> babel-plugin-tester option `filename` with `babelOptions.filename`. They are
+> NOT the same!
 
 #### `endOfLine`
 
@@ -429,24 +430,31 @@ And it would run four tests, one for each directory in `__fixtures__`.
 
 This file's contents will be used as the input into babel at transform time.
 
+Indentation is not stripped nor are the contents of the file trimmed before
+being passed to babel for transformation.
+
 ##### `output.js`
 
-This file, if provided, will have its contents compared with babel's output
-after transforming [`code.js`][40]. It will have any indentation stripped and
-will be trimmed as a convenience for template literals.
-
-This file must be provided unless the [`throws`][41] property is present in
+This file, if provided, will have its contents compared with babel's output,
+which is [`code.js`][40] transformed by babel and [formatted with prettier][41].
+This file must be provided unless the [`throws`][42] property is present in
 [`options.json`][20]. Additionally, the extension of the output file can be
-changed with the [`fixtureOutputExt`][42] property.
+changed with the [`fixtureOutputExt`][43] property.
+
+Indentation is not stripped nor are the contents of the file trimmed before
+being compared to babel's output.
 
 ##### `exec.js`
 
 This file's contents will be used as the input into babel at transform time just
 like the [`code.js`][40] file, except the output will be _evaluated_ in the
-[same context][43] as the the test runner itself, meaning it has access to
+[same context][44] as the the test runner itself, meaning it has access to
 `expect`, `require`, etc. Use this to make advanced assertions on the output.
 
-For example, to test that [babel-plugin-proposal-throw-expressions][44] actually
+The test will pass unless an exception is thrown (e.g. when an `expect()`
+fails).
+
+For example, to test that [babel-plugin-proposal-throw-expressions][45] actually
 throws, your `exec.js` file might contain:
 
 ```javascript
@@ -454,7 +462,7 @@ expect(() => throw new Error('throw expression')).toThrow('throw expression');
 ```
 
 However, note that this file cannot appear in the same directory as
-[`code.js`][40] or [`output.js`][45].
+[`code.js`][40] or [`output.js`][46].
 
 ##### `options.json` (Or `options.js`)
 
@@ -462,7 +470,7 @@ For each fixture, the contents of the entirely optional `options.json` file are
 [`lodash.mergewith`][lodash.mergewith]'d with the options provided to
 babel-plugin-tester, with the former taking precedence. For added flexibility,
 `options.json` can be specified as `options.js` instead so long as a JSON object
-is exported via [`module.exports`][46]. If both files exist in the same
+is exported via [`module.exports`][47]. If both files exist in the same
 directory, `options.js` will take precedence and `options.json` will be ignored
 entirely.
 
@@ -480,7 +488,7 @@ What follows are the available properties, all of which are optional:
 ###### `babelOptions`
 
 This is used to configure babel. Properties specified here override
-([`lodash.mergewith`][lodash.mergewith]) those from the [`babelOptions`][47]
+([`lodash.mergewith`][lodash.mergewith]) those from the [`babelOptions`][48]
 option provided to babel-plugin-tester.
 
 ###### `pluginOptions`
@@ -529,10 +537,10 @@ during transformation. For example:
 }
 ```
 
-> For backwards compatibility reasons, `error` is synonymous with `throws`. They
+> For backwards compatibility reasons, `throws` is synonymous with `error`. They
 > can be used interchangeably.
 
-Note that this property is ignored when using an [`exec.js`][48] file.
+Note that this property is ignored when using an [`exec.js`][49] file.
 
 ###### `setup`
 
@@ -541,9 +549,9 @@ Note that this property is ignored when using an [`exec.js`][48] file.
 
 If you need something set up before a particular fixture's tests are run, you
 can do this with `setup`. This function will be run before the fixture runs. It
-can return a function which will be treated as a [`teardown`][49] function. It
+can return a function which will be treated as a [`teardown`][50] function. It
 can also return a promise. If that promise resolves to a function, that will be
-treated as a [`teardown`][49] function.
+treated as a [`teardown`][50] function.
 
 ###### `teardown`
 
@@ -552,10 +560,10 @@ treated as a [`teardown`][49] function.
 
 If you set up some state, it's quite possible you want to tear it down. Use this
 function to clean up after a fixture's tests finish running. You can either
-define this as its own property, or you can return it from the [`setup`][50]
+define this as its own property, or you can return it from the [`setup`][51]
 function. This can likewise return a promise if it's asynchronous.
 
-This property takes precedence over anything returned by the [`setup`][50]
+This property takes precedence over anything returned by the [`setup`][51]
 property.
 
 ###### `formatResult`
@@ -576,7 +584,7 @@ function customFormatter(code, { filepath }) {
 }
 ```
 
-Learn more about the built-in formatter [below][51].
+Learn more about the built-in formatter [below][41].
 
 > The use case for this originally was for testing transforms and formatting
 > their result with `prettier-eslint`.
@@ -610,15 +618,15 @@ See [the example][21] for more details.
 
 A minimal test object can be:
 
-1. A `string` representing [code][52].
-2. An `object` with a [`code`][52] property.
+1. A `string` representing [code][53].
+2. An `object` with a [`code`][53] property.
 
 Here are the available properties if you provide an object:
 
 ###### `babelOptions`
 
 This is used to configure babel. Properties specified here override
-([`lodash.mergewith`][lodash.mergewith]) those from the [`babelOptions`][47]
+([`lodash.mergewith`][lodash.mergewith]) those from the [`babelOptions`][48]
 option provided to babel-plugin-tester.
 
 ###### `pluginOptions`
@@ -662,27 +670,27 @@ one of the following:
 }
 ```
 
-> For backwards compatibility reasons, `error` is synonymous with `throws`. They
+> For backwards compatibility reasons, `throws` is synonymous with `error`. They
 > can be used interchangeably.
 
-Note that this property is ignored when using the [`exec`][53] property.
+Note that this property is ignored when using the [`exec`][54] property.
 
 ###### `setup`
 
 If you need something set up before a particular test is run, you can do this
 with `setup`. This function will be run before the test runs. It can return a
-function which will be treated as a [`teardown`][54] function. It can also
+function which will be treated as a [`teardown`][55] function. It can also
 return a promise. If that promise resolves to a function, that will be treated
-as a [`teardown`][54] function.
+as a [`teardown`][55] function.
 
 ###### `teardown`
 
 If you set up some state, it's quite possible you want to tear it down. Use this
 function to clean up after a test finishes running. You can either define this
-as its own property, or you can return it from the [`setup`][55] function. This
+as its own property, or you can return it from the [`setup`][56] function. This
 can likewise return a promise if it's asynchronous.
 
-This property takes precedence over anything returned by the [`setup`][55]
+This property takes precedence over anything returned by the [`setup`][56]
 property.
 
 ###### `formatResult`
@@ -700,7 +708,7 @@ function customFormatter(code, { filepath }) {
 }
 ```
 
-Learn more about the built-in formatter [below][51].
+Learn more about the built-in formatter [below][41].
 
 > The use case for this originally was for testing transforms and formatting
 > their result with `prettier-eslint`.
@@ -715,51 +723,64 @@ understand.
 ###### `code`
 
 The code that you want to run through your plugin or preset. This must be
-provided unless you're using the [`fixture`][31] or [`exec`][53] properties
-instead. If you do not provide the [`output`][56] or [`outputFixture`][32]
-properties and [`snapshot`][57] is not `true`, then the assertion is that this
+provided unless you're using the [`codeFixture`][31] or [`exec`][54] properties
+instead. If you do not provide the [`output`][57] or [`outputFixture`][32]
+properties and [`snapshot`][58] is not `true`, then the assertion is that this
 code is unchanged by the transformation.
 
-Indentation is not stripped and the value is not trimmed.
+Indentation is not stripped nor is the value trimmed before being passed to
+babel.
 
 ###### `output`
 
-If provided, the result of the transformation will be compared with this output
-for the assertion. It will have any indentation stripped and will be trimmed as
-a convenience for template literals.
+The value of this property, if provided, will be compared with babel's output,
+which is [`code`][53] transformed by babel and [formatted with prettier][41].
 
-###### `fixture`
+Said value will have any indentation stripped and will be trimmed as a
+convenience for template literals.
 
-If you'd rather put your [`code`][52] in a separate file, you can specify a file
+###### `codeFixture`
+
+If you'd rather put your [`code`][53] in a separate file, you can specify a file
 name here instead. If it's an absolute path, then that's the file that will be
-loaded. Otherwise, `fixture` will be [`path.join`][33]'d with the [directory
+loaded. Otherwise, `codeFixture` will be [`path.join`][33]'d with the [directory
 name][34] of [`filepath`][39].
 
-> If you find you're using this option more than a couple of times, consider
-> using [_`fixtures`_][30] instead.
+Indentation is not stripped nor are the contents of the file trimmed before
+being passed to babel for transformation.
 
-Indentation is not stripped and the value is not trimmed.
+> If you find you're using this option more than a couple of times, consider
+> using [`fixtures`][30] instead.
+
+> For backwards compatibility reasons, `codeFixture` is synonymous with
+> `fixture`. They can be used interchangeably, though care must be taken not to
+> confuse the test object option `fixture` with the babel-plugin-tester option
+> [_`fixtures`_][30], the latter being plural.
 
 ###### `outputFixture`
 
-If you'd rather put your [`output`][56] in a separate file, you can specify a
+If you'd rather put your [`output`][57] in a separate file, you can specify a
 file name here instead. If it's an absolute path, then that's the file that will
 be loaded. Otherwise, `outputFixture` will be [`path.join`][33]'d with the
 [directory name][34] of [`filepath`][39].
 
-> If you find you're using this option more than a couple of times, consider
-> using [_`fixtures`_][30] instead.
+Indentation is not stripped nor are the contents of the file trimmed before
+being compared to babel's output.
 
-Indentation is not stripped and the value is not trimmed.
+> If you find you're using this option more than a couple of times, consider
+> using [`fixtures`][30] instead.
 
 ###### `exec`
 
-The provided source will be transformed just like the [`code`][52] property,
+The provided source will be transformed just like the [`code`][53] property,
 except the output will be _evaluated_ in the same context as the the test runner
 itself, meaning it has access to `expect`, `require`, etc. Use this to make
 advanced assertions on the output.
 
-For example, you can test that [babel-plugin-proposal-throw-expressions][44]
+The test will pass unless an exception is thrown (e.g. when an `expect()`
+fails).
+
+For example, you can test that [babel-plugin-proposal-throw-expressions][45]
 actually throws using the following:
 
 ```javascript
@@ -772,7 +793,7 @@ actually throws using the following:
 ```
 
 However, this property cannot appear in the same test object as the
-[`code`][52], [`output`][56], [`fixture`][31], or [`outputFixture`][32]
+[`code`][53], [`output`][57], [`codeFixture`][31], or [`outputFixture`][32]
 properties.
 
 #### Unrecognized Options
@@ -963,17 +984,17 @@ pluginTester({
 ### Using Babel for Configuration Loading
 
 [`babelOptions.babelrc`][24] and [`babelOptions.configFile`][25] are set to
-`false` [by default][47]. This way, you can [manually import (or provide an
-object literal)][47] the exact configuration you want to apply rather than
-relying on babel's [somewhat complex configuration loading rules][58]. However,
-if your plugin, preset, or project relies on a complicated external setup to do
-its work, and you don't mind the [default run order][59], you can leverage
-[babel's automatic configuration loading][60] via the `babelOptions.babelrc`
-and/or `babelOptions.configFile` options.
+`false` by default. This way, you can [manually import (or provide an object
+literal)][48] the exact configuration you want to apply rather than relying on
+babel's [somewhat complex configuration loading rules][59]. However, if your
+plugin, preset, or project relies on a complicated external setup to do its
+work, and you don't mind the [default run order][60], you can leverage [babel's
+automatic configuration loading][61] via the `babelOptions.babelrc` and/or
+`babelOptions.configFile` options.
 
 When relying on `babelOptions.babelrc`, you must also provide a
-[`babelOptions.filename`][61] for each test object that doesn't include a
-[`fixture`][31] property. For example:
+[`babelOptions.filename`][62] for each test object that doesn't include a
+[`codeFixture`][31] property. For example:
 
 ```javascript
 pluginTester({
@@ -1004,7 +1025,7 @@ pluginTester({
 > `filename`.
 
 This file doesn't actually have to exist either, so you can use whatever value
-you want for `filename` as long as the `.babelrc` file is [resolved][62]
+you want for `filename` as long as the `.babelrc` file is [resolved][63]
 properly. Hence, the above example could be simplified further:
 
 ```javascript
@@ -1033,7 +1054,7 @@ again when run by babel. This is irrelevant to babel-plugin-tester (even if your
 plugin crashes when run outside of babel) and to the overwhelming majority of
 babel plugins in existence. This only becomes a problem if your plugin is
 _aggressively stateful_, which is against the [babel handbook on plugin
-design][63].
+design][64].
 
 For example, the following plugin which replaces an import specifier using a
 regular expression will exhibit strange behavior due to being invoked twice:
@@ -1168,16 +1189,17 @@ If you don't like that, then do this:
 + import { pluginTester } from 'babel-plugin-tester/pure'
 ```
 
-### Formatting Results with Prettier
+### Formatting Output with Prettier
 
-By default, a formatter is included which formats your results with
-[prettier][64]. It will look for a prettier configuration relative to the file
+By default, a formatter is included which formats all babel output with
+[prettier][65]. It will look for a prettier configuration relative to the file
 that's being tested or the current working directory. If it can't find one, then
 it uses the default configuration for prettier.
 
-This makes your snapshots easier to read, but if you'd like to disable this
-feature, you can either use the `pure` import (as shown [above][65]) or you can
-override the `formatResult` option manually:
+This makes your snapshots easier to read and your expectations easier to write,
+but if you'd like to disable this feature, you can either use the [`pure`
+import][66] to disable automatic formatting (along with snapshot serialization)
+or you can override the `formatResult` option manually:
 
 ```javascript
 pluginTester({
@@ -1189,22 +1211,33 @@ pluginTester({
 
 ### Built-In Debugging Support
 
-babel-plugin-tester uses the [debug][66] package under the hood; more verbose
-output, including the results of all babel transformations, can be activated by
-passing the `DEBUG=babel-plugin-tester,babel-plugin-tester:*` environment
-variable.
+This package uses [debug][67] under the hood; more verbose output, including the
+results of all babel transformations, can be activated by passing the
+`DEBUG=babel-plugin-tester,babel-plugin-tester:*` environment variable when
+running babel-plugin-tester.
+
+#### Available Debug Namespaces
+
+<!-- lint disable list-item-style -->
+
+- `babel-plugin-tester:index`
+- `babel-plugin-tester:tester`
+- `babel-plugin-tester:formatter`
+- `babel-plugin-tester:serializer`
+
+<!-- lint enable list-item-style -->
 
 ### `TEST_ONLY` and `TEST_SKIP` Environment Variables
 
-babel-plugin-tester supports the `TEST_ONLY` and/or `TEST_SKIP` environment
-variables to control which tests are run without modifying your test
-configuration code.
+The optional `TEST_ONLY` and `TEST_SKIP` environment variables are recognized by
+babel-plugin-tester, allowing you to control which tests are run in an adhoc
+fashion without modifying your test configuration code.
 
-The values of these environment variables will be transformed into regular
-expressions via `RegExp(value, 'u')` and matched against each test/fixture
-title. Tests with titles that match `TEST_ONLY` will be run while all others are
-skipped. On the other hand, tests with titles that match `TEST_SKIP` will be
-skipped while others are run.
+The values of these variables will be transformed into regular expressions via
+`RegExp(value, 'u')` and matched against each test/fixture title. Tests with
+titles that match `TEST_ONLY` will be run while all others are skipped. On the
+other hand, tests with titles that match `TEST_SKIP` will be skipped while
+others are run.
 
 Given both `TEST_ONLY` and `TEST_SKIP`, tests matched by `TEST_SKIP` will
 _always_ be skipped, even if they're also matched by `TEST_ONLY`.
@@ -1214,7 +1247,7 @@ _always_ be skipped, even if they're also matched by `TEST_ONLY`.
 The API was inspired by:
 
 - ESLint's [RuleTester][ruletester].
-- [@thejameskyle][@thejameskyle]'s [tweet][jamestweet].
+- [@thejameskyle][68]'s [tweet][jamestweet].
 - Babel's own
   [`@babel/helper-plugin-test-runner`][@babel/helper-plugin-test-runner].
 
@@ -1288,7 +1321,6 @@ MIT
 
 [@babel/helper-plugin-test-runner]:
   https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner
-[@thejameskyle]: https://github.com/thejameskyle
 [all-contributors]: https://github.com/all-contributors/all-contributors
 [bugs]:
   https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22bug%22
@@ -1357,7 +1389,7 @@ MIT
 [28]: https://babeljs.io/docs/en/options#plugins
 [29]: https://babeljs.io/docs/en/presets#preset-ordering
 [30]: #fixtures
-[31]: #fixture
+[31]: #codeFixture
 [32]: #outputfixture
 [33]: https://nodejs.org/api/path.html#pathjoinpaths
 [34]: https://nodejs.org/api/path.html#pathdirnamepath
@@ -1367,30 +1399,31 @@ MIT
 [38]: #tests
 [39]: #filepath
 [40]: #codejs
-[41]: #throws
-[42]: #fixtureOutputExt
-[43]: https://nodejs.org/api/vm.html#vmruninthiscontextcode-options
-[44]: https://babeljs.io/docs/en/babel-plugin-proposal-throw-expressions
-[45]: #outputjs
-[46]: https://nodejs.org/api/modules.html#moduleexports
-[47]: #babelOptions
-[48]: #execjs
-[49]: #teardown
-[50]: #setup
-[51]: #formatting-results-with-prettier
-[52]: #code
-[53]: #exec
-[54]: #teardown-1
-[55]: #setup-1
-[56]: #output
-[57]: #snapshot
-[58]: https://babeljs.io/docs/en/options#config-loading-options
-[59]: #custom-plugin-and-preset-run-order
-[60]: https://babeljs.io/docs/en/config-files
-[61]: https://babeljs.io/docs/en/options#filename
-[62]: https://babeljs.io/docs/en/config-files#file-relative-configuration
-[63]:
+[41]: #formatting-output-with-prettier
+[42]: #throws
+[43]: #fixtureOutputExt
+[44]: https://nodejs.org/api/vm.html#vmruninthiscontextcode-options
+[45]: https://babeljs.io/docs/en/babel-plugin-proposal-throw-expressions
+[46]: #outputjs
+[47]: https://nodejs.org/api/modules.html#moduleexports
+[48]: #babelOptions
+[49]: #execjs
+[50]: #teardown
+[51]: #setup
+[53]: #code
+[54]: #exec
+[55]: #teardown-1
+[56]: #setup-1
+[57]: #output
+[58]: #snapshot
+[59]: https://babeljs.io/docs/en/options#config-loading-options
+[60]: #custom-plugin-and-preset-run-order
+[61]: https://babeljs.io/docs/en/config-files
+[62]: https://babeljs.io/docs/en/options#filename
+[63]: https://babeljs.io/docs/en/config-files#file-relative-configuration
+[64]:
   https://github.com/jamiebuilds/babel-handbook/blob/c6828415127f27fedcc51299e98eaf47b3e26b5f/translations/en/plugin-handbook.md#state
-[64]: https://prettier.io
-[65]: #custom-snapshot-serialization
-[66]: https://npm.im/debug
+[65]: https://prettier.io
+[66]: #custom-snapshot-serialization
+[67]: https://npm.im/debug
+[68]: https://github.com/jamiebuilds
