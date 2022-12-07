@@ -1185,7 +1185,7 @@ serializer for you to remove those. Note that this serializer is added globally
 and thus will affect _all_ snapshots taken, even those outside of
 babel-plugin-tester.
 
-If you'd like to disable this feature, then use the "pure" export (also disables
+If you'd like to disable this feature, then use the "pure" import (also disables
 formatting of babel output with prettier):
 
 ```diff
