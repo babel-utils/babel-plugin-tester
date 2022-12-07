@@ -13,7 +13,6 @@ video course helpful: http://kcd.im/pull-request
 Please fill out the information below to expedite the review and (hopefully)
 merge of your pull request!
 -->
-
 <!-- What changes are being made? (What feature/bug is being fixed here?) -->
 
 **What**:
