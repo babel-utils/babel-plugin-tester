@@ -1,3 +1,4 @@
+/* eslint jest/require-hook: ["error", { "allowedFunctionCalls": ["pluginTesterAsDefault","pluginTester"] }] */
 import pluginTesterAsDefault, { pluginTester, runPluginUnderTestHere } from '../src';
 
 test('runPluginUnderTestHere is exported', () => {

@@ -30,76 +30,266 @@ const fullDefaultConfig = {
   }
 };
 
-// ? Thanks to node throwing an error if you try to use instanceof with an arrow
-// ? function we have to have this function. I guess it's spec... SMH...
-// ? NOTE: I tried doing the "proper thing" using Symbol.hasInstance
-// ? but no matter what that did, I couldn't make that work with a SyntaxError
-// ? because SyntaxError[Symbol.hasInstance]() returns false. What. The. Heck!?
-// ? So I'm doing this .prototype stuff :-/
-// * See: https://github.com/nodejs/node/issues/12894#issuecomment-299888458
-function hasPrototypeAndIsInstanceOf(
-  inst: unknown,
-  cls: Class<Error> | ((...args: unknown[]) => unknown)
-): cls is Class<Error> {
-  return cls.prototype !== undefined && inst instanceof cls;
+export default pluginTester;
+export function pluginTester({
+  babel = require('@babel/core'),
+  plugin,
+  pluginName,
+  title: describeBlockTitle,
+  pluginOptions,
+  tests,
+  fixtures,
+  fixtureOutputName = 'output',
+  filename,
+  endOfLine = 'lf',
+  ...rest
+}: PluginTesterOptions = {}) {
+  if (!plugin) {
+    throw new Error('plugin is a required parameter');
 }
 
-function mergeCustomizer(objValue: unknown[], srcValue: unknown) {
-  return Array.isArray(objValue) ? objValue.concat(srcValue) : undefined;
+  const tryInferPluginName = () => {
+    try {
+      // * https://xunn.at/babel-helper-plugin-utils-src
+      return plugin(
+        {
+          assertVersion: () => undefined,
+          targets: () => undefined,
+          assumption: () => undefined
+        },
+        {},
+        process.cwd()
+      ).name;
+    } catch {
+      return undefined;
 }
-
-function fixLineEndings(
-  line: string,
-  endOfLine: PluginTesterOptions['endOfLine'],
-  input = line
-) {
-  const getReplacement = () => {
-    switch (endOfLine) {
-      case 'lf': {
-        return '\n';
-      }
-      case 'crlf': {
-        return '\r\n';
-      }
-      case 'auto': {
-        return EOL;
-      }
-      case 'preserve': {
-        const match = input.match(/\r?\n/);
-        if (match === null) {
-          return EOL;
-        }
-        return match[0];
-      }
-      default: {
-        throw new Error("invalid 'endOfLine' value");
-      }
-    }
   };
 
-  return String(line).replace(/\r?\n/g, getReplacement()).trim();
+  pluginName = pluginName || tryInferPluginName() || 'unknown plugin';
+  describeBlockTitle = describeBlockTitle || pluginName;
+
+  if (fixtures) {
+    runFixtureTests({
+      plugin,
+      pluginName,
+      pluginOptions,
+      title: describeBlockTitle,
+      fixtures,
+      fixtureOutputName,
+      filename,
+      babel,
+      endOfLine,
+      ...rest
+    });
+      }
+
+  let currentTestNumber = 1;
+  const testsArray = toTestArray(tests);
+
+  if (!testsArray.length) {
+    return;
+      }
+
+  const baseConfig = mergeWith({}, fullDefaultConfig, rest, mergeCustomizer);
+
+  describe(describeBlockTitle, () => {
+    testsArray.forEach((testConfig) => {
+      if (!testConfig) {
+        return;
+      }
+
+      const {
+        skip,
+        only,
+        title,
+        code,
+        babelOptions,
+        output,
+        snapshot,
+        error: expectedError,
+        setup = () => undefined,
+        teardown,
+        formatResult = ((r) => r) as ResultFormatter,
+        fixture
+      } = mergeWith({}, baseConfig, toTestConfig(testConfig), mergeCustomizer);
+
+      const testFilename = fixture || filename;
+
+      assert(
+        (!skip && !only) || skip !== only,
+        'cannot enable both skip and only on a test'
+      );
+
+      finalizePluginRunOrder(babelOptions);
+
+      if (skip) {
+        // eslint-disable-next-line jest/no-disabled-tests
+        it.skip(title, testerWrapper);
+      } else if (only) {
+        // eslint-disable-next-line jest/no-focused-tests
+        it.only(title, testerWrapper);
+      } else {
+        it(title, testerWrapper);
+        }
+
+      async function testerWrapper() {
+        const teardownFunctions = teardown ? [teardown] : [];
+        let returnedTeardown;
+        try {
+          returnedTeardown = await setup();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('there was a problem during setup');
+          throw error;
+      }
+        if (typeof returnedTeardown === 'function') {
+          teardownFunctions.push(returnedTeardown);
+      }
+        try {
+          await tester();
+        } finally {
+          try {
+            await Promise.all(teardownFunctions.map((t) => t()));
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('there was a problem during teardown');
+            // eslint-disable-next-line no-unsafe-finally
+            throw error;
+    }
+        }
+      }
+
+      async function tester() {
+        assert(
+          code,
+          'a string or object with a `code` or `fixture` property must be provided'
+        );
+
+        assert(
+          !babelOptions.babelrc || babelOptions.filename,
+          'babelrc set to true, but no filename specified in babelOptions'
+        );
+
+        assert(!snapshot || !output, '`output` cannot be provided with `snapshot: true`');
+
+        let result: unknown;
+        let errored = false;
+
+        try {
+          const transformed = await (babel.transformAsync || babel.transform)(
+            code,
+            babelOptions
+          );
+
+          result = formatResult(
+            fixLineEndings(transformed?.code || '', endOfLine, code),
+            {
+              filepath: testFilename,
+              filename: testFilename
+            }
+          );
+        } catch (error) {
+          if (expectedError) {
+            errored = true;
+            result = error;
+          } else {
+            throw error;
+          }
+        }
+
+        assert(!expectedError || errored, 'expected to throw error, but it did not');
+
+        if (snapshot) {
+          assert(
+            result !== code,
+            'code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`'
+          );
+
+          const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n';
+          const formattedOutput = [code, separator, result].join('');
+
+          expect(`\n${formattedOutput}\n`).toMatchSnapshot(title);
+        } else if (expectedError) {
+          assertError(result, expectedError);
+        } else if (typeof result !== 'string') {
+          throw new TypeError(
+            `unexpected result type "${typeof result}" (excepted string)`
+          );
+        } else if (typeof output === 'string') {
+          assert.equal(result.trim(), output.trim(), 'output is incorrect');
+        } else {
+          assert.equal(
+            result.trim(),
+            fixLineEndings(code, endOfLine),
+            'expected output to not change, but it did'
+          );
+        }
+      }
+    });
+  });
+
+  function toTestConfig(testConfig: TestObject | string) {
+    if (typeof testConfig === 'string') {
+      testConfig = { code: testConfig };
+    }
+
+    const {
+      title,
+      fixture,
+      outputFixture,
+      code = getCode(filename, fixture),
+      output = getCode(filename, outputFixture) || undefined,
+      pluginOptions: testOptions = pluginOptions
+    } = testConfig;
+
+    return mergeWith(
+      {
+        babelOptions: { filename: getPath(filename, fixture) }
+      },
+      testConfig,
+      {
+        babelOptions: { plugins: [[plugin, testOptions]] },
+        title: title || `${currentTestNumber++}. ${pluginName}`,
+        code: stripIndent(code).trim(),
+        ...(output ? { output: stripIndent(output).trim() } : {})
+      },
+      mergeCustomizer
+    );
+  }
+}
+
+function runFixtureTests({
+  title: describeBlockTitle,
+  fixtures,
+  filename,
+  ...rest
+}: PluginTesterOptionsWithBabel) {
+  describe(`${describeBlockTitle} fixtures`, () => {
+    const fixturesDir = getPath(filename, fixtures);
+    createFixtureTests(fixturesDir, rest);
+  });
 }
 
 function createFixtureTests(
-  fixturesDir: string | undefined,
+  fixturesDirectory: string | undefined,
   options: PluginTesterOptionsWithBabel
 ) {
-  if (!fixturesDir || !fs.statSync(fixturesDir).isDirectory()) return;
+  if (!fixturesDirectory || !fs.statSync(fixturesDirectory).isDirectory()) return;
 
-  const rootOptionsPath = path.join(fixturesDir, 'options.json');
+  const rootOptionsPath = path.join(fixturesDirectory, 'options.json');
   let rootFixtureOptions = {};
 
   if (fs.existsSync(rootOptionsPath)) {
     rootFixtureOptions = require(rootOptionsPath);
   }
 
-  fs.readdirSync(fixturesDir).forEach((caseName) => {
-    const fixtureDir = path.join(fixturesDir, caseName);
-    const optionsPath = path.join(fixtureDir, 'options.json');
-    const jsCodePath = path.join(fixtureDir, 'code.js');
-    const tsCodePath = path.join(fixtureDir, 'code.ts');
-    const jsxCodePath = path.join(fixtureDir, 'code.jsx');
-    const tsxCodePath = path.join(fixtureDir, 'code.tsx');
+  fs.readdirSync(fixturesDirectory).forEach((caseName) => {
+    const fixtureDirectory = path.join(fixturesDirectory, caseName);
+    const optionsPath = path.join(fixtureDirectory, 'options.json');
+    const jsCodePath = path.join(fixtureDirectory, 'code.js');
+    const tsCodePath = path.join(fixtureDirectory, 'code.ts');
+    const jsxCodePath = path.join(fixtureDirectory, 'code.jsx');
+    const tsxCodePath = path.join(fixtureDirectory, 'code.tsx');
     const blockTitle = caseName.split('-').join(' ');
 
     const codePath =
@@ -120,7 +310,7 @@ function createFixtureTests(
 
     if (!codePath) {
       describe(blockTitle, () => {
-        createFixtureTests(fixtureDir, {
+        createFixtureTests(fixtureDirectory, {
           ...options,
           pluginOptions: mergedFixtureAndPluginOptions
         });
@@ -146,7 +336,7 @@ function createFixtureTests(
       } = options;
 
       const hasBabelrc = ['.babelrc', '.babelrc.js', '.babelrc.cjs'].some((babelrc) =>
-        fs.existsSync(path.join(fixtureDir, babelrc))
+        fs.existsSync(path.join(fixtureDirectory, babelrc))
       );
 
       const { babelOptions } = mergeWith(
@@ -173,17 +363,15 @@ function createFixtureTests(
       finalizePluginRunOrder(babelOptions);
 
       const input = fs.readFileSync(codePath).toString();
-      const transformed = await (babel.transformAsync
-        ? babel.transformAsync
-        : babel.transform)(input, {
+      const transformed = await (babel.transformAsync || babel.transform)(input, {
         ...babelOptions,
         filename: codePath
       });
 
       const { fixtureOutputExt } = mergedFixtureAndPluginOptions;
-      const ext = fixtureOutputExt ? fixtureOutputExt : `.${codePath.split('.').pop()}`;
+      const extension = fixtureOutputExt || `.${codePath.split('.').pop()}`;
 
-      const outputPath = path.join(fixtureDir, `${fixtureOutputName}${ext}`);
+      const outputPath = path.join(fixtureDirectory, `${fixtureOutputName}${extension}`);
 
       const actual = formatResult(
         fixLineEndings(transformed?.code || '', endOfLine, input),
@@ -200,22 +388,46 @@ function createFixtureTests(
       assert.equal(
         actual.trim(),
         fixLineEndings(output, endOfLine),
-        `actual output does not match ${fixtureOutputName}${ext}`
+        `actual output does not match ${fixtureOutputName}${extension}`
       );
     });
   });
 }
 
-function runFixtureTests({
-  title: describeBlockTitle,
-  fixtures,
-  filename,
-  ...rest
-}: PluginTesterOptionsWithBabel) {
-  describe(`${describeBlockTitle} fixtures`, () => {
-    const fixturesDir = getPath(filename, fixtures);
-    createFixtureTests(fixturesDir, rest);
-  });
+function mergeCustomizer(objValue: unknown[], srcValue: unknown) {
+  return Array.isArray(objValue) ? objValue.concat(srcValue) : undefined;
+}
+
+function fixLineEndings(
+  line: string,
+  endOfLine: PluginTesterOptions['endOfLine'],
+  input = line
+) {
+  return String(line).replaceAll(/\r?\n/g, getReplacement()).trim();
+
+  function getReplacement() {
+    switch (endOfLine) {
+      case 'lf': {
+        return '\n';
+      }
+      case 'crlf': {
+        return '\r\n';
+      }
+      case 'auto': {
+        return EOL;
+      }
+      case 'preserve': {
+        const match = input.match(/\r?\n/);
+        if (match === null) {
+          return EOL;
+        }
+        return match[0];
+      }
+      default: {
+        throw new Error("invalid 'endOfLine' value");
+      }
+    }
+  }
 }
 
 function finalizePluginRunOrder(babelOptions: PluginTesterOptions['babelOptions']) {
@@ -304,226 +516,16 @@ function assertError(result: unknown, errorExpectation: ErrorExpectation) {
   }
 }
 
-export default pluginTester;
-export function pluginTester({
-  babel = require('@babel/core'),
-  plugin,
-  pluginName,
-  title: describeBlockTitle,
-  pluginOptions,
-  tests,
-  fixtures,
-  fixtureOutputName = 'output',
-  filename,
-  endOfLine = 'lf',
-  ...rest
-}: PluginTesterOptions = {}) {
-  if (!plugin) {
-    throw new Error('plugin is a required parameter');
-  }
-
-  const tryInferPluginName = () => {
-    try {
-      // * https://xunn.at/babel-helper-plugin-utils-src
-      return plugin(
-        {
-          assertVersion: () => undefined,
-          targets: () => undefined,
-          assumption: () => undefined
-        },
-        {},
-        process.cwd()
-      ).name;
-    } catch {
-      return undefined;
-    }
-  };
-
-  pluginName = pluginName || tryInferPluginName() || 'unknown plugin';
-  describeBlockTitle = describeBlockTitle || pluginName;
-
-  if (fixtures) {
-    runFixtureTests({
-      plugin,
-      pluginName,
-      pluginOptions,
-      title: describeBlockTitle,
-      fixtures,
-      fixtureOutputName,
-      filename,
-      babel,
-      endOfLine,
-      ...rest
-    });
-  }
-
-  let currentTestNumber = 1;
-  const testsArray = toTestArray(tests);
-
-  if (!testsArray.length) {
-    return;
-  }
-
-  const baseConfig = mergeWith({}, fullDefaultConfig, rest, mergeCustomizer);
-
-  describe(describeBlockTitle, () => {
-    testsArray.forEach((testConfig) => {
-      if (!testConfig) {
-        return;
-      }
-
-      const {
-        skip,
-        only,
-        title,
-        code,
-        babelOptions,
-        output,
-        snapshot,
-        error: expectedError,
-        setup = () => undefined,
-        teardown,
-        formatResult = ((r) => r) as ResultFormatter,
-        fixture
-      } = mergeWith({}, baseConfig, toTestConfig(testConfig), mergeCustomizer);
-
-      const testFilename = fixture || filename;
-
-      assert(
-        (!skip && !only) || skip !== only,
-        'cannot enable both skip and only on a test'
-      );
-
-      finalizePluginRunOrder(babelOptions);
-
-      if (skip) {
-        // eslint-disable-next-line jest/no-disabled-tests
-        it.skip(title, testerWrapper);
-      } else if (only) {
-        // eslint-disable-next-line jest/no-focused-tests
-        it.only(title, testerWrapper);
-      } else {
-        it(title, testerWrapper);
-      }
-
-      async function testerWrapper() {
-        const teardowns = teardown ? [teardown] : [];
-        let returnedTeardown;
-        try {
-          returnedTeardown = await setup();
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error('there was a problem during setup');
-          throw e;
-        }
-        if (typeof returnedTeardown === 'function') {
-          teardowns.push(returnedTeardown);
-        }
-        try {
-          await tester();
-        } finally {
-          try {
-            await Promise.all(teardowns.map((t) => t()));
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.error('there was a problem during teardown');
-            // eslint-disable-next-line no-unsafe-finally
-            throw e;
-          }
-        }
-      }
-
-      async function tester() {
-        assert(
-          code,
-          'a string or object with a `code` or `fixture` property must be provided'
-        );
-
-        assert(
-          !babelOptions.babelrc || babelOptions.filename,
-          'babelrc set to true, but no filename specified in babelOptions'
-        );
-
-        assert(!snapshot || !output, '`output` cannot be provided with `snapshot: true`');
-
-        let result: unknown;
-        let errored = false;
-
-        try {
-          const transformed = await (babel.transformAsync
-            ? babel.transformAsync
-            : babel.transform)(code, babelOptions);
-
-          result = formatResult(
-            fixLineEndings(transformed?.code || '', endOfLine, code),
-            {
-              filepath: testFilename,
-              filename: testFilename
-            }
-          );
-        } catch (err) {
-          if (expectedError) {
-            errored = true;
-            result = err;
-          } else {
-            throw err;
-          }
-        }
-
-        assert(!expectedError || errored, 'expected to throw error, but it did not');
-
-        if (snapshot) {
-          assert(
-            result !== code,
-            'code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`'
-          );
-
-          const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n';
-          const formattedOutput = [code, separator, result].join('');
-
-          expect(`\n${formattedOutput}\n`).toMatchSnapshot(title);
-        } else if (expectedError) {
-          assertError(result, expectedError);
-        } else if (typeof result !== 'string') {
-          throw new Error(`unexpected result type "${typeof result}" (excepted string)`);
-        } else if (typeof output === 'string') {
-          assert.equal(result.trim(), output.trim(), 'output is incorrect');
-        } else {
-          assert.equal(
-            result.trim(),
-            fixLineEndings(code, endOfLine),
-            'expected output to not change, but it did'
-          );
-        }
-      }
-    });
-  });
-
-  function toTestConfig(testConfig: TestObject | string) {
-    if (typeof testConfig === 'string') {
-      testConfig = { code: testConfig };
-    }
-
-    const {
-      title,
-      fixture,
-      code = getCode(filename, fixture),
-      output = getCode(filename, testConfig.outputFixture) || undefined,
-      pluginOptions: testOptions = pluginOptions
-    } = testConfig;
-
-    return mergeWith(
-      {
-        babelOptions: { filename: getPath(filename, fixture) }
-      },
-      testConfig,
-      {
-        babelOptions: { plugins: [[plugin, testOptions]] },
-        title: title || `${currentTestNumber++}. ${pluginName}`,
-        code: stripIndent(code).trim(),
-        ...(output ? { output: stripIndent(output).trim() } : {})
-      },
-      mergeCustomizer
-    );
-  }
+// ? Thanks to node throwing an error if you try to use instanceof with an arrow
+// ? function we have to have this function. I guess it's spec... SMH...
+// ? NOTE: I tried doing the "proper thing" using Symbol.hasInstance
+// ? but no matter what that did, I couldn't make that work with a SyntaxError
+// ? because SyntaxError[Symbol.hasInstance]() returns false. What. The. Heck!?
+// ? So I'm doing this .prototype stuff :-/
+// * See: https://github.com/nodejs/node/issues/12894#issuecomment-299888458
+function hasPrototypeAndIsInstanceOf(
+  inst: unknown,
+  cls: Class<Error> | ((...args: unknown[]) => unknown)
+): cls is Class<Error> {
+  return cls.prototype !== undefined && inst instanceof cls;
 }

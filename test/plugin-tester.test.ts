@@ -371,7 +371,7 @@ test('can get a code and output fixture that is an absolute path', async () => {
       outputFixture: getFixturePath('outure1.js')
     }
   ];
-  const error = await runPluginTester(getDummyOptions({ tests })).catch((e) => e);
+  const error = await runPluginTester(getDummyOptions({ tests })).catch((error) => error);
   const actual = getFixtureContents('fixture1.js');
   const expected = getFixtureContents('outure1.js');
   expect(error).toMatchObject({
@@ -417,7 +417,7 @@ test('can resolve a fixture with the filename option', async () => {
   ];
   const error = await runPluginTester(
     getDummyOptions({ filename: __filename, tests })
-  ).catch((e) => e);
+  ).catch((error) => error);
   const actual = getFixtureContents('fixture1.js');
   const expected = getFixtureContents('outure1.js');
   expect(error).toMatchObject({
@@ -468,7 +468,7 @@ test('can fail tests in fixtures at an absolute path', async () => {
       tests: undefined,
       fixtures: getFixturePath('failing-fixtures')
     })
-  ).catch((e) => e);
+  ).catch((error) => error);
   expect(error.message).toMatchSnapshot();
 });
 
@@ -711,7 +711,7 @@ test('can capture errors with function', async () => {
 
   await expect(
     runPluginTesterCaptureError(
-      (err) => err instanceof SyntaxError && /syntax/.test(err.message)
+      (error) => error instanceof SyntaxError && /syntax/.test(error.message)
     )
   ).resolves.toStrictEqual([undefined]);
 });
@@ -743,10 +743,10 @@ test('throws error if there is a problem parsing', async () => {
 
     // ? Should never be encountered
     expect(true).toBe(false);
-  } catch (e) {
-    expect(isNativeError(e)).toBeTruthy();
-    expect((e as Error).constructor).toBe(SyntaxError);
-    expect((e as Error).message).toContain('Unexpected token (1:0)');
+  } catch (error) {
+    expect(isNativeError(error)).toBeTruthy();
+    expect((error as Error).constructor).toBe(SyntaxError);
+    expect((error as Error).message).toContain('Unexpected token (1:0)');
   }
 });
 
@@ -805,7 +805,9 @@ test('error logged and thrown if setup throws', async () => {
     throw errorToThrow;
   });
   const tests = [{ code: simpleTest, setup: setupSpy }];
-  const errorThrown = await runPluginTester(getDummyOptions({ tests })).catch((e) => e);
+  const errorThrown = await runPluginTester(getDummyOptions({ tests })).catch(
+    (error) => error
+  );
   expect(errorThrown).toBe(errorToThrow);
   expect(errorSpy).toHaveBeenCalledWith(expect.stringMatching(/problem.*setup/i));
 });
@@ -818,7 +820,9 @@ test('error logged and thrown if teardown throws', async () => {
     throw errorToThrow;
   });
   const tests = [{ code: simpleTest, teardown: teardownSpy }];
-  const errorThrown = await runPluginTester(getDummyOptions({ tests })).catch((e) => e);
+  const errorThrown = await runPluginTester(getDummyOptions({ tests })).catch(
+    (error) => error
+  );
   expect(errorThrown).toBe(errorToThrow);
   expect(errorSpy).toHaveBeenCalledWith(expect.stringMatching(/problem.*teardown/i));
 });

@@ -8,8 +8,8 @@ import type { SnapshotSerializer } from '..';
  * This snapshot serializer removes these quotes.
  */
 export const unstringSnapshotSerializer: SnapshotSerializer = {
-  test: (val: unknown) => typeof val === 'string',
-  print: (val: unknown) => String(val)
+  test: (value: unknown) => typeof value === 'string',
+  print: (value: unknown) => String(value)
 };
 
 export default unstringSnapshotSerializer;

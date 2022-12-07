@@ -9,14 +9,14 @@ import {
 import type { ResultFormatter } from '..';
 
 type MaybePrettierOptions = PrettierOptions | null;
-const configDirCache: Record<string, MaybePrettierOptions> = Object.create(null);
+const configDirectoryCache: Record<string, MaybePrettierOptions> = Object.create(null);
 
-const getCachedConfig = (dir: string) => {
-  if (!(dir in configDirCache)) {
-    configDirCache[dir] = resolvePrettierConfig.sync(dir);
+const getCachedConfig = (directory: string) => {
+  if (!(directory in configDirectoryCache)) {
+    configDirectoryCache[directory] = resolvePrettierConfig.sync(directory);
   }
 
-  return configDirCache[dir];
+  return configDirectoryCache[directory];
 };
 
 export type { PrettierOptions };

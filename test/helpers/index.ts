@@ -41,15 +41,17 @@ export async function runPluginTester(options?: PluginTesterOptions) {
 }
 
 export async function runPluginTesterExpectException(options?: PluginTesterOptions) {
-  let error: Error | undefined;
+  let errorThrown: Error | undefined;
 
   try {
     await runPluginTester(options);
-  } catch (e) {
-    error = isNativeError(e) ? e : toss(new Error('unexpected non-Error instance'));
+  } catch (error) {
+    errorThrown = isNativeError(error)
+      ? error
+      : toss(new Error('unexpected non-Error instance'));
   }
 
-  expect(error?.message).toMatchSnapshot();
+  expect(errorThrown?.message).toMatchSnapshot();
 }
 
 export function runPluginTesterCaptureError(
@@ -80,8 +82,10 @@ export async function runPluginTesterCaptureErrorExpectException(
 
   try {
     await runPluginTesterCaptureError(error, overrides);
-  } catch (e) {
-    errorThrown = isNativeError(e) ? e : toss(new Error('unexpected non-Error instance'));
+  } catch (error) {
+    errorThrown = isNativeError(error)
+      ? error
+      : toss(new Error('unexpected non-Error instance'));
   }
 
   expect(errorThrown?.message).toMatchSnapshot();
