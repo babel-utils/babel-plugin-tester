@@ -1,9 +1,16 @@
+*.ignore
+*.ignore.*
+ignore.*
+*.tsbuildinfo
+dist
+build
+.vscode
+!.vscode/launch.json
+.vercel
+.env
+.npmrc
+external-scripts/bin
+next-env.d.ts
 node_modules
 coverage
-dist
 .DS_Store
-
-# these cause more harm than good
-# when working with contributors
-package-lock.json
-yarn.lock
