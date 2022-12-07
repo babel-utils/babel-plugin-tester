@@ -2,92 +2,170 @@
   "name": "babel-plugin-tester",
   "version": "0.0.0-semantically-released",
   "description": "Utilities for testing babel plugins",
-  "main": "dist/index.js",
-  "engines": {
-    "node": ">=10.13",
-    "npm": ">=6"
-  },
-  "scripts": {
-    "build": "kcd-scripts build",
-    "lint": "kcd-scripts lint",
-    "setup": "npm install && npm run validate -s",
-    "test": "kcd-scripts test",
-    "test:update": "npm test -- --updateSnapshot --coverage",
-    "validate": "kcd-scripts validate"
-  },
-  "files": [
-    "dist",
-    "pure.js"
+  "keywords": [
+    "babel",
+    "plugin",
+    "tester"
   ],
-  "keywords": [],
-  "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com)",
-  "license": "MIT",
-  "dependencies": {
-    "@types/babel-plugin-tester": "^9.0.0",
-    "lodash.mergewith": "^4.6.2",
-    "prettier": "^2.0.1",
-    "strip-indent": "^3.0.0"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.11.6",
-    "@babel/helper-plugin-utils": "^7.19.0",
-    "@babel/plugin-proposal-async-generator-functions": "^7.10.5",
-    "@babel/plugin-syntax-jsx": "^7.10.4",
-    "@babel/plugin-syntax-typescript": "^7.10.4",
-    "@babel/plugin-transform-async-to-generator": "^7.10.4",
-    "@babel/preset-env": "^7.11.5",
-    "@types/babel__helper-plugin-utils": "^7.10.0",
-    "kcd-scripts": "^6.5.1"
-  },
-  "peerDependencies": {
-    "@babel/core": "^7.11.6"
-  },
-  "eslintConfig": {
-    "extends": "./node_modules/kcd-scripts/eslint.js",
-    "rules": {
-      "max-lines": 0,
-      "max-lines-per-function": 0,
-      "prefer-object-spread": 0,
-      "no-useless-catch": 0,
-      "babel/camelcase": 0,
-      "babel/valid-typeof": 0,
-      "babel/no-unused-expressions": 0,
-      "babel/quotes": 0,
-      "jest/prefer-todo": 0
-    }
-  },
-  "eslintIgnore": [
-    "node_modules",
-    "coverage",
-    "dist",
-    "fixtures"
-  ],
-  "babel": {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "node": "8"
-          },
-          "exclude": [
-            "transform-regenerator"
-          ]
-        }
-      ]
-    ],
-    "plugins": [
-      "@babel/plugin-transform-async-to-generator",
-      "@babel/plugin-proposal-async-generator-functions",
-      "@babel/plugin-proposal-object-rest-spread"
-    ]
+  "homepage": "https://github.com/babel-utils/babel-plugin-tester#readme",
+  "bugs": {
+    "url": "https://github.com/babel-utils/babel-plugin-tester/issues"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/babel-utils/babel-plugin-tester"
   },
-  "bugs": {
-    "url": "https://github.com/babel-utils/babel-plugin-tester/issues"
+  "license": "MIT",
+  "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com)",
+  "sideEffects": false,
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./pure": {
+      "types": "./dist/plugin-tester.d.ts",
+      "default": "./dist/plugin-tester.js"
+    },
+    "./package": "./package.json",
+    "./package.json": "./package.json"
   },
-  "homepage": "https://github.com/babel-utils/babel-plugin-tester#readme"
+  "typesVersions": {
+    "*": {
+      "pure": [
+        "./dist/plugin-tester.d.ts"
+      ],
+      "*": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "/dist",
+    "/LICENSE",
+    "/package.json",
+    "/README.md"
+  ],
+  "scripts": {
+    "build": "npm run build:dist --",
+    "build:changelog": "conventional-changelog --outfile CHANGELOG.md --config conventional.config.js --release-count 0 --skip-unstable && (if [ \"$CHANGELOG_SKIP_TITLE\" != 'true' ]; then { node -e 'console.log(require(\"./conventional.config.js\").changelogTitle)'; cat CHANGELOG.md; } > CHANGELOG.md.ignore && mv CHANGELOG.md.ignore CHANGELOG.md; fi) && remark -o --use reference-links --use gfm --use frontmatter CHANGELOG.md && prettier --write CHANGELOG.md",
+    "build:dist": "NODE_ENV=production tsc --project tsconfig.types.json --incremental false && tsconfig-replace-paths --project tsconfig.types.json && NODE_ENV=production-cjs babel src --extensions .ts --out-dir dist",
+    "clean": "git ls-files --exclude-standard --ignored --others --directory | grep -vE '^((\\.(env|vscode|husky))|next-env\\.d\\.ts|node_modules)($|\\/)' | xargs -p rm -rf",
+    "format": "MD_FILES=$(node -e 'console.log(require(`glob-gitignore`).sync(`**/*.md`, { ignore: require(`fs`).readFileSync(`.prettierignore`, `utf8`).split(`\n`).filter(Boolean), dot: true }).join(`\n`))') && (echo $MD_FILES | xargs remark --no-config --no-stdout --quiet --frail --use gfm --use lint-no-undefined-references || (echo -n '\u001b' && echo '[37;41;1m FAIL \u001b[0m cannot continue with undefined references present' && false)) && sort-package-json './package.json' './packages/*/package.json' && echo $MD_FILES | NODE_ENV=format xargs remark --output --frail && echo $MD_FILES | xargs doctoc --no-title --maxlevel 3 --update-only && echo $MD_FILES | xargs prettier --write",
+    "lint": "stdbuf -i0 -o0 -e0 tsc --project tsconfig.lint.json; X=$?; stdbuf -i0 -o0 -e0 eslint --parser-options=project:tsconfig.lint.json --no-error-on-unmatched-pattern packages src; Y=$?; MD_FILES=$(node -e 'console.log(require(`glob-gitignore`).sync(`**/*.md`, { ignore: require(`fs`).readFileSync(`.prettierignore`, `utf8`).split(`\n`).filter(Boolean), dot: true }).join(`\n`))') && echo $MD_FILES | NODE_ENV=lint xargs remark --quiet --frail --no-stdout; Z=$?; [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
+    "lint:all": "stdbuf -i0 -o0 -e0 tsc --project tsconfig.eslint.json; X=$?; stdbuf -i0 -o0 -e0 eslint --parser-options=project:tsconfig.eslint.json .; Y=$?; MD_FILES=$(node -e 'console.log(require(`glob-gitignore`).sync(`**/*.md`, { ignore: require(`fs`).readFileSync(`.prettierignore`, `utf8`).split(`\n`).filter(Boolean), dot: true }).join(`\n`))') && echo $MD_FILES | NODE_ENV=lint xargs remark --quiet --frail --no-stdout; Z=$?; [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
+    "list-tasks": "node -e 'console.log(Object.keys(require(\"./package.json\").scripts).join(\"\\n\"))' && npm run -ws list-tasks --if-present",
+    "test": "npm run test:unit --",
+    "test:all": "NODE_ENV=test jest --coverage",
+    "test:integration": "NODE_ENV=test jest --coverage 'integration-.*\\.test\\.ts.*'",
+    "test:unit": "NODE_ENV=test jest",
+    "test:update": "npm test:all -- --updateSnapshot --coverage"
+  },
+  "dependencies": {
+    "debug": "^4.3.4",
+    "lodash.mergewith": "^4.6.2",
+    "prettier": "^2.8.0",
+    "strip-indent": "^3.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.19.3",
+    "@babel/core": "^7.20.5",
+    "@babel/eslint-parser": "^7.19.1",
+    "@babel/helper-plugin-utils": "^7.20.2",
+    "@babel/plugin-proposal-export-default-from": "^7.18.10",
+    "@babel/plugin-syntax-jsx": "^7.18.6",
+    "@babel/preset-env": "^7.20.2",
+    "@babel/preset-typescript": "^7.18.6",
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
+    "@semantic-release/changelog": "^6.0.2",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@types/babel__helper-plugin-utils": "^7.10.0",
+    "@types/jest": "^29.2.4",
+    "@types/lodash.mergewith": "^4.6.7",
+    "@types/node": "^18.11.11",
+    "@typescript-eslint/eslint-plugin": "^5.45.1",
+    "@typescript-eslint/parser": "^5.45.1",
+    "@xunnamius/conventional-changelog-projector": "^1.1.1",
+    "@xunnamius/jest-types": "^1.1.3",
+    "@xunnamius/types": "^1.3.0",
+    "all-contributors-cli": "^6.24.0",
+    "babel-jest": "^29.3.1",
+    "babel-loader": "^9.1.0",
+    "babel-plugin-explicit-exports-references": "^1.0.2",
+    "conventional-changelog-cli": "https://xunn.at/conventional-changelog-cli",
+    "doctoc": "^2.2.1",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.29.0",
+    "eslint-import-resolver-typescript": "^3.5.2",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^27.1.6",
+    "eslint-plugin-unicorn": "^45.0.1",
+    "execa": "^5.1.1",
+    "glob-gitignore": "^1.0.14",
+    "husky": "^8.0.2",
+    "jest": "^29.3.1",
+    "jest-circus": "^29.3.1",
+    "lint-staged": "^13.1.0",
+    "remark-capitalize-headings": "^1.0.1",
+    "remark-cli": "^11.0.0",
+    "remark-comment-config": "^7.0.1",
+    "remark-frontmatter": "^4.0.1",
+    "remark-gfm": "^3.0.1",
+    "remark-ignore": "^1.0.4",
+    "remark-lint": "^9.1.1",
+    "remark-lint-definition-case": "^3.1.1",
+    "remark-lint-fenced-code-flag": "^3.1.1",
+    "remark-lint-fenced-code-flag-case": "^1.0.2",
+    "remark-lint-file-extension": "^2.1.1",
+    "remark-lint-first-heading-level": "^3.1.1",
+    "remark-lint-heading-increment": "^3.1.1",
+    "remark-lint-heading-whitespace": "^1.0.0",
+    "remark-lint-heading-word-length": "^1.0.1",
+    "remark-lint-list-item-style": "^1.0.2",
+    "remark-lint-no-duplicate-defined-urls": "^2.1.1",
+    "remark-lint-no-duplicate-headings-in-section": "^3.1.1",
+    "remark-lint-no-empty-sections": "^4.0.0",
+    "remark-lint-no-empty-url": "https://xunn.at/remark-lint-no-empty-url",
+    "remark-lint-no-heading-like-paragraph": "^3.1.1",
+    "remark-lint-no-heading-punctuation": "^3.1.1",
+    "remark-lint-no-inline-padding": "^4.1.1",
+    "remark-lint-no-literal-urls": "^3.1.1",
+    "remark-lint-no-multiple-toplevel-headings": "^3.1.1",
+    "remark-lint-no-reference-like-url": "^3.1.1",
+    "remark-lint-no-shell-dollars": "^3.1.1",
+    "remark-lint-no-shortcut-reference-image": "^3.1.1",
+    "remark-lint-no-shortcut-reference-link": "^3.1.1",
+    "remark-lint-no-tabs": "^3.1.1",
+    "remark-lint-no-undefined-references": "^4.2.0",
+    "remark-lint-ordered-list-marker-value": "^3.1.1",
+    "remark-lint-strikethrough-marker": "^2.1.1",
+    "remark-lint-unordered-list-marker-style": "^3.1.1",
+    "remark-reference-links": "^6.0.1",
+    "remark-remove-comments": "^0.2.0",
+    "remark-remove-unused-definitions": "^1.0.2",
+    "remark-remove-url-trailing-slash": "^1.0.0",
+    "remark-renumber-references": "^1.0.3",
+    "remark-sort-definitions": "^1.0.3",
+    "remark-tight-comments": "^1.0.3",
+    "remark-validate-links": "^12.1.0",
+    "semantic-release": "https://xunn.at/semantic-release-atam",
+    "sort-package-json": "^2.1.0",
+    "source-map-support": "^0.5.21",
+    "toss-expression": "^0.1.1",
+    "tsconfig-replace-paths": "^0.0.11",
+    "type-fest": "^3.3.0",
+    "typescript": "^4.9.3"
+  },
+  "peerDependencies": {
+    "@babel/core": ">=7.0.0-beta.41"
+  },
+  "engines": {
+    "node": "^14.20.0 || ^16.16.0 || >=18.5.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }
