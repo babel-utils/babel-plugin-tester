@@ -1181,9 +1181,12 @@ If you're using Jest and snapshots, then the snapshot output could have a bunch
 of bothersome `\"` to escape quotes. This is because, when Jest serializes a
 string, it will wrap everything in double quotes. This isn't a huge deal, but it
 makes the snapshots harder to read, so we automatically add a snapshot
-serializer for you to remove those.
+serializer for you to remove those. Note that this serializer is added globally
+and thus will affect _all_ snapshots taken, even those outside of
+babel-plugin-tester.
 
-If you don't like that, then do this:
+If you'd like to disable this feature, then use the "pure" export (also disables
+formatting of babel output with prettier):
 
 ```diff
 - import { pluginTester } from 'babel-plugin-tester'
