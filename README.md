@@ -1,5 +1,10 @@
 # babel-plugin-tester
 
+> **Note**  
+> **This documentation is for an upcoming version of babel-plugin-tester.** See
+> [here](https://npm.im/babel-plugin-tester) for the current version's
+> documentation.
+
 Utilities for testing babel plugins and presets.
 
 ---
