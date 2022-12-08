@@ -65,7 +65,7 @@
   "dependencies": {
     "debug": "^4.3.4",
     "lodash.mergewith": "^4.6.2",
-    "prettier": "^2.8.0",
+    "prettier": "^2.8.1",
     "strip-indent": "^3.0.0"
   },
   "devDependencies": {
@@ -85,9 +85,9 @@
     "@types/babel__helper-plugin-utils": "^7.10.0",
     "@types/jest": "^29.2.4",
     "@types/lodash.mergewith": "^4.6.7",
-    "@types/node": "^18.11.11",
-    "@typescript-eslint/eslint-plugin": "^5.45.1",
-    "@typescript-eslint/parser": "^5.45.1",
+    "@types/node": "^18.11.12",
+    "@typescript-eslint/eslint-plugin": "^5.46.0",
+    "@typescript-eslint/parser": "^5.46.0",
     "@xunnamius/conventional-changelog-projector": "^1.1.1",
     "@xunnamius/jest-types": "^1.1.3",
     "@xunnamius/types": "^1.3.0",
@@ -157,7 +157,7 @@
     "toss-expression": "^0.1.1",
     "tsconfig-replace-paths": "^0.0.11",
     "type-fest": "^3.3.0",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.4"
   },
   "peerDependencies": {
     "@babel/core": ">=7.0.0-beta.41"
