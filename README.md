@@ -405,9 +405,9 @@ This option takes precedence over anything returned by the [`setup`][38] option.
 
 #### `formatResult`
 
-This function is used to format all babel outputs, and defaults to using
-prettier. If you have prettier configured, then it will use your configuration.
-If you don't, then it will use a default configuration.
+This function is used to format all babel outputs, and defaults to a function
+that uses prettier. If you have prettier configured, then it will use your
+configuration. If you don't, then it will use a default prettier configuration.
 
 You can also [provide your own custom formatter][39].
 
@@ -428,12 +428,12 @@ __fixtures__
 ├── second-test        # test title will be: "second test"
 │   ├── .babelrc       # optional
 │   ├── options.json   # optional
-│   ├── code.js        # required
+│   ├── code.ts        # required (other file extensions are allowed too)
 │   └── output.js      # required (unless using the `throws` option)
 └── nested
     ├── options.json   # optional
     ├── third-test     # test title will be: "nested > third test"
-    │   ├── code.js    # required
+    │   ├── code.mjs   # required (other file extensions are allowed too)
     │   ├── output.js  # required (unless using the `throws` option)
     │   └── options.js # optional (overrides props in nested/options.json)
     └── fourth-test    # test title will be: "nested > fourth test"
@@ -457,41 +457,50 @@ And it would run four tests, one for each directory in `__fixtures__`.
 
 ##### `code.js`
 
-This file's contents will be used as the input into babel at transform time.
+This file's contents will be used as the source code input into babel at
+transform time. Any file extension can be used, not just `.js`; the [expected
+output file][43] will have the same file extension as this file unless changed
+with the [`fixtureOutputExt`][44] option.
 
-Indentation is not stripped nor are the contents of the file trimmed before
+Indentation is not stripped nor are the contents of this file trimmed before
 being passed to babel for transformation.
+
+Note that this file cannot appear in the same directory as [`exec.js`][45].
 
 ##### `output.js`
 
 This file, if provided, will have its contents compared with babel's output,
-which is [`code.js`][43] transformed by babel and [formatted with prettier][39].
-This file must be provided unless the [`throws`][44] option is present in
-[`options.json`][45]. Additionally, the extension of the output file can be
-changed with the [`fixtureOutputExt`][46] option.
+which is [`code.js`][46] transformed by babel and [formatted with prettier][39].
+If this file is missing and neither [`throws`][47] nor [`exec.js`][45] are being
+used, this file will be automatically generated from babel's output.
+Additionally, the name and extension of this file can be changed with the
+[`fixtureOutputName`][48] and [`fixtureOutputExt`][44] options.
 
-Indentation is not stripped nor are the contents of the file trimmed before
+Indentation is not stripped nor are the contents of this file trimmed before
 being compared to babel's output.
+
+Note that this file cannot appear in the same directory as [`exec.js`][45].
 
 ##### `exec.js`
 
 This file's contents will be used as the input into babel at transform time just
-like the [`code.js`][43] file, except the output will be _evaluated_ in the
-[same context][47] as the the test runner itself, meaning it has access to
-`expect`, `require`, etc. Use this to make advanced assertions on the output.
+like the [`code.js`][46] file, except the output will be _evaluated_ in the
+[same context][49] as the the test runner itself, meaning it has access to
+`expect`, `require`, etc. Any file extension can be used, not just `.js`.
 
-The test will pass unless an exception is thrown (e.g. when an `expect()`
+The test will always pass unless an exception is thrown (e.g. when an `expect()`
 fails).
 
-For example, to test that [babel-plugin-proposal-throw-expressions][48] actually
-throws, your `exec.js` file might contain:
+Use this to make advanced assertions on the output. For example, to test that
+[babel-plugin-proposal-throw-expressions][50] actually throws, your `exec.js`
+file might contain:
 
 ```javascript
 expect(() => throw new Error('throw expression')).toThrow('throw expression');
 ```
 
-However, note that this file cannot appear in the same directory as
-[`code.js`][43] or [`output.js`][49].
+Note that this file cannot appear in the same directory as [`code.js`][46] or
+[`output.js`][43].
 
 ##### `options.json` (Or `options.js`)
 
@@ -499,7 +508,7 @@ For each fixture, the contents of the entirely optional `options.json` file are
 [`lodash.mergewith`][lodash.mergewith]'d with the options provided to
 babel-plugin-tester, with the former taking precedence. For added flexibility,
 `options.json` can be specified as `options.js` instead so long as a JSON object
-is exported via [`module.exports`][50]. If both files exist in the same
+is exported via [`module.exports`][51]. If both files exist in the same
 directory, `options.js` will take precedence and `options.json` will be ignored
 entirely.
 
@@ -517,7 +526,7 @@ What follows are the available properties, all of which are optional:
 ###### `babelOptions`
 
 This is used to configure babel. Properties specified here override
-([`lodash.mergewith`][lodash.mergewith]) those from the [`babelOptions`][51]
+([`lodash.mergewith`][lodash.mergewith]) those from the [`babelOptions`][52]
 option provided to babel-plugin-tester.
 
 ###### `pluginOptions`
@@ -575,7 +584,7 @@ during transformation. For example:
 > For backwards compatibility reasons, `throws` is synonymous with `error`. They
 > can be used interchangeably, with `throws` taking precedence.
 
-Note that this property is ignored when using an [`exec.js`][52] file.
+Note that this property is ignored when using an [`exec.js`][45] file.
 
 ###### `setup`
 
@@ -607,9 +616,9 @@ babel-plugin-tester.
 > As it requires a function value, this property must be used in `options.js`
 > instead of `options.json`.
 
-This function is used to format all babel outputs, and defaults to using
-prettier. If you have prettier configured, then it will use your configuration.
-If you don't, then it will use a default configuration.
+This function is used to format all babel outputs, and defaults to a function
+that uses prettier. If you have prettier configured, then it will use your
+configuration. If you don't, then it will use a default prettier configuration.
 
 You can also [provide your own custom formatter][39].
 
@@ -653,7 +662,7 @@ Here are the available properties if you provide an object:
 ###### `babelOptions`
 
 This is used to configure babel. Properties specified here override
-([`lodash.mergewith`][lodash.mergewith]) those from the [`babelOptions`][51]
+([`lodash.mergewith`][lodash.mergewith]) those from the [`babelOptions`][52]
 option provided to babel-plugin-tester.
 
 ###### `pluginOptions`
@@ -729,9 +738,9 @@ babel-plugin-tester.
 
 ###### `formatResult`
 
-This function is used to format all babel outputs, and defaults to using
-prettier. If you have prettier configured, then it will use your configuration.
-If you don't, then it will use a default configuration.
+This function is used to format all babel outputs, and defaults to a function
+that uses prettier. If you have prettier configured, then it will use your
+configuration. If you don't, then it will use a default prettier configuration.
 
 You can also [provide your own custom formatter][39].
 
@@ -799,14 +808,14 @@ being compared to babel's output.
 
 The provided source will be transformed just like the [`code`][56] property,
 except the output will be _evaluated_ in the same context as the the test runner
-itself, meaning it has access to `expect`, `require`, etc. Use this to make
-advanced assertions on the output.
+itself, meaning it has access to `expect`, `require`, etc.
 
-The test will pass unless an exception is thrown (e.g. when an `expect()`
+The test will always pass unless an exception is thrown (e.g. when an `expect()`
 fails).
 
-For example, you can test that [babel-plugin-proposal-throw-expressions][48]
-actually throws using the following:
+Use this to make advanced assertions on the output. For example, you can test
+that [babel-plugin-proposal-throw-expressions][50] actually throws using the
+following:
 
 ```javascript
 {
@@ -1025,7 +1034,7 @@ pluginTester({
 
 [`babelOptions.babelrc`][25] and [`babelOptions.configFile`][26] are set to
 `false` by default. This way, you can [manually import (or provide an object
-literal)][51] the exact configuration you want to apply rather than relying on
+literal)][52] the exact configuration you want to apply rather than relying on
 babel's [somewhat complex configuration loading rules][62]. However, if your
 plugin, preset, or project relies on a complicated external setup to do its
 work, and you don't mind the [default run order][63], you can leverage [babel's
@@ -1444,16 +1453,16 @@ MIT
 [40]: #tests
 [41]: #test-objects
 [42]: #filepath
-[43]: #codejs
-[44]: #throws
-[45]: #optionsjson-or-optionsjs
-[46]: #fixtureoutputext
-[47]: https://nodejs.org/api/vm.html#vmruninthiscontextcode-options
-[48]: https://babeljs.io/docs/en/babel-plugin-proposal-throw-expressions
-[49]: #outputjs
-[50]: https://nodejs.org/api/modules.html#moduleexports
-[51]: #babeloptions
-[52]: #execjs
+[43]: #outputjs
+[44]: #fixtureoutputext
+[45]: #execjs
+[46]: #codejs
+[47]: #throws
+[48]: #fixtureoutputname
+[49]: https://nodejs.org/api/vm.html#vmruninthiscontextcode-options
+[50]: https://babeljs.io/docs/en/babel-plugin-proposal-throw-expressions
+[51]: https://nodejs.org/api/modules.html#moduleexports
+[52]: #babeloptions
 [53]: #teardown-1
 [54]: #setup-1
 [55]: #formatresult
