@@ -836,25 +836,6 @@ However, this property cannot appear in the same test object as the
 [`code`][57], [`output`][61], [`codeFixture`][32], or [`outputFixture`][33]
 properties.
 
-#### Unrecognized Options and Invalid Combinations
-
-In versions before `11.0.0`, any test object properties or fixture-specific
-options passed directly to babel-plugin-tester (e.g. `only` or `skip`) would be
-considered "global" and merged with every test object. Unfortunately, this
-behavior could be confusing for a variety of reasons:
-
-- Options were merged with test objects but _not_ fixture options, leading to
-  inconsistent behavior.
-- Some options have conflicting names with behaviors that do not totally
-  overlap.
-- Many options do not make sense when applied globally (e.g. `only` or `skip`).
-
-Together, this lead to strange Typescript types and inconsistent runtime
-behavior. Therefore, in versions `>=11.0.0`, this functionality was removed. To
-assist those upgrading from earlier versions, providing invalid or unrecognized
-options will trigger a warning while illegal option combinations will throw an
-error.
-
 ## Examples
 
 ### Simple Example
@@ -1304,12 +1285,13 @@ _always_ be skipped, even if they're also matched by `TEST_ONLY`.
 
 Setup and teardown functions are run in the following order:
 
-➡ [base `setup`][38]\
-    ➡ [test object `setup`][60]/[fixture `setup`][55]\
-        ➡ (test runs)\
-        ➡ optional function returned by `setup`\
-    ➡ [test object `teardown`][59]/[fixture `teardown`][54]\
-➡ [base `teardown`][37]
+1. [Base `setup`][38].
+2. [Test object `setup`][60] / [fixture `setup`][55].
+3. _Unit test is run_.
+4. Any function returned by test object `setup` / fixture `setup`.
+5. Any function returned by base `setup`.
+6. [Test object `teardown`][59] / [fixture `teardown`][54].
+7. [Base `teardown`][37].
 
 ## Inspiration
 
