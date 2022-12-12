@@ -836,6 +836,23 @@ However, this property cannot appear in the same test object as the
 [`code`][57], [`output`][61], [`codeFixture`][32], or [`outputFixture`][33]
 properties.
 
+###### `execFixture`
+
+If you'd rather put your [`exec`][58] in a separate file, you can specify a file
+name here instead. If it's an absolute path, then that's the file that will be
+loaded. Otherwise, `execFixture` will be [`path.join`][34]'d with the [directory
+name][35] of [`filepath`][43].
+
+Indentation is not stripped nor are the contents of the file trimmed before
+evaluation.
+
+Like [`exec`][58], this property cannot appear in the same test object as the
+[`code`][57], [`output`][61], [`codeFixture`][32], or [`outputFixture`][33]
+properties.
+
+> If you find you're using this property more than a couple of times, consider
+> using [`fixtures`][31] instead.
+
 ## Examples
 
 ### Simple Example
