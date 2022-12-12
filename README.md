@@ -424,21 +424,21 @@ the following:
 
 ```text
 __fixtures__
-├── first-test         # test title will be: "first test"
+├── first-test         # test title will be: "1. first test"
 │   ├── code.js        # required
 │   └── output.js      # required (unless using the `throws` option)
-├── second-test        # test title will be: "second test"
+├── second-test        # test title will be: "2. second test"
 │   ├── .babelrc       # optional
 │   ├── options.json   # optional
 │   ├── code.ts        # required (other file extensions are allowed too)
 │   └── output.js      # required (unless using the `throws` option)
 └── nested
     ├── options.json   # optional
-    ├── third-test     # test title will be: "nested > third test"
+    ├── third-test     # test title will be: "3. nested > third test"
     │   ├── code.mjs   # required (other file extensions are allowed too)
     │   ├── output.js  # required (unless using the `throws` option)
     │   └── options.js # optional (overrides props in nested/options.json)
-    └── fourth-test    # test title will be: "nested > fourth test"
+    └── x-fourth-test  # test title will be: "4. nested > x fourth test"
         └── exec.js    # required (alternative to code/output structure)
 ```
 
