@@ -415,7 +415,7 @@ This function is used to format all babel outputs, and defaults to a function
 that uses prettier. If you have prettier configured, then it will use your
 configuration. If you don't, then it will use a default prettier configuration.
 
-You can also [provide your own custom formatter][42].
+You can also [override or disable formatting][42].
 
 #### `snapshot`
 
@@ -652,7 +652,7 @@ This function is used to format all babel outputs, and defaults to a function
 that uses prettier. If you have prettier configured, then it will use your
 configuration. If you don't, then it will use a default prettier configuration.
 
-You can also [provide your own custom formatter][42].
+You can also [override or disable formatting][42].
 
 This will override the [`formatResult`][61] function provided to
 babel-plugin-tester.
@@ -777,7 +777,7 @@ This function is used to format all babel outputs, and defaults to a function
 that uses prettier. If you have prettier configured, then it will use your
 configuration. If you don't, then it will use a default prettier configuration.
 
-You can also [provide your own custom formatter][42].
+You can also [override or disable formatting][42].
 
 This will override the [`formatResult`][61] function provided to
 babel-plugin-tester.
