@@ -39,7 +39,7 @@ too.
 This is a fairly simple abstraction to help you write tests for your babel
 plugin or preset. It was built to work with [Jest][4], but most of the
 functionality should work with [Mocha][5], [Jasmine][6], and any other framework
-that defines standard `it`/`describe`/`expect` globals.
+that defines standard `describe` and `it` globals with async support.
 
 <!-- remark-ignore-start -->
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -511,9 +511,9 @@ Note that this file cannot appear in the same directory as [`exec.js`][51].
 This file's contents will be used as the input into babel at transform time just
 like the [`code.js`][52] file, except the output will be _evaluated_ in the
 [same _CJS_ context][55] as the the test runner itself, meaning it has access to
-`expect`, `require`, and other globals _but not `import` or top-level await_.
-Hence, while any file extension can be used (e.g. `.ts`, `.vue`, `.jsx`), this
-file will always be evaluated as CJS.
+`expect` (if, for example, you're using Jest), `require`, and other globals _but
+not `import` or top-level await_. Hence, while any file extension can be used
+(e.g. `.ts`, `.vue`, `.jsx`), this file will always be evaluated as CJS.
 
 The test will always pass unless an exception is thrown (e.g. when an `expect()`
 fails).
@@ -602,19 +602,23 @@ during transformation. For example:
   throws: true,
   throws: 'should have this exact message',
   throws: /should pass this regex/,
-  throws: SyntaxError, // Should be instance of this constructor
+  throws: SyntaxError, // Should be an instance of this class
   throws: err => {
     if (err instanceof SyntaxError && /message/.test(err.message)) {
-      return true; // Test will fail if this function doesn't return `true`
+      return true; // Test will fail if this function's return value !== true
     }
   },
 }
 ```
 
+If the value of `throws` is a class, that class must
+[be a subtype of `Error`](https://stackoverflow.com/a/32750746/1367414) or the
+behavior of babel-plugin-tester is undefined.
+
 > For backwards compatibility reasons, `throws` is synonymous with `error`. They
 > can be used interchangeably, with `throws` taking precedence.
 
-Note that this property is ignored when using an [`exec.js`][51] file.
+Note that this property cannot be present when using an [`exec.js`][51] file.
 
 ###### `setup`
 
@@ -736,19 +740,23 @@ one of the following:
   throws: true,
   throws: 'should have this exact message',
   throws: /should pass this regex/,
-  throws: SyntaxError, // Should be instance of this constructor
+  throws: SyntaxError, // Should be an instance of this class
   throws: err => {
     if (err instanceof SyntaxError && /message/.test(err.message)) {
-      return true; // Test will fail if this function doesn't return `true`
+      return true; // Test will fail if this function's return value !== true
     }
   },
 }
 ```
 
+If the value of `throws` is a class, that class must
+[be a subtype of `Error`](https://stackoverflow.com/a/32750746/1367414) or the
+behavior of babel-plugin-tester is undefined.
+
 > For backwards compatibility reasons, `throws` is synonymous with `error`. They
 > can be used interchangeably, with `throws` taking precedence.
 
-Note that this property is ignored when using the [`exec`][63] property.
+Note that this property cannot be present when using the [`exec`][63] property.
 
 ###### `setup`
 
@@ -816,8 +824,8 @@ convenience for template literals.
 
 The provided source will be transformed just like the [`code`][62] property,
 except the output will be _evaluated_ in the [same _CJS_ context][55] as the the
-test runner itself, meaning it has access to `expect`, `require`, and other
-globals _but not `import` or top-level await_.
+test runner itself, meaning it has access to `expect` (if, for example, you're
+using Jest), `require`, and other globals _but not `import` or top-level await_.
 
 The test will always pass unless an exception is thrown (e.g. when an `expect()`
 fails).
