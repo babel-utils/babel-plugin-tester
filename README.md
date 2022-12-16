@@ -921,10 +921,11 @@ pluginTester({
   snapshot: true,
   tests: [
     {
-      code: '"hello";',
-      snapshot: false
+      code: '"hello";'
+      // Snapshot should show that code has not changed
     },
     {
+      snapshot: false,
       code: 'var hello = "hi";',
       output: 'var olleh = "hi";'
     },
@@ -989,7 +990,7 @@ pluginTester({
   // Defaults to a function that formats with prettier
   formatResult: customFormatFunction,
 
-  // Tests as an object
+  // You can provide tests as an object
   tests: {
     // The key is the title. The value is the code that is unchanged (because
     // snapshot == false across all tests). Test title will be: "1. does not
@@ -1005,7 +1006,7 @@ pluginTester({
     }
   },
 
-  // Tests as an array
+  // Alternatively, you can provide tests as an array
   tests: [
     // Should be unchanged by the plugin (because snapshot == false across all
     // tests). Test title will be: "1. identifier reverse"
