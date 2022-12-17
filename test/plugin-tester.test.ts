@@ -4,7 +4,7 @@ import assert from 'node:assert';
 import { EOL } from 'node:os';
 import { isNativeError } from 'node:util/types';
 import { declare } from '@babel/helper-plugin-utils';
-import { asMockedFunction, type AnyFunction } from '@xunnamius/jest-types';
+import { asMockedFunction } from '@xunnamius/jest-types';
 import babel from '@babel/core';
 
 import { runPluginUnderTestHere } from '../src/index';
@@ -23,6 +23,8 @@ import {
   getFixturePath,
   getFixtureContents
 } from './helpers';
+
+import type { AnyFunction } from '@xunnamius/jest-types';
 
 expect.addSnapshotSerializer(unstringSnapshotSerializer);
 
@@ -188,7 +190,7 @@ test('calls describe and test for a group of tests', async () => {
   expect(itSpy.mock.calls).toMatchObject([
     [`1. ${pluginName}`, expect.any(Function)],
     [`2. ${pluginName}`, expect.any(Function)],
-    [`${customTitle}`, expect.any(Function)]
+    [`3. ${customTitle}`, expect.any(Function)]
   ]);
 });
 
@@ -273,7 +275,10 @@ test('fixture tests accept custom test title', async () => {
     })
   );
 
-  expect(itSpy).toHaveBeenCalledWith('custom fixture test title', expect.any(Function));
+  expect(itSpy).toHaveBeenCalledWith(
+    '1. custom fixture test title',
+    expect.any(Function)
+  );
 });
 
 test('default will throw if output changes', async () => {
@@ -376,7 +381,7 @@ test('can get a code and output fixture that is an absolute path', async () => {
   const expected = getFixtureContents('outure1.js');
   expect(error).toMatchObject({
     name: expect.stringMatching(/AssertionError/),
-    message: 'output is incorrect',
+    message: 'actual output does not match expected output',
     actual,
     expected
   });
@@ -416,13 +421,13 @@ test('can resolve a fixture with the filename option', async () => {
     }
   ];
   const error = await runPluginTester(
-    getDummyOptions({ filename: __filename, tests })
+    getDummyOptions({ filepath: __filename, tests })
   ).catch((error) => error);
   const actual = getFixtureContents('fixture1.js');
   const expected = getFixtureContents('outure1.js');
   expect(error).toMatchObject({
     name: expect.stringMatching(/AssertionError/),
-    message: 'output is incorrect',
+    message: 'actual output does not match expected output',
     actual,
     expected
   });
@@ -433,29 +438,34 @@ test('can pass tests in fixtures relative to the filename', async () => {
 
   await runPluginTester(
     getDummyOptions({
-      filename: __filename,
+      filepath: __filename,
       fixtures: 'fixtures/fixtures',
       tests: undefined
     })
   );
-  expect(describeSpy).toHaveBeenCalledTimes(6);
-  expect(itSpy).toHaveBeenCalledTimes(14);
+
+  expect(describeSpy.mock.calls).toMatchObject([
+    ['captains-log fixtures', expect.any(Function)],
+    ['babelrc', expect.any(Function)],
+    ['nested', expect.any(Function)],
+    ['with options', expect.any(Function)]
+  ]);
 
   expect(itSpy.mock.calls).toMatchObject([
-    [`cjs`, expect.any(Function)],
-    [`js`, expect.any(Function)],
-    [`normal`, expect.any(Function)],
-    [`changed`, expect.any(Function)],
-    [`fixtureOutputExt`, expect.any(Function)],
-    [`jsx support`, expect.any(Function)],
-    [`nested a`, expect.any(Function)],
-    [`nested b`, expect.any(Function)],
-    [`tsx support`, expect.any(Function)],
-    [`typescript`, expect.any(Function)],
-    [`unchanged`, expect.any(Function)],
-    [`nested with option`, expect.any(Function)],
-    [`nested without option`, expect.any(Function)],
-    [`without output file`, expect.any(Function)]
+    ['1. cjs', expect.any(Function)],
+    ['2. js', expect.any(Function)],
+    ['3. normal', expect.any(Function)],
+    ['4. changed', expect.any(Function)],
+    ['5. fixtureOutputExt', expect.any(Function)],
+    ['6. jsx support', expect.any(Function)],
+    ['7. nested a', expect.any(Function)],
+    ['8. nested b', expect.any(Function)],
+    ['9. tsx support', expect.any(Function)],
+    ['10. typescript', expect.any(Function)],
+    ['11. unchanged', expect.any(Function)],
+    ['12. nested with option', expect.any(Function)],
+    ['13. nested without option', expect.any(Function)],
+    ['14. without output file', expect.any(Function)]
   ]);
 });
 
@@ -477,7 +487,7 @@ test('creates output file for new tests', async () => {
 
   await runPluginTester(
     getDummyOptions({
-      filename: __filename,
+      filepath: __filename,
       fixtures: 'fixtures/creates-output-file',
       tests: undefined
     })
@@ -557,7 +567,7 @@ test('works with versions of babel without `.transformSync` method', async () =>
   await runPluginTester(
     getDummyOptions({
       babel: oldBabel,
-      filename: __filename,
+      filepath: __filename,
       fixtures: 'fixtures/fixtures',
       tests
     })
@@ -666,15 +676,17 @@ test('can provide an object for tests', async () => {
       code: simpleTest
     }
   };
+
   await runPluginTester(getDummyOptions({ tests }));
-  expect(equalSpy).toHaveBeenCalledTimes(2);
+
+  expect(itSpy.mock.calls).toMatchObject([
+    [`1. ${firstTitle}`, expect.any(Function)],
+    [`2. ${secondTitle}`, expect.any(Function)]
+  ]);
+
   expect(equalSpy.mock.calls).toMatchObject([
     [simpleTest, simpleTest, expect.any(String)],
     [simpleTest, simpleTest, expect.any(String)]
-  ]);
-  expect(itSpy.mock.calls).toMatchObject([
-    [firstTitle, expect.any(Function)],
-    [secondTitle, expect.any(Function)]
   ]);
 });
 
@@ -831,16 +843,17 @@ test('allows formatting tests result', async () => {
   expect.hasAssertions();
 
   const formatResultSpy = jest.fn((r) => r);
+
   await runPluginTester(
     getDummyOptions({
-      filename: __filename,
+      filepath: __filename,
       tests: [{ code: simpleTest, formatResult: formatResultSpy }]
     })
   );
+
   expect(formatResultSpy).toHaveBeenCalledTimes(1);
   expect(formatResultSpy).toHaveBeenCalledWith(simpleTest, {
-    filepath: __filename,
-    filename: __filename
+    filepath: __filename
   });
 });
 
@@ -859,8 +872,7 @@ test('allows formatting fixtures results', async () => {
 
   expect(formatResultSpy).toHaveBeenCalledTimes(15);
   expect(formatResultSpy).toHaveBeenCalledWith(expect.any(String), {
-    filepath: expect.stringMatching(new RegExp(`^${fixtures}`)),
-    filename: expect.stringMatching(new RegExp(`^${fixtures}`))
+    filepath: expect.stringMatching(new RegExp(`^${fixtures}`))
   });
 });
 
@@ -985,6 +997,8 @@ test('appends to root plugins array', async () => {
   const optionRootFoo = jest.fn();
   const optionFoo = jest.fn();
   const optionBar = jest.fn();
+  const programVisitor = jest.fn();
+
   const pluginWithOptions = jest.fn(() => {
     return {
       visitor: {
@@ -1002,7 +1016,7 @@ test('appends to root plugins array', async () => {
       }
     };
   });
-  const programVisitor = jest.fn();
+
   const otherPlugin = () => {
     return {
       visitor: {

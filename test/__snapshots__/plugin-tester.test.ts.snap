@@ -2,19 +2,19 @@
 
 exports[`assert throws if code is unchanged + snapshot enabled 1`] = `code was unmodified but attempted to take a snapshot. If the code should not be modified, set \`snapshot: false\``;
 
-exports[`assert throws if snapshot and output are both provided 1`] = `\`output\` cannot be provided with \`snapshot: true\``;
+exports[`assert throws if snapshot and output are both provided 1`] = `failed to validate configuration for test "1. captains-log": neither \`output\` nor \`outputFixture\` can be provided with \`snapshot\` enabled`;
 
-exports[`assert throws if there's no code 1`] = `a string or object with a \`code\` or \`fixture\` property must be provided`;
+exports[`assert throws if there's no code 1`] = `failed to validate configuration for test "1. captains-log": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
 
 exports[`can fail tests in fixtures at an absolute path 1`] = `actual output does not match output.js`;
 
 exports[`default will throw if output changes 1`] = `expected output to not change, but it did`;
 
-exports[`fixture tests cannot be both only-ed and skipped 1`] = `cannot enable both skip and only on a test`;
+exports[`fixture tests cannot be both only-ed and skipped 1`] = `failed to validate configuration for test "1. failure": cannot enable both \`skip\` and \`only\` in the same test`;
 
 exports[`plugin is required 1`] = `plugin is a required parameter`;
 
-exports[`snapshot option can be derived from the root config 1`] = `\`output\` cannot be provided with \`snapshot: true\``;
+exports[`snapshot option can be derived from the root config 1`] = `failed to validate configuration for test "1. captains-log": neither \`output\` nor \`outputFixture\` can be provided with \`snapshot\` enabled`;
 
 exports[`takes a snapshot: 1. captains-log 1`] = `
 
@@ -26,14 +26,14 @@ var ih = 'hey';
 
 `;
 
-exports[`tests cannot be both only-ed and skipped 1`] = `cannot enable both skip and only on a test`;
+exports[`tests cannot be both only-ed and skipped 1`] = `failed to validate configuration for test "1. captains-log": cannot enable both \`skip\` and \`only\` in the same test`;
 
-exports[`throws an error if babelrc is true with no filename 1`] = `babelrc set to true, but no filename specified in babelOptions`;
+exports[`throws an error if babelrc is true with no filename 1`] = `failed to validate configuration for test "1. captains-log": \`babelOptions.babelrc\` is enabled but \`babelOptions.filename\` was not provided`;
 
 exports[`throws error if fixture provided and code changes 1`] = `expected output to not change, but it did`;
 
-exports[`throws error when error expected but no error thrown 1`] = `expected to throw error, but it did not`;
+exports[`throws error when error expected but no error thrown 1`] = `expected babel to throw an error, but it did not`;
 
-exports[`throws error when function doesn't return true 1`] = `[BABEL] unknown file: fake syntax error (While processing: "base$0")`;
+exports[`throws error when function doesn't return true 1`] = `expected \`throws\`/\`error\` function to return true`;
 
-exports[`throws if output is incorrect 1`] = `output is incorrect`;
+exports[`throws if output is incorrect 1`] = `actual output does not match expected output`;

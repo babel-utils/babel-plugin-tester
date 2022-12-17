@@ -1,1 +1,5 @@
-{"foo": "bar"}
+{
+  "pluginOptions": {
+    "foo": "bar"
+  }
+}

@@ -1,1 +1,5 @@
-{"rootFoo": "rootBar"}
+{
+  "pluginOptions": {
+    "rootFoo": "rootBar"
+  }
+}
