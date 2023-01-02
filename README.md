@@ -724,7 +724,7 @@ an error during transformation. For example:
 }
 ```
 
-> Be careful using instanceof [across realms][62] as it can lead to [strange
+> Be careful using `instanceof` [across realms][62] as it can lead to [strange
 > behavior][63] with [frontend frames/windows][64] and with tools that rely on
 > [Node's VM module][65] (like Jest). Prefer [name checks][66] and utilities
 > like [`isNativeError`][67], [`Array.isArray`][68], and overriding
@@ -875,7 +875,7 @@ error during transformation. For example:
 }
 ```
 
-> Be careful using instanceof [across realms][62] as it can lead to [strange
+> Be careful using `instanceof` [across realms][62] as it can lead to [strange
 > behavior][63] with [frontend frames/windows][64] and with tools that rely on
 > [Node's VM module][65] (like Jest). Prefer [name checks][66] and utilities
 > like [`isNativeError`][67], [`Array.isArray`][68], and overriding
