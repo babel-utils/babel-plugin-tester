@@ -631,8 +631,8 @@ file might contain:
 expect(() => throw new Error('throw expression')).toThrow('throw expression');
 ```
 
-Before being evaluated, this file's contents will have whitespace trimmed and
-line endings [converted][55].
+Before being evaluated, this file's contents will have whitespace trimmed, line
+endings [converted][55], and then get [formatted by prettier][38].
 
 Note that this file cannot appear in the same directory as [`code.js`][57] or
 [`output.js`][54]. If more than one `exec.*` file exists in a directory, the
