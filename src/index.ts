@@ -196,6 +196,7 @@ export interface PluginTesterOptions {
    * | `"preserve"` | Use the line ending from the input      |
    * | `false`      | Disable line ending conversion entirely |
    *
+   * @default "lf"
    * @see https://npm.im/babel-plugin-tester#endOfLine
    */
   endOfLine?: 'lf' | 'crlf' | 'auto' | 'preserve' | false;
@@ -254,6 +255,28 @@ export interface PluginTesterOptions {
    * @see https://npm.im/babel-plugin-tester#fixtureOutputExt
    */
   fixtureOutputExt?: FixtureOptions['fixtureOutputExt'];
+  /**
+   * This is a `pluginTester` option used to determines which test titles are
+   * prefixed with a number when output. Defaults to `"all"`.
+   *
+   * | Options           | Description                                         |
+   * | ----------------- | --------------------------------------------------- |
+   * | `"all"`           | All test object and fixtures tests will be numbered |
+   * | `"tests-only"`    | Only test object tests will be numbered             |
+   * | `"fixtures-only"` | Only fixtures tests will be numbered                |
+   * | `false`           | Disable automatic numbering in titles entirely      |
+   *
+   * @default "all"
+   * @see https://npm.im/babel-plugin-tester#titleNumbering
+   */
+  titleNumbering?: 'all' | 'tests-only' | 'fixtures-only' | false;
+  /**
+   * Setting this option to `true` will restart test title numbering starting at 1.
+   *
+   * @default false
+   * @see https://npm.im/babel-plugin-tester#restartTitleNumbering
+   */
+  restartTitleNumbering?: boolean;
   /**
    * This is a `pluginTester` option used to specify a path to a directory
    * containing tests.
@@ -683,6 +706,9 @@ export type ResultFormatter<
      */
     filepath?: string;
     /**
+     * If this deprecated parameter is given as an argument, treat it as the
+     * value of `filepath`. Otherwise, it should not be used.
+     *
      * @deprecated Use `filepath` instead.
      */
     filename?: string;
