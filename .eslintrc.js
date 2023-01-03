@@ -85,7 +85,8 @@ const rules = {
         src: false,
         dest: false,
         obj: false,
-        val: false
+        val: false,
+        env: false
       },
       ignore: [/stderr/i]
     }
@@ -151,7 +152,8 @@ module.exports = {
         'jest/prefer-mock-promise-shorthand': 'off',
         'jest/no-conditional-in-test': 'off',
         'jest/no-conditional-expect': 'off',
-        'jest/prefer-each': 'off'
+        'jest/prefer-each': 'off',
+        'jest/prefer-snapshot-hint': 'off'
       }
     }
   ],

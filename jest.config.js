@@ -9,6 +9,7 @@ module.exports = {
   testTimeout: 1000 * 60 * (process.env.VSCODE_INSPECTOR_OPTIONS ? 60 * 24 : 1),
   verbose: false,
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  setupFilesAfterEnv: ['./test/setup.ts'],
   collectCoverageFrom: ['src/**/*.ts?(x)'],
   // ? Make sure jest-haste-map doesn't try to parse and cache fixtures
   modulePathIgnorePatterns: ['<rootDir>/test/fixtures']
