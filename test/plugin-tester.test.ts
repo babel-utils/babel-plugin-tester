@@ -4778,6 +4778,35 @@ describe('tests targeting the TestObject interface', () => {
     // ? expect() call is in the execFixture.js script
   });
 
+  it('considers deprecated `fixture` as synonymous with `codeFixture`', async () => {
+    expect.hasAssertions();
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        plugin: identifierReversePlugin,
+        tests: [
+          {
+            fixture: getFixturePath('codeFixture.js'),
+            outputFixture: getFixturePath('outputFixture.js')
+          }
+        ]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        tests: [{ fixture: getFixturePath('codeFixture.js') }]
+      })
+    );
+
+    expect(itSpy).toBeCalledTimes(2);
+
+    expect(transformAsyncSpy.mock.calls).toMatchObject([
+      [getFixtureContents('codeFixture.js'), expect.any(Object)],
+      [getFixtureContents('codeFixture.js'), expect.any(Object)]
+    ]);
+  });
+
   it('uses `codeFixture`/`execFixture`, if defined, as the default `babelOptions.filename`, overriding any globals', async () => {
     expect.hasAssertions();
 
