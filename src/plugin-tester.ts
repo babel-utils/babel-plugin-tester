@@ -525,25 +525,47 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             teardownFunctions.unshift(maybeTeardownFn);
           }
         } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('there was a problem during setup');
-          throw error;
+          throw new Error(
+            `setup function failed: ${isNativeError(error) ? error.message : error}`,
+            { cause: error }
+          );
         }
       }
 
+      let frameworkError: unknown;
+
       try {
         await frameworkTest(testConfig);
+      } catch (error) {
+        frameworkError = error;
       } finally {
         for (const teardownFn of teardownFunctions) {
           try {
             // eslint-disable-next-line no-await-in-loop
             await teardownFn();
           } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('there was a problem during teardown');
+            // ? Ensure we don't swallow any errors from frameworkTest
+            const frameworkErrorMessage = frameworkError
+              ? `\n\nAdditionally, the testing framework reported the following error: ${
+                  isNativeError(frameworkError) ? frameworkError.message : frameworkError
+                }`
+              : '';
+
+            const errorMessage = `teardown function failed: ${
+              isNativeError(error) ? error.message : error
+            }${frameworkErrorMessage}`;
+
             // eslint-disable-next-line no-unsafe-finally
-            throw error;
+            throw new Error(errorMessage, {
+              cause: { error, frameworkError }
+            });
           }
+        }
+
+        // ? Ensure we don't swallow any errors from frameworkTest
+        if (frameworkError) {
+          // eslint-disable-next-line no-unsafe-finally
+          throw frameworkError;
         }
       }
     };
