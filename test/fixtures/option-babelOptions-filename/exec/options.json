@@ -1,0 +1,5 @@
+{
+  "babelOptions": {
+    "filename": "/something/or/other/does/not/exist.js"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "fixtureOutputExt": "js",
+  "fixtureOutputName": "out",
+  "pluginOptions": {
+    "bar": "baz"
+  }
+}

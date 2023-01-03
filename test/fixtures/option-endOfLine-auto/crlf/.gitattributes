@@ -1,0 +1,3 @@
+code.js text=crlf eol=crlf
+# The goal here is to get Git to populate the working tree with native EOL
+output.js text=lf -eol

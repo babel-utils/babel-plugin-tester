@@ -1,5 +1,0 @@
-{
-    "plugins": [
-        ["@babel/plugin-syntax-typescript", { "isTSX" : true }]
-    ]
-}

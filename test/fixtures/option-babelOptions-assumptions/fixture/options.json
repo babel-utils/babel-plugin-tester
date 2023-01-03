@@ -1,0 +1,7 @@
+{
+  "babelOptions": {
+    "assumptions": {
+      "constantReexports": false
+    }
+  }
+}

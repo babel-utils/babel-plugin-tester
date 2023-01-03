@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`captains-log 2. captains-log: 2. captains-log 1`] = `
+
+var output = paragraph + "one"+
+
+'paragraph' + \`\\two\`
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+var output = paragraph + 'one' + 'paragraph' + \`\\two\`;
+
+`;
+
+exports[`unknown plugin 4. using jest snapshots: 4. using jest snapshots 1`] = `
+
+
+function sayHi(person) {
+  return 'Hello ' + person + '!'
+}
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+function iHyas(nosrep) {
+  return 'Hello ' + nosrep + '!';
+}
+
+`;
