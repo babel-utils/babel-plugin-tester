@@ -35,13 +35,15 @@ export default pluginTester;
  */
 export function pluginTester(options: PluginTesterOptions = {}) {
   if (!('describe' in globalThis) || typeof describe != 'function') {
-    throw new TypeError('testing environment must support describe(...)');
+    throw new TypeError('testing environment must define `describe` in its global scope');
   }
 
   if (!('it' in globalThis) || typeof it != 'function') {
-    throw new TypeError('testing environment must support it(...)');
+    throw new TypeError('testing environment must define `it` in its global scope');
   } else if (!it.only || !it.skip) {
-    throw new TypeError('testing environment must support it.only(...) and it.skip(...)');
+    throw new TypeError(
+      'testing environment global `it` object must define `it.only` and `it.skip` methods'
+    );
   }
 
   let hasTests = false;
@@ -605,6 +607,9 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       }
     })();
 
+    // ? We split rawBabelOutput and result into two steps to ensure exceptions
+    // ? thrown by trimAndFixLineEndings and formatResult are not erroneously
+    // ? captured when we only really care about errors thrown by babel
     const result =
       !errored && typeof rawBabelOutput == 'string'
         ? trimAndFixLineEndings(
@@ -813,12 +818,12 @@ function validateTestConfig(
 }
 
 function trimAndFixLineEndings(
-  line: string,
+  source: string,
   endOfLine: NonNullable<PluginTesterOptions['endOfLine']>,
-  input = line
+  input = source
 ) {
   return (
-    endOfLine === false ? line : line.replaceAll(/\r?\n/g, getReplacement())
+    endOfLine === false ? source : source.replaceAll(/\r?\n/g, getReplacement())
   ).trim();
 
   function getReplacement() {
