@@ -34,16 +34,30 @@ export default pluginTester;
  * `describe` and `it` globals with async support.
  */
 export function pluginTester(options: PluginTesterOptions = {}) {
-  if (!('describe' in globalThis) || typeof describe != 'function') {
+  const globalContextHasExpectFn = 'expect' in globalThis && typeof expect == 'function';
+  const globalContextHasTestFn = 'it' in globalThis && typeof it == 'function';
+
+  const globalContextHasDescribeFn =
+    'describe' in globalThis && typeof describe == 'function';
+
+  const globalContextExpectFnHasToMatchSnapshot = globalContextHasExpectFn
+    ? typeof expect(undefined)?.toMatchSnapshot == 'function'
+    : false;
+
+  const globalContextTestFnHasSkip = globalContextHasTestFn
+    ? typeof it.skip == 'function'
+    : false;
+
+  const globalContextTestFnHasOnly = globalContextHasTestFn
+    ? typeof it.only == 'function'
+    : false;
+
+  if (!globalContextHasDescribeFn) {
     throw new TypeError('testing environment must define `describe` in its global scope');
   }
 
-  if (!('it' in globalThis) || typeof it != 'function') {
+  if (!globalContextHasTestFn) {
     throw new TypeError('testing environment must define `it` in its global scope');
-  } else if (!it.only || !it.skip) {
-    throw new TypeError(
-      'testing environment global `it` object must define `it.only` and `it.skip` methods'
-    );
   }
 
   let hasTests = false;
@@ -690,56 +704,32 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       );
     }
   }
-}
 
-function mergeCustomizer(objValue: unknown[], srcValue: unknown) {
-  return Array.isArray(objValue) ? objValue.concat(srcValue) : undefined;
-}
-
-function getAbsolutePath(filename?: string, basename?: string) {
-  return !basename
-    ? undefined
-    : path.isAbsolute(basename)
-    ? basename
-    : filename
-    ? path.join(path.dirname(filename), basename)
-    : undefined;
-}
-
-function readFixtureOptions(baseDirectory: string) {
-  const optionsPath = [
-    path.join(baseDirectory, 'options.js'),
-    path.join(baseDirectory, 'options.json')
-  ].find((p) => fs.existsSync(p));
-
-  return optionsPath ? (require(optionsPath) as FixtureOptions) : {};
-}
-
-function readCode(filename?: string, fixture?: string) {
-  const path = getAbsolutePath(filename, fixture);
-  return (path ? fs.readFileSync(path, 'utf8') : '') || undefined;
-}
-
-function validateTestConfig(
-  testConfig:
-    | PluginTesterTestConfig
-    | MaybePluginTesterTestObjectConfig
-    | MaybePluginTesterTestFixtureConfig
-) {
-  if (testConfig[$type] == 'describe-block') {
-    return;
-  }
-
-  const { testBlockTitle, skip, only, code, exec, output, babelOptions, expectedError } =
-    testConfig;
+  function validateTestConfig<
+    T extends MaybePluginTesterTestObjectConfig | MaybePluginTesterTestFixtureConfig
+  >(
+    testConfig: T
+  ): // * See: https://stackoverflow.com/a/71741336/1367414
+  // @ts-expect-error: encountering the limits of type inference as of 4.9.4
+  asserts testConfig is T extends MaybePluginTesterTestObjectConfig
+    ? PluginTesterTestObjectConfig
+    : PluginTesterTestFixtureConfig {
+    const {
+      testBlockTitle,
+      skip,
+      only,
+      code,
+      exec,
+      output,
+      babelOptions,
+      expectedError
+    } = testConfig;
 
   if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
-    if (
-      !('expect' in globalThis) ||
-      typeof expect != 'function' ||
-      typeof expect(undefined)?.toMatchSnapshot != 'function'
-    ) {
-      throwTypeError('testing environment does not support expect(...).toMatchSnapshot');
+      if (!globalContextExpectFnHasToMatchSnapshot) {
+        throwTypeError(
+          'testing environment does not support `expect(...).toMatchSnapshot` method'
+        );
     }
 
     if (output) {
@@ -758,6 +748,14 @@ function validateTestConfig(
   if (skip && only) {
     throwTypeError('cannot enable both `skip` and `only` in the same test');
   }
+
+    if (skip && !globalContextTestFnHasSkip) {
+      throwTypeError('testing environment does not support `it.skip(...)` method');
+    }
+
+    if (only && !globalContextTestFnHasOnly) {
+      throwTypeError('testing environment does not support `it.only(...)` method');
+    }
 
   if (output && expectedError !== undefined) {
     throwTypeError(
@@ -815,6 +813,35 @@ function validateTestConfig(
       `failed to validate configuration for test "${testBlockTitle}": ${message}`
     );
   }
+  }
+}
+
+function mergeCustomizer(objValue: unknown[], srcValue: unknown) {
+  return Array.isArray(objValue) ? objValue.concat(srcValue) : undefined;
+}
+
+function getAbsolutePath(filename?: string, basename?: string) {
+  return !basename
+    ? undefined
+    : path.isAbsolute(basename)
+    ? basename
+    : filename
+    ? path.join(path.dirname(filename), basename)
+    : undefined;
+}
+
+function readFixtureOptions(baseDirectory: string) {
+  const optionsPath = [
+    path.join(baseDirectory, 'options.js'),
+    path.join(baseDirectory, 'options.json')
+  ].find((p) => fs.existsSync(p));
+
+  return optionsPath ? (require(optionsPath) as FixtureOptions) : {};
+}
+
+function readCode(filename?: string, fixture?: string) {
+  const path = getAbsolutePath(filename, fixture);
+  return (path ? fs.readFileSync(path, 'utf8') : '') || undefined;
 }
 
 function trimAndFixLineEndings(
@@ -845,7 +872,9 @@ function trimAndFixLineEndings(
         return match[0];
       }
       default: {
-        throw new TypeError("invalid 'endOfLine' value");
+        throw new TypeError(
+          "failed to validate configuration: invalid 'endOfLine' option"
+        );
       }
     }
   }

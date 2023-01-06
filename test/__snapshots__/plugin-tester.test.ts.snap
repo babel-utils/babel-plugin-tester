@@ -4,6 +4,14 @@ exports[`tests targeting both FixtureOptions and TestObject interfaces handles f
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces handles failing \`tests\` and \`fixtures\` gracefully 2`] = `actual output does not match output.js`;
 
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`it.skip\` or \`it.only\` functions are not available in the global scope when using \`skip\`/\`only\` 1`] = `failed to validate configuration for test "1. fixture": testing environment does not support \`it.skip(...)\` method`;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`it.skip\` or \`it.only\` functions are not available in the global scope when using \`skip\`/\`only\` 2`] = `failed to validate configuration for test "1. fixture": testing environment does not support \`it.only(...)\` method`;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`it.skip\` or \`it.only\` functions are not available in the global scope when using \`skip\`/\`only\` 3`] = `failed to validate configuration for test "1. captains-log (explicit)": testing environment does not support \`it.skip(...)\` method`;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`it.skip\` or \`it.only\` functions are not available in the global scope when using \`skip\`/\`only\` 4`] = `failed to validate configuration for test "1. undefined": testing environment does not support \`it.only(...)\` method`;
+
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` callback doesn't return \`true\` 1`] = ``;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` callback doesn't return \`true\` 2`] = `expected \`throws\`/\`error\` function to return true`;
@@ -104,8 +112,6 @@ exports[`tests targeting the PluginTesterOptions interface throws if \`describe\
 
 exports[`tests targeting the PluginTesterOptions interface throws if \`describe\` or \`it\` functions are not available in the global scope 2`] = `testing environment must define \`it\` in its global scope`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`describe\` or \`it\` functions are not available in the global scope 3`] = `testing environment global \`it\` object must define \`it.only\` and \`it.skip\` methods`;
-
 exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 1`] = `invalid 'endOfLine' value`;
 
 exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 2`] = ``;
@@ -173,6 +179,10 @@ var ih = 'hey';
 exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is empty 1`] = `failed to validate configuration for test "1. captains-log (explicit)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
 
 exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is empty 2`] = `plugin is a required parameter`;
+
+exports[`tests targeting the TestObject interface throws if \`toMatchSnapshot\` function is not available in the value returned by \`expect()\` 1`] = `testing environment must define \`describe\` in its global scope`;
+
+exports[`tests targeting the TestObject interface throws if \`toMatchSnapshot\` function is not available in the value returned by \`expect()\` 2`] = `testing environment must define \`it\` in its global scope`;
 
 exports[`tests targeting the TestObject interface throws if babel output is unchanged and \`snapshot\` is enabled 1`] = `code was unmodified but attempted to take a snapshot. If the code should not be modified, set \`snapshot: false\``;
 
