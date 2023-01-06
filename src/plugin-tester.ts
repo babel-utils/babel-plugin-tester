@@ -7,6 +7,7 @@ import { isNativeError } from 'node:util/types';
 import mergeWith from 'lodash.mergewith';
 import stripIndent from 'strip-indent';
 import { createContext, Script } from 'node:vm';
+import debugFactory from 'debug';
 
 import { $type } from './symbols';
 
@@ -43,6 +44,8 @@ const isIntegerRangeRegExp = /^(?<startStr>\d+)-(?<endStr>\d+)$/;
 
 const noop = () => undefined;
 Object.freeze(noop);
+
+const debug = debugFactory('babel-plugin-tester:tester');
 
 export default pluginTester;
 
