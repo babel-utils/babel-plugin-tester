@@ -10,7 +10,6 @@ Utilities for testing babel plugins and presets.
 
 <!-- prettier-ignore-start -->
 
-[![Build Status][build-badge]][build]
 [![Code Coverage][coverage-badge]][coverage]
 [![Version][version-badge]][package]
 [![Downloads][downloads-badge]][npmtrends]
@@ -1643,9 +1642,6 @@ MIT
 [all-contributors]: https://github.com/all-contributors/all-contributors
 [bugs]:
   https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22bug%22
-[build]: https://travis-ci.org/babel-utils/babel-plugin-tester
-[build-badge]:
-  https://img.shields.io/travis/babel-utils/babel-plugin-tester.svg?style=flat-square
 [coc]:
   https://github.com/babel-utils/babel-plugin-tester/blob/master/.github/CODE_OF_CONDUCT.md
 [coc-badge]:
