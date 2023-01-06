@@ -21,6 +21,7 @@ if ('expect' in globalThis && typeof expect?.addSnapshotSerializer == 'function'
  * @see https://npm.im/babel-plugin-tester#custom-plugin-and-preset-run-order
  */
 export const runPluginUnderTestHere: unique symbol = Symbol('run-plugin-under-test-here');
+export const runPresetUnderTestHere: unique symbol = Symbol('run-preset-under-test-here');
 
 export {
   prettierFormatter,
@@ -146,11 +147,17 @@ export interface PluginTesterOptions {
    *
    * @see https://npm.im/babel-plugin-tester#babelOptions
    */
-  babelOptions?: Omit<Babel.TransformOptions, 'plugins'> & {
+  babelOptions?: Omit<Babel.TransformOptions, 'plugins' | 'presets'> & {
     plugins?:
       | (
           | NonNullable<Babel.TransformOptions['plugins']>[number]
           | typeof runPluginUnderTestHere
+        )[]
+      | null;
+    presets?:
+      | (
+          | NonNullable<Babel.TransformOptions['presets']>[number]
+          | typeof runPresetUnderTestHere
         )[]
       | null;
   };
@@ -756,8 +763,31 @@ export type PluginTesterBaseConfig = (
   tests: NonNullable<PluginTesterOptions['tests']>;
 };
 
+type DynamicProperties =
+  | 'plugin'
+  | 'pluginName'
+  | 'basePluginOptions'
+  | 'preset'
+  | 'presetName'
+  | 'basePresetOptions'
+  | 'describeBlockTitle';
+
+/**
+ * An internal type describing a partially-resolved base configuration.
+ *
+ * @internal
+ */
+export type PartialPluginTesterBaseConfig = Omit<
+  PluginTesterBaseConfig,
+  DynamicProperties
+> &
+  Partial<Pick<PluginTesterBaseConfig, DynamicProperties>>;
+
 type PluginTesterSharedTestConfigProperties = {
-  babelOptions: Babel.TransformOptions;
+  babelOptions: Omit<Babel.TransformOptions, 'plugins' | 'presets'> & {
+    plugins: NonNullable<Babel.TransformOptions['plugins']>;
+    presets: NonNullable<Babel.TransformOptions['presets']>;
+  };
   testBlockTitle: NonNullable<TestObject['title'] | FixtureOptions['title']>;
   only?: TestObject['only'] | FixtureOptions['only'];
   skip?: TestObject['skip'] | FixtureOptions['skip'];

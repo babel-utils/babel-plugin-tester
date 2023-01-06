@@ -1,5 +1,5 @@
 {
   "presetOptions": {
-    "foo": "bar"
+    "optionA": false
   }
 }

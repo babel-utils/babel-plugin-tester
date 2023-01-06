@@ -124,7 +124,21 @@ exports[`tests targeting the PluginTesterOptions interface throws if \`formatRes
 
 exports[`tests targeting the PluginTesterOptions interface throws if \`formatResult\` throws even if \`throws\` is not \`false\` 2`] = ``;
 
-exports[`tests targeting the PluginTesterOptions interface throws if neither \`plugin\` nor \`preset\` are provided 1`] = `required option is missing: must provide either \`plugin\` or \`preset\``;
+exports[`tests targeting the PluginTesterOptions interface throws if both plugin- and preset-specific options are provided 1`] = `failed to validate configuration: cannot test a plugin and a preset simultaneously. Specify one set of options or the other`;
+
+exports[`tests targeting the PluginTesterOptions interface throws if both plugin- and preset-specific options are provided 2`] = `failed to validate configuration: cannot test a plugin and a preset simultaneously. Specify one set of options or the other`;
+
+exports[`tests targeting the PluginTesterOptions interface throws if both plugin- and preset-specific options are provided 3`] = `failed to validate configuration: cannot test a plugin and a preset simultaneously. Specify one set of options or the other`;
+
+exports[`tests targeting the PluginTesterOptions interface throws if both plugin- and preset-specific options are provided 4`] = `failed to validate configuration: cannot test a plugin and a preset simultaneously. Specify one set of options or the other`;
+
+exports[`tests targeting the PluginTesterOptions interface throws if both plugin- and preset-specific options are provided 5`] = `failed to validate configuration: cannot test a plugin and a preset simultaneously. Specify one set of options or the other`;
+
+exports[`tests targeting the PluginTesterOptions interface throws if neither \`plugin\` nor \`preset\` are provided 1`] = `failed to validate configuration: must provide either \`plugin\` or \`preset\` option`;
+
+exports[`tests targeting the PluginTesterOptions interface throws if neither \`plugin\` nor \`preset\` are provided 2`] = `failed to validate configuration: must provide either \`plugin\` or \`preset\` option`;
+
+exports[`tests targeting the PluginTesterOptions interface throws if neither \`plugin\` nor \`preset\` are provided 3`] = `failed to validate configuration: must provide either \`plugin\` or \`preset\` option`;
 
 exports[`tests targeting the PluginTesterOptions interface throws if setup throws 1`] = `1. fixture: setup function failed: bad setup`;
 
@@ -152,7 +166,27 @@ expected:
 var hi = 'hey';
 `;
 
+exports[`tests targeting the TestObject interface accepts a string literal \`tests\` array item asserting babel output is unchanged 2`] = `
+1. black-box (preset): expected output to not change, but it did
+
+actual:
+var ih = 'hey';
+
+expected:
+var hi = 'hey';
+`;
+
 exports[`tests targeting the TestObject interface can test that \`code\`/\`codeFixture\` and \`output\`/\`outputFixture\` babel output matches 1`] = `actual output does not match expected output`;
+
+exports[`tests targeting the TestObject interface can test that \`code\`/\`codeFixture\` and \`output\`/\`outputFixture\` babel output matches 2`] = `
+1. black-box (preset): actual output does not match expected output
+
+actual:
+const hello = 'hey';
+
+expected:
+const olleh = 'hey';
+`;
 
 exports[`tests targeting the TestObject interface can test that \`code\`/\`codeFixture\` babel output is unchanged 1`] = `expected output to not change, but it did`;
 
@@ -219,6 +253,8 @@ exports[`tests targeting the TestObject interface throws if both \`snapshot\` an
 exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`throws\` are provided 1`] = `expected babel to throw an error, but it did not`;
 
 exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`throws\` are provided 2`] = `plugin is a required parameter`;
+
+exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`throws\` are provided: 1. undefined 1`] = ``;
 
 exports[`tests targeting the TestObject interface throws if test object is missing both \`code\` and \`codeFixture\` 1`] = `failed to validate configuration for test "1. captains-log (explicit)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
 

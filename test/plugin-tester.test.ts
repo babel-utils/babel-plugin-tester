@@ -10,9 +10,14 @@ import { declare } from '@babel/helper-plugin-utils';
 import { asMockedFunction } from '@xunnamius/jest-types';
 
 import { withMockedEnv, withMockedOutput } from './setup';
-import { type PluginTesterOptions, runPluginUnderTestHere } from '../src/index';
 import { prettierFormatter } from '../src/formatters/prettier';
 import { unstringSnapshotSerializer } from '../src/serializers/unstring-snapshot';
+
+import {
+  type PluginTesterOptions,
+  runPluginUnderTestHere,
+  runPresetUnderTestHere
+} from '../src/index';
 
 import {
   deleteVariablesPlugin,
@@ -105,15 +110,6 @@ describe('tests targeting the PluginTesterOptions interface', () => {
 
     // @ts-expect-error: I'll put it back, I pwomise!
     delete globalThis.it;
-
-    try {
-      await runPluginTesterExpectThrownException();
-    } finally {
-      globalThis.it = oldIt;
-    }
-
-    // @ts-expect-error: I'll put it back, I pwomise!
-    globalThis.it = () => undefined;
 
     try {
       await runPluginTesterExpectThrownException();
@@ -429,27 +425,32 @@ describe('tests targeting the PluginTesterOptions interface', () => {
 
     await runPluginTesterExpectThrownException({
       plugin: getDummyPluginOptions().plugin,
-      preset: getDummyPresetOptions().preset
+      preset: getDummyPresetOptions().preset,
+      tests: [simpleTest]
     });
 
     await runPluginTesterExpectThrownException({
       plugin: getDummyPluginOptions().plugin,
-      presetName: getDummyPresetOptions().presetName
+      presetName: getDummyPresetOptions().presetName,
+      tests: [simpleTest]
     });
 
     await runPluginTesterExpectThrownException({
       plugin: getDummyPluginOptions().plugin,
-      presetOptions: getDummyPresetOptions().presetOptions
+      presetOptions: {},
+      tests: [simpleTest]
     });
 
     await runPluginTesterExpectThrownException({
       preset: getDummyPresetOptions().preset,
-      pluginName: getDummyPluginOptions().pluginName
+      pluginName: getDummyPluginOptions().pluginName,
+      tests: [simpleTest]
     });
 
     await runPluginTesterExpectThrownException({
       preset: getDummyPresetOptions().preset,
-      pluginOptions: getDummyPluginOptions().pluginOptions
+      pluginOptions: {},
+      tests: [simpleTest]
     });
   });
 
@@ -587,8 +588,8 @@ describe('tests targeting the PluginTesterOptions interface', () => {
         fixtures: getFixturePath('collate-order-1'),
         tests: [
           {
-            code: "var foo = '';",
-            output: "var foo_plugin2_plugin3_preset2_preset3 = '';"
+            code: "var boo = '';",
+            output: "var boo_plugin2_plugin3_preset2_preset3 = '';"
           }
         ]
       })
@@ -604,8 +605,8 @@ describe('tests targeting the PluginTesterOptions interface', () => {
         fixtures: getFixturePath('collate-order-2'),
         tests: [
           {
-            code: "var foo = '';",
-            output: "var foo_plugin3_plugin2_preset2_preset3 = '';"
+            code: "var zoo = '';",
+            output: "var zoo_plugin3_plugin2_preset2_preset3 = '';"
           }
         ]
       })
@@ -2016,6 +2017,35 @@ describe('tests targeting the PluginTesterOptions interface', () => {
 });
 
 describe('tests targeting both FixtureOptions and TestObject interfaces', () => {
+  it('throws if `it.skip` or `it.only` functions are not available in the global scope when using `skip`/`only`', async () => {
+    expect.hasAssertions();
+
+    const oldIt = globalThis.it;
+
+    // @ts-expect-error: I'll put it back, I pwomise!
+    globalThis.it = () => undefined;
+
+    try {
+      await runPluginTesterExpectThrownException(
+        getDummyPluginOptions({ fixtures: getFixturePath('option-skip') })
+      );
+
+      await runPluginTesterExpectThrownException(
+        getDummyPresetOptions({ fixtures: getFixturePath('option-only') })
+      );
+
+      await runPluginTesterExpectThrownException(
+        getDummyPluginOptions({ tests: [{ code: simpleTest, skip: true }] })
+      );
+
+      await runPluginTesterExpectThrownException(
+        getDummyPresetOptions({ tests: [{ code: simpleTest, only: true }] })
+      );
+    } finally {
+      globalThis.it = oldIt;
+    }
+  });
+
   it('uses `title`, if available, for the `it` block, otherwise uses `pluginName`/`presetName`, directory name, or object key', async () => {
     expect.hasAssertions();
 
@@ -4907,24 +4937,6 @@ describe('tests targeting the TestObject interface', () => {
     ]);
   });
 
-  it('overrides global `snapshot` with test-level `snapshot`', async () => {
-    expect.hasAssertions();
-
-    await runPluginTester(
-      getDummyPluginOptions({
-        snapshot: true,
-        tests: [{ code: simpleTest, snapshot: false }]
-      })
-    );
-
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
-        snapshot: false,
-        tests: [{ code: simpleTest, output: shouldNotBeSeen, snapshot: true }]
-      })
-    );
-  });
-
   it('runs global and test-level setup, teardown, and returned teardown functions/promises in the proper order', async () => {
     expect.hasAssertions();
 
@@ -5020,6 +5032,51 @@ describe('tests targeting the TestObject interface', () => {
         snapshot: true,
         tests: [simpleTest],
         plugin: identifierReversePlugin
+      })
+    );
+  });
+
+  it('throws if `toMatchSnapshot` function is not available in the value returned by `expect()` when `snapshot` is enabled', async () => {
+    expect.hasAssertions();
+
+    // @ts-expect-error: It's probably there.
+    const oldExpect = globalThis.expect;
+
+    // @ts-expect-error: I'll put it back, I pwomise!
+    delete globalThis.expect;
+
+    try {
+      await runPluginTesterExpectThrownException(
+        getDummyPluginOptions({
+          tests: [{ code: simpleTest, snapshot: true }]
+        })
+      );
+
+      await runPluginTesterExpectThrownException(
+        getDummyPresetOptions({
+          tests: [{ code: simpleTest, snapshot: true }]
+        })
+      );
+    } finally {
+      // @ts-expect-error: It's probably there.
+      globalThis.expect = oldExpect;
+    }
+  });
+
+  it('overrides global `snapshot` with test-level `snapshot`', async () => {
+    expect.hasAssertions();
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        snapshot: true,
+        tests: [{ code: simpleTest, snapshot: false }]
+      })
+    );
+
+    await runPluginTesterExpectThrownException(
+      getDummyPresetOptions({
+        snapshot: false,
+        tests: [{ code: simpleTest, output: shouldNotBeSeen, snapshot: true }]
       })
     );
   });

@@ -8,8 +8,10 @@ import mergeWith from 'lodash.mergewith';
 import stripIndent from 'strip-indent';
 
 import { $type } from './symbols';
+
 import {
   runPluginUnderTestHere,
+  runPresetUnderTestHere,
   type ResultFormatter,
   type PluginTesterOptions,
   type TestObject,
@@ -20,7 +22,8 @@ import {
   type PluginTesterTestFixtureConfig,
   type PluginTesterTestObjectConfig,
   type MaybePluginTesterTestObjectConfig,
-  type MaybePluginTesterTestFixtureConfig
+  type MaybePluginTesterTestFixtureConfig,
+  type PartialPluginTesterBaseConfig
 } from '.';
 
 import type { Class } from 'type-fest';
@@ -91,27 +94,22 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       mergeCustomizer
     );
 
-    // TODO: implement support for preset testing configuration
-
-    // ? Need to do this here instead of in the validation function since plugin
-    // name inference relies on plugin being defined
-    if (!rawBaseConfig.plugin) {
-      throw new TypeError('plugin is a required parameter');
+    if (
+      (rawBaseConfig.plugin &&
+        (rawBaseConfig.preset ||
+          rawBaseConfig.presetName ||
+          rawBaseConfig.presetOptions)) ||
+      (rawBaseConfig.preset &&
+        (rawBaseConfig.plugin || rawBaseConfig.pluginName || rawBaseConfig.pluginOptions))
+    ) {
+      throw new Error(
+        'failed to validate configuration: cannot test a plugin and a preset simultaneously. Specify one set of options or the other'
+      );
     }
 
-    const pluginName =
-      rawBaseConfig.pluginName || tryInferPluginName() || 'unknown plugin';
-
-    const baseConfig = {
-      plugin: rawBaseConfig.plugin,
-      pluginName,
-      basePluginOptions: rawBaseConfig.pluginOptions || {},
-      preset: undefined,
-      presetName: undefined,
-      basePresetOptions: undefined,
+    const baseConfig: PartialPluginTesterBaseConfig = {
       babel: rawBaseConfig.babel || require('@babel/core'),
       baseBabelOptions: rawBaseConfig.babelOptions,
-      describeBlockTitle: rawBaseConfig.title ?? pluginName,
       // TODO: implement default filepath inference using Error stack trace
       filepath: rawBaseConfig.filepath ?? rawBaseConfig.filename,
       endOfLine: rawBaseConfig.endOfLine,
@@ -125,7 +123,25 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       tests: rawBaseConfig.tests || []
     };
 
-    return baseConfig;
+    if (rawBaseConfig.plugin) {
+      baseConfig.plugin = rawBaseConfig.plugin;
+      baseConfig.pluginName =
+        rawBaseConfig.pluginName || tryInferPluginName() || 'unknown plugin';
+      baseConfig.basePluginOptions = rawBaseConfig.pluginOptions || {};
+    } else if (rawBaseConfig.preset) {
+      baseConfig.preset = rawBaseConfig.preset;
+      baseConfig.presetName = rawBaseConfig.presetName || 'unknown preset';
+      baseConfig.basePresetOptions = rawBaseConfig.presetOptions;
+    } else {
+      throw new TypeError(
+        'failed to validate configuration: must provide either `plugin` or `preset` option'
+      );
+    }
+
+    baseConfig.describeBlockTitle =
+      rawBaseConfig.title ?? baseConfig.pluginName ?? baseConfig.presetName;
+
+    return baseConfig as PluginTesterBaseConfig;
 
     function tryInferPluginName() {
       try {
@@ -298,7 +314,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           const {
             plugin,
             basePluginOptions,
-            // TODO: use this preset, TODO: use this basePresetOptions,
+            preset,
+            basePresetOptions,
             baseBabelOptions,
             endOfLine,
             baseFormatResult,
@@ -309,7 +326,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           const {
             babelOptions,
             pluginOptions,
-            // TODO: use this presetOptions,
+            presetOptions,
             title,
             only,
             skip,
@@ -363,16 +380,6 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             },
             { babelOptions },
             {
-              babelOptions: {
-                // ? Ensure `localOptions` comes before `babelOptions.plugins` ?
-                // to preserve default plugin run order
-                plugins: [
-                  [
-                    plugin,
-                    mergeWith({}, basePluginOptions, pluginOptions, mergeCustomizer)
-                  ]
-                ]
-              },
               testBlockTitle: `${currentTestNumber++}. ${title || blockTitle}`,
               only,
               skip,
@@ -388,17 +395,28 @@ export function pluginTester(options: PluginTesterOptions = {}) {
               exec,
               execFixture: execPath
             },
+            // ? This is last to ensure plugins/presets babelOptions are arrays
+            { babelOptions: { plugins: [], presets: [] } },
             mergeCustomizer
           );
 
+          if (plugin) {
+            testConfig.babelOptions.plugins.push([
+              plugin,
+              mergeWith({}, basePluginOptions, pluginOptions, mergeCustomizer)
+            ]);
+          } else {
+            testConfig.babelOptions.presets.unshift([
+              preset,
+              mergeWith({}, basePresetOptions, presetOptions, mergeCustomizer)
+            ]);
+          }
+
           finalizePluginAndPresetRunOrder(testConfig.babelOptions);
-          // ? Ensures we have an actual PluginTesterTestFixtureConfig object
           validateTestConfig(testConfig);
           hasTests = true;
 
-          (parentDescribeConfig?.tests || testConfigs).push(
-            testConfig as PluginTesterTestFixtureConfig
-          );
+          (parentDescribeConfig?.tests || testConfigs).push(testConfig);
         }
       });
     }
@@ -412,8 +430,9 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         plugin,
         pluginName,
         basePluginOptions,
-        // TODO: use this preset, TODO: use this presetName, TODO: use this
-        //basePresetOptions,
+        preset,
+        presetName,
+        basePresetOptions,
         baseBabelOptions,
         endOfLine,
         baseFormatResult,
@@ -423,7 +442,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       const {
         babelOptions,
         pluginOptions,
-        // TODO: use this presetOptions,
+        presetOptions,
         title,
         only,
         skip,
@@ -466,14 +485,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         { babelOptions },
         {
           snapshot: snapshot ?? baseSnapshot,
-          // ? Ensure `rawFixtureConfig` comes before ? `babelOptions.plugins`
-          // to preserve default plugin run order
-          babelOptions: {
-            plugins: [
-              [plugin, mergeWith({}, basePluginOptions, pluginOptions, mergeCustomizer)]
-            ]
-          },
-          testBlockTitle: `${currentTestNumber++}. ${title || pluginName}`,
+          testBlockTitle: `${currentTestNumber++}. ${title || pluginName || presetName}`,
           only,
           skip,
           expectedError: throws ?? error,
@@ -491,15 +503,28 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           exec: exec ? trimAndFixLineEndings(exec, endOfLine) : undefined,
           execFixture
         },
+        // ? This is last to ensure plugins/presets babelOptions are arrays
+        { babelOptions: { plugins: [], presets: [] } },
         mergeCustomizer
       );
 
+      if (plugin) {
+        testConfig.babelOptions.plugins.push([
+          plugin,
+          mergeWith({}, basePluginOptions, pluginOptions, mergeCustomizer)
+        ]);
+      } else {
+        testConfig.babelOptions.presets.unshift([
+          preset,
+          mergeWith({}, basePresetOptions, presetOptions, mergeCustomizer)
+        ]);
+      }
+
       finalizePluginAndPresetRunOrder(testConfig.babelOptions);
-      // ? Ensures we have an actual PluginTesterTestObjectConfig object
       validateTestConfig(testConfig);
       hasTests = true;
 
-      return testConfig as PluginTesterTestObjectConfig;
+      return testConfig;
     }
   }
 
@@ -725,29 +750,29 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       expectedError
     } = testConfig;
 
-  if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
+    if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
       if (!globalContextExpectFnHasToMatchSnapshot) {
         throwTypeError(
           'testing environment does not support `expect(...).toMatchSnapshot` method'
         );
+      }
+
+      if (output) {
+        throwTypeError(
+          'neither `output` nor `outputFixture` can be provided with `snapshot` enabled'
+        );
+      }
+
+      if (exec) {
+        throwTypeError(
+          'neither `exec` nor `execFixture` can be provided with `snapshot` enabled'
+        );
+      }
     }
 
-    if (output) {
-      throwTypeError(
-        'neither `output` nor `outputFixture` can be provided with `snapshot` enabled'
-      );
+    if (skip && only) {
+      throwTypeError('cannot enable both `skip` and `only` in the same test');
     }
-
-    if (exec) {
-      throwTypeError(
-        'neither `exec` nor `execFixture` can be provided with `snapshot` enabled'
-      );
-    }
-  }
-
-  if (skip && only) {
-    throwTypeError('cannot enable both `skip` and `only` in the same test');
-  }
 
     if (skip && !globalContextTestFnHasSkip) {
       throwTypeError('testing environment does not support `it.skip(...)` method');
@@ -757,62 +782,62 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       throwTypeError('testing environment does not support `it.only(...)` method');
     }
 
-  if (output && expectedError !== undefined) {
-    throwTypeError(
-      testConfig[$type] == 'test-object'
-        ? 'neither `output` nor `outputFixture` can be provided with `throws` or `error`'
-        : 'a fixture cannot be provided with `throws` or `error` and also contain an output file'
-    );
-  }
+    if (output && expectedError !== undefined) {
+      throwTypeError(
+        testConfig[$type] == 'test-object'
+          ? 'neither `output` nor `outputFixture` can be provided with `throws` or `error`'
+          : 'a fixture cannot be provided with `throws` or `error` and also contain an output file'
+      );
+    }
 
-  if (exec && expectedError !== undefined) {
-    ``;
-    throwTypeError(
-      testConfig[$type] == 'test-object'
-        ? 'neither `exec` nor `execFixture` can be provided with `throws` or `error`'
-        : 'a fixture cannot be provided with `throws` or `error` and also contain an exec file'
-    );
-  }
+    if (exec && expectedError !== undefined) {
+      ``;
+      throwTypeError(
+        testConfig[$type] == 'test-object'
+          ? 'neither `exec` nor `execFixture` can be provided with `throws` or `error`'
+          : 'a fixture cannot be provided with `throws` or `error` and also contain an exec file'
+      );
+    }
 
-  if (!code && !exec) {
-    throwTypeError(
-      testConfig[$type] == 'test-object'
-        ? 'a string or object with a `code`, `codeFixture`, `exec`, or `execFixture` must be provided'
-        : 'a fixture must contain either a code file or an exec file'
-    );
-  }
+    if (!code && !exec) {
+      throwTypeError(
+        testConfig[$type] == 'test-object'
+          ? 'a string or object with a `code`, `codeFixture`, `exec`, or `execFixture` must be provided'
+          : 'a fixture must contain either a code file or an exec file'
+      );
+    }
 
-  if (!!(code || output) && !!exec) {
-    throwTypeError(
-      testConfig[$type] == 'test-object'
-        ? 'neither `code`, `codeFixture`, `output`, nor `outputFixture` can be provided with `exec` or `execFixture`'
-        : 'a fixture cannot contain both an exec file and a code or output file'
-    );
-  }
+    if (!!(code || output) && !!exec) {
+      throwTypeError(
+        testConfig[$type] == 'test-object'
+          ? 'neither `code`, `codeFixture`, `output`, nor `outputFixture` can be provided with `exec` or `execFixture`'
+          : 'a fixture cannot contain both an exec file and a code or output file'
+      );
+    }
 
-  if (babelOptions.babelrc && !babelOptions.filename) {
-    throwTypeError(
-      '`babelOptions.babelrc` is enabled but `babelOptions.filename` was not provided'
-    );
-  }
+    if (babelOptions.babelrc && !babelOptions.filename) {
+      throwTypeError(
+        '`babelOptions.babelrc` is enabled but `babelOptions.filename` was not provided'
+      );
+    }
 
-  if (
-    expectedError &&
-    !(
-      ['function', 'boolean', 'string'].includes(typeof expectedError) ||
-      expectedError instanceof RegExp
-    )
-  ) {
-    throwTypeError(
-      '`throws`/`error` must be a function, string, boolean, RegExp, or Error subtype'
-    );
-  }
+    if (
+      expectedError &&
+      !(
+        ['function', 'boolean', 'string'].includes(typeof expectedError) ||
+        expectedError instanceof RegExp
+      )
+    ) {
+      throwTypeError(
+        '`throws`/`error` must be a function, string, boolean, RegExp, or Error subtype'
+      );
+    }
 
-  function throwTypeError(message: string) {
-    throw new TypeError(
-      `failed to validate configuration for test "${testBlockTitle}": ${message}`
-    );
-  }
+    function throwTypeError(message: string) {
+      throw new TypeError(
+        `failed to validate configuration for test "${testBlockTitle}": ${message}`
+      );
+    }
   }
 }
 
@@ -880,16 +905,43 @@ function trimAndFixLineEndings(
   }
 }
 
+/**
+ * Clears out nullish plugin/preset values and replaces symbols with their
+ * proper values.
+ */
 function finalizePluginAndPresetRunOrder(
   babelOptions: PluginTesterOptions['babelOptions']
 ) {
-  if (babelOptions?.plugins?.includes(runPluginUnderTestHere)) {
-    babelOptions.plugins.splice(
-      babelOptions.plugins.indexOf(runPluginUnderTestHere),
-      1,
-      babelOptions.plugins.pop()!
-    );
+  // TODO: debug statements here about replacing symbols and clearing nullish
+
+  if (babelOptions?.plugins) {
+    babelOptions.plugins = babelOptions.plugins.filter((p) => {
+      // TODO: debug statement here
+      return Boolean(p);
+    });
+
+    if (babelOptions.plugins.includes(runPluginUnderTestHere)) {
+      babelOptions.plugins.splice(
+        babelOptions.plugins.indexOf(runPluginUnderTestHere),
+        1,
+        babelOptions.plugins.pop()!
+      );
+    }
   }
 
-  // TODO: also finalize preset run order
+  if (babelOptions?.presets) {
+    babelOptions.presets = babelOptions.presets.filter((p) => {
+      // TODO: debug statement here
+      return Boolean(p);
+    });
+
+    if (babelOptions.presets.includes(runPresetUnderTestHere)) {
+      babelOptions.presets.splice(
+        // ? -1 because we're shifting an element off the beginning afterwards
+        babelOptions.presets.indexOf(runPresetUnderTestHere) - 1,
+        1,
+        babelOptions.presets.shift()!
+      );
+    }
+  }
 }
