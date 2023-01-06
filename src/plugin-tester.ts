@@ -6,6 +6,7 @@ import { EOL } from 'node:os';
 import { isNativeError } from 'node:util/types';
 import mergeWith from 'lodash.mergewith';
 import stripIndent from 'strip-indent';
+import debugFactory from 'debug';
 
 import { $type } from './symbols';
 
@@ -27,6 +28,8 @@ import {
 } from '.';
 
 import type { Class } from 'type-fest';
+
+const debug = debugFactory('babel-plugin-tester:tester');
 
 export default pluginTester;
 

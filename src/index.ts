@@ -1,3 +1,4 @@
+import debugFactory from 'debug';
 import { prettierFormatter } from './formatters/prettier';
 import { unstringSnapshotSerializer } from './serializers/unstring-snapshot';
 import { pluginTester } from './plugin-tester';
@@ -6,11 +7,17 @@ import type * as Babel from '@babel/core';
 import type { Class, Promisable } from 'type-fest';
 import type { $type } from './symbols';
 
+const debug = debugFactory('babel-plugin-tester:index');
+
 if ('expect' in globalThis && typeof expect?.addSnapshotSerializer == 'function') {
-  // TODO: debug statement here
+  debug(
+    'added unstring snapshot serializer globally; all snapshots after this point will be affected'
+  );
   expect.addSnapshotSerializer(unstringSnapshotSerializer);
 } else {
-  // TODO: debug statement here
+  debug(
+    'unable to add unstring snapshot serializer: global expect object is missing or unsupported'
+  );
 }
 
 /**
