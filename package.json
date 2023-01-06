@@ -146,7 +146,6 @@
     "remark-lint-strikethrough-marker": "^2.1.1",
     "remark-lint-unordered-list-marker-style": "^3.1.1",
     "remark-reference-links": "^6.0.1",
-    "remark-remove-comments": "^1.0.1",
     "remark-remove-unused-definitions": "^1.0.3",
     "remark-remove-url-trailing-slash": "^1.0.1",
     "remark-renumber-references": "^1.0.4",
