@@ -97,6 +97,13 @@ export function addPendingJestTest(
 }
 
 /**
+ * Returns any pending Jest tests.
+ */
+export function getPendingJestTests() {
+  return pendingJestTests;
+}
+
+/**
  * Returns a ready-made dummy babel-plugin-tester options object for a plugin.
  */
 export function getDummyPluginOptions(
@@ -151,7 +158,7 @@ export async function runPluginTester(options?: PluginTesterOptions) {
 
   try {
     pluginTester(options);
-    return await Promise.all(pendingJestTests);
+    return await Promise.all(getPendingJestTests());
   } finally {
     pendingJestTests = [];
   }
