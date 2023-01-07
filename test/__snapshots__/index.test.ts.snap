@@ -18,7 +18,7 @@ exports[`unknown plugin 4. using jest snapshots: 4. using jest snapshots 1`] = `
 function sayHi(person) {
   return 'Hello ' + person + '!'
 }
-      
+
 
       ↓ ↓ ↓ ↓ ↓ ↓
 
