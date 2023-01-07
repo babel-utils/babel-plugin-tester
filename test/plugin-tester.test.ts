@@ -16,7 +16,8 @@ import { unstringSnapshotSerializer } from '../src/serializers/unstring-snapshot
 import {
   type PluginTesterOptions,
   runPluginUnderTestHere,
-  runPresetUnderTestHere
+  runPresetUnderTestHere,
+  pluginTester
 } from '../src/index';
 
 import {
@@ -45,7 +46,8 @@ import {
   runPluginTesterExpectThrownExceptionWhenCapturingError,
   getFixturePath,
   getFixtureContents,
-  requireFixtureOptions
+  requireFixtureOptions,
+  getPendingJestTests
 } from './helpers';
 
 import type { AnyFunction } from '@xunnamius/jest-types';
@@ -891,21 +893,39 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     await runPluginTester(
       getDummyPluginOptions({
         tests: [simpleTest],
-        fixtures: 'fixtures/simple'
+        fixtures: '../fixtures/simple'
       })
     );
 
     await runPluginTester(
       getDummyPresetOptions({
         tests: [simpleTest],
-        fixtures: 'fixtures/simple'
+        fixtures: '../fixtures/simple'
       })
     );
 
+    const fixtureFilename = getFixturePath('simple/fixture/code.js');
+    const testObjectFilename = path.resolve(__dirname, './helpers/index.ts');
+
     expect(transformAsyncSpy.mock.calls).toMatchObject([
-      [expect.any(String), expect.objectContaining({ filename: __filename })],
-      [expect.any(String), expect.objectContaining({ filename: __filename })],
-      [expect.any(String), expect.objectContaining({ filename: __filename })],
+      [expect.any(String), expect.objectContaining({ filename: fixtureFilename })],
+      [expect.any(String), expect.objectContaining({ filename: testObjectFilename })],
+      [expect.any(String), expect.objectContaining({ filename: fixtureFilename })],
+      [expect.any(String), expect.objectContaining({ filename: testObjectFilename })]
+    ]);
+
+    jest.clearAllMocks();
+
+    pluginTester({
+      plugin: () => ({ visitor: {} }),
+      tests: [simpleTest],
+      fixtures: 'fixtures/simple'
+    });
+
+    await Promise.all(getPendingJestTests());
+
+    expect(transformAsyncSpy.mock.calls).toMatchObject([
+      [expect.any(String), expect.objectContaining({ filename: fixtureFilename })],
       [expect.any(String), expect.objectContaining({ filename: __filename })]
     ]);
   });

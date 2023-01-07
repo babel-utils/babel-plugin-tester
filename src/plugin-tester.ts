@@ -28,6 +28,12 @@ import {
 
 import type { Class } from 'type-fest';
 
+const parseErrorStackRegExp =
+  /at (?<fn>\S+) (?:.*? )?\(?(?<path>(?:\/|file:).*?)(?:\)|$)/i;
+
+const parseScriptFilepathRegExp =
+  /\/babel-plugin-tester\/(dist|src)\/(index|plugin-tester)\.(j|t)s$/;
+
 export default pluginTester;
 
 /**
@@ -110,8 +116,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     const baseConfig: PartialPluginTesterBaseConfig = {
       babel: rawBaseConfig.babel || require('@babel/core'),
       baseBabelOptions: rawBaseConfig.babelOptions,
-      // TODO: implement default filepath inference using Error stack trace
-      filepath: rawBaseConfig.filepath ?? rawBaseConfig.filename,
+      filepath: rawBaseConfig.filepath ?? rawBaseConfig.filename ?? tryInferFilepath(),
       endOfLine: rawBaseConfig.endOfLine,
       baseSetup: rawBaseConfig.setup,
       baseTeardown: rawBaseConfig.teardown,
@@ -157,6 +162,76 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         ).name;
       } catch {
         return undefined;
+      }
+    }
+
+    function tryInferFilepath() {
+      const oldStackTraceLimit = Error.stackTraceLimit;
+      Error.stackTraceLimit = Number.POSITIVE_INFINITY;
+
+      try {
+        let inferredFilepath: string | undefined = undefined;
+        // ? Turn the V8 call stack into function names and file paths
+        const reversedCallStack = (
+          new Error('faux error').stack
+            ?.split('\n')
+            .map((line) => {
+              const { fn: functionName, path: filePath } =
+                line.match(parseErrorStackRegExp)?.groups || {};
+
+              return functionName && filePath
+                ? {
+                    functionName,
+                    // ? Paranoid just in case the script name/path has colons
+                    filePath: filePath.split(':').slice(0, -2).join(':')
+                  }
+                : undefined;
+            })
+            .filter(<T>(o: T): o is NonNullable<T> => Boolean(o)) || []
+        ).reverse();
+
+        // TODO: debug statement here displaying reversed call stack contents
+
+        if (reversedCallStack?.length) {
+          // TODO: debug statements below
+          const referenceIndex = findReferenceStackIndex(reversedCallStack);
+
+          if (referenceIndex) {
+            inferredFilepath = reversedCallStack.at(referenceIndex - 1)?.filePath;
+          }
+        }
+
+        // TODO: debug statement here outputting inferredFilepath
+
+        return inferredFilepath;
+      } finally {
+        Error.stackTraceLimit = oldStackTraceLimit;
+      }
+
+      function findReferenceStackIndex(
+        reversedCallStack: { functionName: string; filePath: string }[]
+      ) {
+        // ? Different realms might have slightly different stacks depending on
+        // ? which file was imported. Return the first one found.
+        return [
+          reversedCallStack.findIndex(({ functionName, filePath }) => {
+            return (
+              functionName == 'defaultPluginTester' &&
+              parseScriptFilepathRegExp.test(filePath)
+            );
+          }),
+          reversedCallStack.findIndex(({ functionName, filePath }) => {
+            return (
+              functionName == 'pluginTester' && parseScriptFilepathRegExp.test(filePath)
+            );
+          }),
+          reversedCallStack.findIndex(({ functionName, filePath }) => {
+            return (
+              functionName == 'resolveBaseConfig' &&
+              parseScriptFilepathRegExp.test(filePath)
+            );
+          })
+        ].find((ndx) => ndx != -1);
       }
     }
   }
@@ -480,7 +555,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         { [$type]: 'test-object' } as const,
         { babelOptions: baseBabelOptions },
         {
-          babelOptions: { filename: getAbsolutePath(filepath, codeFixture) }
+          babelOptions: { filename: getAbsolutePath(filepath, codeFixture) ?? filepath }
         },
         { babelOptions },
         {
