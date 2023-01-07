@@ -374,14 +374,16 @@ Otherwise, the title defaults to using [`pluginName`][15]/[`presetName`][13].
 
 This is used to resolve relative paths provided by the [`fixtures`][35] option;
 the test object properties [`codeFixture`][36], [`outputFixture`][37], and
-[`execFixture`][38]; and [during configuration resolution for prettier][39]. If
-the aforesaid properties are not absolute paths, they will be
+[`execFixture`][38]; and [during configuration resolution for prettier][39].
+That is: if the aforesaid properties are not absolute paths, they will be
 [`path.join`][40]'d with the [directory name][41] of `filepath`.
 
-`filepath` is also passed to `formatResult`.
+`filepath` is also passed to `formatResult` if a more specific path is not
+available, and it is used as the default value for `babelOptions.filename` in
+[test objects][42].
 
 This option defaults to the absolute path of the file that [invoked the
-`pluginTester` function][42].
+`pluginTester` function][43].
 
 > For backwards compatibility reasons, `filepath` is synonymous with `filename`.
 > They can be used interchangeably, though care must be taken not to confuse the
@@ -404,25 +406,25 @@ the expected output will be converted to. Defaults to `"lf"`.
 #### `setup`
 
 This function will be run before every test runs, including fixtures. It can
-return a function which will be treated as a [`teardown`][43] function. It can
+return a function which will be treated as a [`teardown`][44] function. It can
 also return a promise. If that promise resolves to a function, that will be
-treated as a [`teardown`][43] function.
+treated as a [`teardown`][44] function.
 
-See [here][44] for the complete run order.
+See [here][45] for the complete run order.
 
 #### `teardown`
 
 This function will be run after every test runs, including fixtures. You can
-define this via `teardown` or you can return it from the [`setup`][45] function.
+define this via `teardown` or you can return it from the [`setup`][46] function.
 This can likewise return a promise if it is asynchronous.
 
 This function, if provided, will be run _after_ any teardown function returned
-by [`setup`][45]. See [here][44] for the complete run order.
+by [`setup`][46]. See [here][45] for the complete run order.
 
 #### `formatResult`
 
 This function is used to format all babel outputs, and defaults to a function
-that invokes [prettier][46]. If a prettier configuration file is [found][47],
+that invokes [prettier][47]. If a prettier configuration file is [found][48],
 then that will be used. Otherwise, prettier will use its own default
 configuration.
 
@@ -430,8 +432,8 @@ You can also [override or entirely disable formatting][39].
 
 #### `snapshot`
 
-Equivalent to [`snapshot`][48] but applied globally across all [test
-objects][49].
+Equivalent to [`snapshot`][49] but applied globally across all [test
+objects][42].
 
 #### `fixtureOutputName`
 
@@ -458,7 +460,7 @@ blocks][18] (e.g. `` `1. ${title}` ``, `` `2. ${title}` ``, etc). Defaults to
 
 #### `restartTitleNumbering`
 
-Normally, multiple [invocations][42] of babel-plugin-tester in the same test
+Normally, multiple [invocations][43] of babel-plugin-tester in the same test
 file will share the same [test title numbering][52]. For example:
 
 ```javascript
@@ -533,7 +535,7 @@ This option is `false` by default.
 #### `fixtures`
 
 There are two ways to create tests: using the [`tests`][34] option to provide
-one or more [test objects][49] or using the `fixtures` option described here.
+one or more [test objects][42] or using the `fixtures` option described here.
 Both can be used simultaneously.
 
 The `fixtures` option must be a path to a directory with a structure similar to
@@ -754,8 +756,8 @@ return a function which will be treated as a [`teardown`][76] function. It can
 also return a promise. If that promise resolves to a function, that will be
 treated as a [`teardown`][76] function.
 
-This function, if provided, will run _after_ any [`setup`][45] function provided
-as a babel-plugin-tester option. See [here][44] for the complete run order.
+This function, if provided, will run _after_ any [`setup`][46] function provided
+as a babel-plugin-tester option. See [here][45] for the complete run order.
 
 ###### `teardown`
 
@@ -768,8 +770,8 @@ can likewise return a promise if it is asynchronous.
 
 This function, if provided, will be run _after_ any teardown function returned
 by the [`setup`][77] property, both of which will run _before_ any
-[`teardown`][43] function provided as a babel-plugin-tester option. See
-[here][44] for the complete run order.
+[`teardown`][44] function provided as a babel-plugin-tester option. See
+[here][45] for the complete run order.
 
 ###### `formatResult`
 
@@ -777,7 +779,7 @@ by the [`setup`][77] property, both of which will run _before_ any
 > instead of `options.json`.
 
 This function is used to format all babel outputs, and defaults to a function
-that invokes [prettier][46]. If a prettier configuration file is [found][47],
+that invokes [prettier][47]. If a prettier configuration file is [found][48],
 then that will be used. Otherwise, prettier will use its own default
 configuration.
 
@@ -805,7 +807,7 @@ There are two ways to create tests: using the [`fixtures`][35] option that
 leverages the filesystem or using the `tests` option described here. Both can be
 used simultaneously.
 
-Using the `tests` option, you can provide [test objects][49] describing your
+Using the `tests` option, you can provide [test objects][42] describing your
 expected transformations. You can provide `tests` as an object of test objects
 or an array of test objects. If you provide an object, the object's keys will be
 used as the default title of each test. If you provide an array, each test's
@@ -899,7 +901,7 @@ If the value of `throws` is a class, that class must [be a subtype of
 > can be used interchangeably, with `throws` taking precedence.
 
 Note that this property cannot be present when using the [`output`][81],
-[`outputFixture`][37], [`exec`][82], [`execFixture`][38], or [`snapshot`][48]
+[`outputFixture`][37], [`exec`][82], [`execFixture`][38], or [`snapshot`][49]
 properties.
 
 ###### `setup`
@@ -909,8 +911,8 @@ function which will be treated as a [`teardown`][83] function. It can also
 return a promise. If that promise resolves to a function, that will be treated
 as a [`teardown`][83] function.
 
-This function, if provided, will run _after_ any [`setup`][45] function provided
-as a babel-plugin-tester option. See [here][44] for the complete run order.
+This function, if provided, will run _after_ any [`setup`][46] function provided
+as a babel-plugin-tester option. See [here][45] for the complete run order.
 
 ###### `teardown`
 
@@ -920,13 +922,13 @@ likewise return a promise if it is asynchronous.
 
 This function, if provided, will be run _after_ any teardown function returned
 by the [`setup`][84] property, both of which will run _before_ any
-[`teardown`][43] function provided as a babel-plugin-tester option. See
-[here][44] for the complete run order.
+[`teardown`][44] function provided as a babel-plugin-tester option. See
+[here][45] for the complete run order.
 
 ###### `formatResult`
 
 This function is used to format all babel outputs, and defaults to a function
-that invokes [prettier][46]. If a prettier configuration file is [found][47],
+that invokes [prettier][47]. If a prettier configuration file is [found][48],
 then that will be used. Otherwise, prettier will use its own default
 configuration.
 
@@ -957,7 +959,7 @@ Note that this property cannot appear in the same test object as the
 The code that you want babel to transform using your plugin or preset. This must
 be provided unless you are using the [`codeFixture`][36] or [`exec`][82]
 properties instead. If you do not provide the [`output`][81] or
-[`outputFixture`][37] properties and [`snapshot`][48] is not truthy, then the
+[`outputFixture`][37] properties and [`snapshot`][49] is not truthy, then the
 assertion is that this code is unchanged by the transformation.
 
 Before being transformed by babel, any indentation will be stripped as a
@@ -978,7 +980,7 @@ convenience for template literals.
 
 Note that this property cannot appear in the same test object as the
 [`outputFixture`][37], [`exec`][82], [`execFixture`][38], [`throws`][85], or
-[`snapshot`][48] properties.
+[`snapshot`][49] properties.
 
 ###### `exec`
 
@@ -1009,7 +1011,7 @@ will have whitespace trimmed, line endings [converted][56], and then get
 
 Note that this property cannot appear in the same test object as the
 [`execFixture`][38], [`code`][80], [`codeFixture`][36], [`output`][81],
-[`outputFixture`][37], [`throws`][85], or [`snapshot`][48] properties.
+[`outputFixture`][37], [`throws`][85], or [`snapshot`][49] properties.
 
 ###### `codeFixture`
 
@@ -1044,7 +1046,7 @@ Before being compared to babel's output, this file's contents will have
 whitespace trimmed and line endings [converted][56].
 
 Like [`output`][81], this property cannot appear in the same test object as the
-[`exec`][82], [`execFixture`][38], [`throws`][85], or [`snapshot`][48]
+[`exec`][82], [`execFixture`][38], [`throws`][85], or [`snapshot`][49]
 properties, nor the [`output`][81] property (obviously).
 
 > If you find you are using this property more than a couple of times, consider
@@ -1063,7 +1065,7 @@ will have whitespace trimmed, line endings [converted][56], and then get
 
 Like [`exec`][82], this property cannot appear in the same test object as the
 [`code`][80], [`codeFixture`][36], [`output`][81], [`outputFixture`][37],
-[`throws`][85], or [`snapshot`][48] properties, nor the [`exec`][82] property
+[`throws`][85], or [`snapshot`][49] properties, nor the [`exec`][82] property
 (obviously).
 
 > If you find you are using this property more than a couple of times, consider
@@ -1071,7 +1073,7 @@ Like [`exec`][82], this property cannot appear in the same test object as the
 
 ## Examples
 
-What follows are several babel-plugin-tester [test object][49] examples. See
+What follows are several babel-plugin-tester [test object][42] examples. See
 [`fixtures`][35] for an example fixtures directory layout.
 
 ### Simple Example
@@ -1272,7 +1274,7 @@ automatic configuration loading][90] via the `babelOptions.babelrc` and/or
 
 > Fixtures provided via the [`fixtures`][35] option **do not** need to provide a
 > separate `babelOptions.filename` since it will be set automatically. This
-> section only applies to [test objects][49].
+> section only applies to [test objects][42].
 
 When relying on `babelOptions.babelrc`, you must also provide a
 [`babelOptions.filename`][91] for each test object that does not include a
@@ -1495,7 +1497,7 @@ disables formatting of babel output with prettier):
 ### Formatting Output with Prettier
 
 By default, a [formatter][78] is used which formats all babel output with
-[prettier][46]. It will [look for][47] a prettier configuration file relative to
+[prettier][47]. It will [look for][48] a prettier configuration file relative to
 [the file that's being tested][53] or the [current working directory][94]. If it
 cannot find one, then it uses the default configuration for prettier.
 
@@ -1552,13 +1554,13 @@ _always_ be skipped, even if they are also matched by `TEST_ONLY`.
 For each test object and fixture test, setup and teardown functions are run in
 the following order:
 
-1. [Base `setup`][45].
+1. [Base `setup`][46].
 2. [Test object `setup`][84] / [fixture `setup`][77].
 3. _Test object / fixture test is run_.
 4. Any function returned by test object `setup` / fixture `setup`.
 5. [Test object `teardown`][83] / [fixture `teardown`][76].
 6. Any function returned by base `setup`.
-7. [Base `teardown`][43].
+7. [Base `teardown`][44].
 
 ## Inspiration
 
@@ -1716,14 +1718,14 @@ MIT
 [39]: #formatting-output-with-prettier
 [40]: https://nodejs.org/api/path.html#pathjoinpaths
 [41]: https://nodejs.org/api/path.html#pathdirnamepath
-[42]: #invoke
-[43]: #teardown
-[44]: #setup-and-teardown-run-order
-[45]: #setup
-[46]: https://prettier.io
-[47]: https://prettier.io/docs/en/configuration.html
-[48]: #snapshot-1
-[49]: #test-objects
+[42]: #test-objects
+[43]: #invoke
+[44]: #teardown
+[45]: #setup-and-teardown-run-order
+[46]: #setup
+[47]: https://prettier.io
+[48]: https://prettier.io/docs/en/configuration.html
+[49]: #snapshot-1
 [50]: #fixtureoutputname-1
 [51]: #fixtureoutputext-1
 [52]: #titlenumbering
