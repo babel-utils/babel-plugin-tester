@@ -10,5 +10,5 @@
     "rootDir": "./src"
   },
   "extends": "./tsconfig.json",
-  "include": ["src/**/*"]
+  "include": ["types/**/*", "src/**/*"]
 }
