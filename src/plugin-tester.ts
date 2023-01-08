@@ -166,6 +166,11 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     }
 
     function tryInferFilepath() {
+      // ? Allow the end user to unset filepath by setting it to undefined
+      if ('filepath' in rawBaseConfig || 'filename' in rawBaseConfig) {
+        return undefined;
+      }
+
       const oldStackTraceLimit = Error.stackTraceLimit;
       Error.stackTraceLimit = Number.POSITIVE_INFINITY;
 
@@ -448,12 +453,12 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             { babelOptions: baseBabelOptions },
             {
               babelOptions: {
-                filename: codePath,
+                filename: codePath || execPath || baseBabelOptions.filename,
                 // ? If they have a babelrc, then we'll let them use that
                 babelrc: hasBabelrc
               }
             },
-            { babelOptions },
+            { babelOptions: babelOptions || {} },
             {
               testBlockTitle: `${currentTestNumber++}. ${title || blockTitle}`,
               only,
@@ -555,9 +560,14 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         { [$type]: 'test-object' } as const,
         { babelOptions: baseBabelOptions },
         {
-          babelOptions: { filename: getAbsolutePath(filepath, codeFixture) ?? filepath }
+          babelOptions: {
+            filename:
+              getAbsolutePath(filepath, codeFixture) ||
+              filepath ||
+              baseBabelOptions.filename
+          }
         },
-        { babelOptions },
+        { babelOptions: babelOptions || {} },
         {
           snapshot: snapshot ?? baseSnapshot,
           testBlockTitle: `${currentTestNumber++}. ${title || pluginName || presetName}`,
@@ -916,8 +926,20 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   }
 }
 
-function mergeCustomizer(objValue: unknown[], srcValue: unknown) {
-  return Array.isArray(objValue) ? objValue.concat(srcValue) : undefined;
+function mergeCustomizer(
+  objValue: unknown,
+  srcValue: unknown,
+  key: string,
+  object: Record<string, unknown>,
+  source: Record<string, unknown>
+) {
+  if (object && srcValue === undefined && key in source) {
+    delete object[key];
+  } else if (Array.isArray(objValue)) {
+    return objValue.concat(srcValue);
+  }
+
+  return undefined;
 }
 
 function getAbsolutePath(filename?: string, basename?: string) {
