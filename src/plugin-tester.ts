@@ -12,6 +12,7 @@ import { $type } from './symbols';
 import {
   runPluginUnderTestHere,
   runPresetUnderTestHere,
+  validTitleNumberingValues,
   type ResultFormatter,
   type PluginTesterOptions,
   type TestObject,
@@ -107,6 +108,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           babelrc: false,
           configFile: false
         },
+        titleNumbering: 'all' as string | false,
         endOfLine: 'lf',
         formatResult: ((r) => r) as ResultFormatter,
         snapshot: false,
@@ -131,9 +133,16 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       );
     }
 
+    if (!validTitleNumberingValues.includes(rawBaseConfig.titleNumbering)) {
+      throw new TypeError(
+        'failed to validate configuration: invalid `titleNumbering` option'
+      );
+    }
+
     const baseConfig: PartialPluginTesterBaseConfig = {
       babel: rawBaseConfig.babel || require('@babel/core'),
       baseBabelOptions: rawBaseConfig.babelOptions,
+      titleNumbering: rawBaseConfig.titleNumbering,
       filepath: rawBaseConfig.filepath || rawBaseConfig.filename || tryInferFilepath(),
       endOfLine: rawBaseConfig.endOfLine,
       baseSetup: rawBaseConfig.setup,
@@ -168,6 +177,10 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           baseConfig.pluginName ||
           baseConfig.presetName ||
           undefined;
+
+    if (rawBaseConfig.restartTitleNumbering) {
+      restartTestTitleNumbering();
+    }
 
     return baseConfig as PluginTesterBaseConfig;
 
@@ -269,6 +282,12 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     const testsIsArray = Array.isArray(tests);
     const fixturesAbsolutePath = getAbsolutePath(filepath, fixtures);
     const testConfigs: PluginTesterTestConfig[] = [];
+
+    const useFixtureTitleNumbering =
+      baseConfig.titleNumbering == 'all' || baseConfig.titleNumbering == 'fixtures-only';
+
+    const useTestObjectTitleNumbering =
+      baseConfig.titleNumbering == 'all' || baseConfig.titleNumbering == 'tests-only';
 
     if (fixturesAbsolutePath) {
       if (fs.statSync(fixturesAbsolutePath).isDirectory()) {
@@ -470,6 +489,10 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             ? trimAndFixLineEndings(fs.readFileSync(outputPath, 'utf8'), endOfLine, code)
             : undefined;
 
+          const titleNumberPrefix = useFixtureTitleNumbering
+            ? `${currentTestNumber++}. `
+            : '';
+
           const testConfig: MaybePluginTesterTestFixtureConfig = mergeWith(
             { [$type]: 'fixture-object' } as const,
             { babelOptions: baseBabelOptions },
@@ -482,7 +505,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             },
             { babelOptions: babelOptions || {} },
             {
-              testBlockTitle: `${currentTestNumber++}. ${title || blockTitle}`,
+              testBlockTitle: `${titleNumberPrefix}${title || blockTitle}`,
               only,
               skip,
               expectedError: throws ?? error,
@@ -579,6 +602,10 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           : readCode(filepath, outputFixture);
       const exec = rawExec ?? readCode(filepath, execFixture);
 
+      const titleNumberPrefix = useTestObjectTitleNumbering
+        ? `${currentTestNumber++}. `
+        : '';
+
       const testConfig: MaybePluginTesterTestObjectConfig = mergeWith(
         { [$type]: 'test-object' } as const,
         { babelOptions: baseBabelOptions },
@@ -593,7 +620,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         { babelOptions: babelOptions || {} },
         {
           snapshot: snapshot ?? baseSnapshot,
-          testBlockTitle: `${currentTestNumber++}. ${title || pluginName || presetName}`,
+          testBlockTitle: `${titleNumberPrefix}${title || pluginName || presetName}`,
           only,
           skip,
           expectedError: throws ?? error,
