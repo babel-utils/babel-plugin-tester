@@ -754,6 +754,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       }
     })();
 
+    const formatResultFilepath = codeFixture || execFixture || filepath;
+
     // ? We split rawBabelOutput and result into two steps to ensure exceptions
     // ? thrown by trimAndFixLineEndings and formatResult are not erroneously
     // ? captured when we only really care about errors thrown by babel
@@ -761,7 +763,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       !errored && typeof rawBabelOutput == 'string'
         ? trimAndFixLineEndings(
             formatResult(rawBabelOutput || '', {
-              filepath: codeFixture || execFixture || filepath
+              filepath: formatResultFilepath,
+              filename: formatResultFilepath
             }),
             endOfLine,
             code
