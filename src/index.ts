@@ -74,6 +74,21 @@ export type SetupFunction = () => Promisable<void | TeardownFunction>;
 export type TeardownFunction = () => Promisable<void>;
 
 /**
+ * Valid choices for the `titleNumbering` babel-plugin-tester option.
+ */
+export const validTitleNumberingValues = [
+  'all',
+  'tests-only',
+  'fixtures-only',
+  false
+] as const;
+
+/**
+ * Valid choices for the `endOfLine` babel-plugin-tester option.
+ */
+export const validEndOfLineValues = ['lf', 'crlf', 'auto', 'preserve', false] as const;
+
+/**
  * Options passed as parameters to the `pluginTester` function.
  *
  * @see https://npm.im/babel-plugin-tester#options
@@ -206,7 +221,7 @@ export interface PluginTesterOptions {
    * @default "lf"
    * @see https://npm.im/babel-plugin-tester#endOfLine
    */
-  endOfLine?: 'lf' | 'crlf' | 'auto' | 'preserve' | false;
+  endOfLine?: typeof validEndOfLineValues[number];
   /**
    * This is a `pluginTester` option to provide a setup function run before each
    * test runs. It can return a function which will be treated as a `teardown`
@@ -276,7 +291,7 @@ export interface PluginTesterOptions {
    * @default "all"
    * @see https://npm.im/babel-plugin-tester#titleNumbering
    */
-  titleNumbering?: 'all' | 'tests-only' | 'fixtures-only' | false;
+  titleNumbering?: typeof validTitleNumberingValues[number];
   /**
    * Setting this option to `true` will restart test title numbering starting at 1.
    *
@@ -750,6 +765,7 @@ export type PluginTesterBaseConfig = (
 ) & {
   babel: NonNullable<PluginTesterOptions['babel']>;
   baseBabelOptions: NonNullable<PluginTesterOptions['babelOptions']>;
+  titleNumbering: NonNullable<PluginTesterOptions['titleNumbering']>;
   describeBlockTitle: NonNullable<PluginTesterOptions['title']>;
   filepath: PluginTesterOptions['filepath'];
   endOfLine: NonNullable<PluginTesterOptions['endOfLine']>;
