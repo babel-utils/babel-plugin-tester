@@ -177,7 +177,8 @@ Note that there is a small [caveat][20] when relying on `pluginName` inference.
 This is used to pass options into your plugin at transform time. If provided,
 the object will be [`lodash.mergeWith`][lodash.mergewith]'d with each [test
 object's `pluginOptions`][21]/[fixture's `pluginOptions`][22], with the latter
-taking precedence. Note that arrays will be concatenated during merging.
+taking precedence. Note that arrays will be concatenated and explicitly
+undefined values will unset previously defined values during merging.
 
 #### `preset`
 
@@ -234,7 +235,8 @@ Defaults to `"unknown preset"`.
 This is used to pass options into your preset at transform time. If provided,
 the object will be [`lodash.mergeWith`][lodash.mergewith]'d with each [test
 object's `presetOptions`][23]/[fixture's `presetOptions`][24], with the latter
-taking precedence. Note that arrays will be concatenated during merging.
+taking precedence. Note that arrays will be concatenated and explicitly
+undefined values will unset previously defined values during merging.
 
 #### `babel`
 
@@ -247,7 +249,8 @@ this package.
 This is used to configure babel. If provided, the object will be
 [`lodash.mergeWith`][lodash.mergewith]'d with the [defaults][25] and each [test
 object's `babelOptions`][26]/[fixture's `babelOptions`][27], with the latter
-taking precedence. Note that arrays will be concatenated during merging.
+taking precedence. Note that arrays will be concatenated and explicitly
+undefined values will unset previously defined values during merging.
 
 Also note that [`babelOptions.babelrc`][28] and [`babelOptions.configFile`][29]
 are set to `false` by default, which disables automatic babel configuration
@@ -644,7 +647,8 @@ first one will be used and the rest will be silently ignored.
 For each fixture, the contents of the entirely optional `options.json` file are
 [`lodash.mergeWith`][lodash.mergewith]'d with the options provided to
 babel-plugin-tester, with the former taking precedence. Note that arrays will be
-concatenated during merging.
+concatenated and explicitly undefined values will unset previously defined
+values during merging.
 
 For added flexibility, `options.json` can be specified as `options.js` instead
 so long as a JSON object is exported via [`module.exports`][62]. If both files
@@ -657,8 +661,7 @@ Fixtures support deeply nested directory structures as well as shared or "root"
 configuration" for all fixtures under `__fixtures__/nested`. That is: each
 fixture would [`lodash.mergeWith`][lodash.mergewith] the options provided to
 babel-plugin-tester, `__fixtures__/nested/options.json`, and the contents of
-their local `options.json` file (or exports from `options.js`) as described
-above.
+their local `options.json` file as described above.
 
 What follows are the properties you may use if you provide an options file, all
 of which are optional:
@@ -668,21 +671,24 @@ of which are optional:
 This is used to configure babel. Properties specified here override
 ([`lodash.mergeWith`][lodash.mergewith]) those from the [`babelOptions`][63]
 option provided to babel-plugin-tester. Note that arrays will be concatenated
-during merging.
+and explicitly undefined values will unset previously defined values during
+merging.
 
 ###### `pluginOptions`
 
 This is used to pass options into your plugin at transform time. Properties
 specified here override ([`lodash.mergeWith`][lodash.mergewith]) those from the
 [`pluginOptions`][16] option provided to babel-plugin-tester. Note that arrays
-will be concatenated during merging.
+will be concatenated and explicitly undefined values will unset previously
+defined values during merging.
 
 ###### `presetOptions`
 
 This is used to pass options into your preset at transform time. Properties
 specified here override ([`lodash.mergeWith`][lodash.mergewith]) those from the
 [`presetOptions`][14] option provided to babel-plugin-tester. Note that arrays
-will be concatenated during merging.
+will be concatenated and explicitly undefined values will unset previously
+defined values during merging.
 
 ###### `title`
 
@@ -831,21 +837,24 @@ which are optional:
 This is used to configure babel. Properties specified here override
 ([`lodash.mergeWith`][lodash.mergewith]) those from the [`babelOptions`][63]
 option provided to babel-plugin-tester. Note that arrays will be concatenated
-during merging.
+and explicitly undefined values will unset previously defined values during
+merging.
 
 ###### `pluginOptions`
 
 This is used to pass options into your plugin at transform time. Properties
 specified here override ([`lodash.mergeWith`][lodash.mergewith]) those from the
 [`pluginOptions`][16] option provided to babel-plugin-tester. Note that arrays
-will be concatenated during merging.
+will be concatenated and explicitly undefined values will unset previously
+defined values during merging.
 
 ###### `presetOptions`
 
 This is used to pass options into your preset at transform time. Properties
 specified here override ([`lodash.mergeWith`][lodash.mergewith]) those from the
 [`presetOptions`][14] option provided to babel-plugin-tester. Note that arrays
-will be concatenated during merging.
+will be concatenated and explicitly undefined values will unset previously
+defined values during merging.
 
 ###### `title`
 
