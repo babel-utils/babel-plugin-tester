@@ -76,11 +76,15 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     : false;
 
   if (!globalContextHasDescribeFn) {
-    throw new TypeError('testing environment must define `describe` in its global scope');
+    throw new TypeError(
+      'incompatible testing environment: testing environment must define `describe` in its global scope'
+    );
   }
 
   if (!globalContextHasTestFn) {
-    throw new TypeError('testing environment must define `it` in its global scope');
+    throw new TypeError(
+      'incompatible testing environment: testing environment must define `it` in its global scope'
+    );
   }
 
   let hasTests = false;
@@ -122,7 +126,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       (rawBaseConfig.preset &&
         (rawBaseConfig.plugin || rawBaseConfig.pluginName || rawBaseConfig.pluginOptions))
     ) {
-      throw new Error(
+      throw new TypeError(
         'failed to validate configuration: cannot test a plugin and a preset simultaneously. Specify one set of options or the other'
       );
     }
@@ -1013,7 +1017,7 @@ function trimAndFixLineEndings(
       }
       default: {
         throw new TypeError(
-          "failed to validate configuration: invalid 'endOfLine' option"
+          'failed to validate configuration: invalid `endOfLine` option'
         );
       }
     }
