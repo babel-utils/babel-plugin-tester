@@ -554,7 +554,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       );
 
       const codeFixture = rawCodeFixture ?? fixture;
-      const code = rawCode ? stripIndent(rawCode) : readCode(filepath, codeFixture);
+      const code =
+        rawCode !== undefined ? stripIndent(rawCode) : readCode(filepath, codeFixture);
       const output =
         rawOutput !== undefined
           ? stripIndent(rawOutput)
@@ -847,13 +848,13 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         );
       }
 
-      if (output) {
+      if (output !== undefined) {
         throwTypeError(
           'neither `output` nor `outputFixture` can be provided with `snapshot` enabled'
         );
       }
 
-      if (exec) {
+      if (exec !== undefined) {
         throwTypeError(
           'neither `exec` nor `execFixture` can be provided with `snapshot` enabled'
         );
@@ -872,7 +873,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       throwTypeError('testing environment does not support `it.only(...)` method');
     }
 
-    if (output && expectedError !== undefined) {
+    if (output !== undefined && expectedError !== undefined) {
       throwTypeError(
         testConfig[$type] == 'test-object'
           ? 'neither `output` nor `outputFixture` can be provided with `throws` or `error`'
@@ -880,8 +881,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       );
     }
 
-    if (exec && expectedError !== undefined) {
-      ``;
+    if (exec !== undefined && expectedError !== undefined) {
       throwTypeError(
         testConfig[$type] == 'test-object'
           ? 'neither `exec` nor `execFixture` can be provided with `throws` or `error`'
@@ -889,7 +889,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       );
     }
 
-    if (!code && !exec) {
+    if (code === undefined && exec === undefined) {
       throwTypeError(
         testConfig[$type] == 'test-object'
           ? 'a string or object with a `code`, `codeFixture`, `exec`, or `execFixture` must be provided'
@@ -897,7 +897,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       );
     }
 
-    if (!!(code || output) && !!exec) {
+    if ((code !== undefined || output !== undefined) && exec !== undefined) {
       throwTypeError(
         testConfig[$type] == 'test-object'
           ? 'neither `code`, `codeFixture`, `output`, nor `outputFixture` can be provided with `exec` or `execFixture`'
@@ -912,7 +912,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     }
 
     if (
-      expectedError &&
+      expectedError !== undefined &&
       !(
         ['function', 'boolean', 'string'].includes(typeof expectedError) ||
         expectedError instanceof RegExp
