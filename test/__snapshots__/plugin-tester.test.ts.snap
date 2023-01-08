@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces handles failing \`tests\` and \`fixtures\` gracefully 1`] = `actual output does not match output.js`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces handles failing \`tests\` and \`fixtures\` gracefully 1`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces handles failing \`tests\` and \`fixtures\` gracefully 2`] = `actual output does not match output.js`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces handles failing \`tests\` and \`fixtures\` gracefully 2`] = ``;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`it.skip\` or \`it.only\` functions are not available in the global scope when using \`skip\`/\`only\` 1`] = `failed to validate configuration for test "1. fixture": testing environment does not support \`it.skip(...)\` method`;
 
@@ -14,89 +14,69 @@ exports[`tests targeting both FixtureOptions and TestObject interfaces throws if
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` callback doesn't return \`true\` 1`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` callback doesn't return \`true\` 2`] = `expected \`throws\`/\`error\` function to return true`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` callback doesn't return \`true\` 2`] = ``;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` is not \`false\` but no error thrown 1`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` is not \`false\` but no error thrown 2`] = `expected babel to throw an error, but it did not`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` is not \`false\` but no error thrown 2`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`only\` and \`skip\` are provided 1`] = `ENOENT: no such file or directory, stat '/repos/babel-plugin-tester/test/fixtures/skip-only-fixtures'`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`only\` and \`skip\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": cannot enable both \`skip\` and \`only\` in the same test`;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`only\` and \`skip\` are provided 2`] = `failed to validate configuration for test "1. captains-log (explicit)": cannot enable both \`skip\` and \`only\` in the same test`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`only\` and \`skip\` are provided 2`] = ``;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 1`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 2`] = `plugin is a required parameter`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 2`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 3`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`exec\` nor \`execFixture\` can be provided with \`throws\` or \`error\``;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 3`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 4`] = `plugin is a required parameter`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 4`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 5`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/fake-file.js'`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 5`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 6`] = `plugin is a required parameter`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 6`] = ``;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 1`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 2`] = `plugin is a required parameter`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 2`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 3`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`output\` nor \`outputFixture\` can be provided with \`throws\` or \`error\``;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 3`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 4`] = `plugin is a required parameter`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 4`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 5`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/fake-file.js'`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 5`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 6`] = `plugin is a required parameter`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 6`] = ``;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws when babel transform errors and \`throws: false\` 1`] = ``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws when babel transform errors and \`throws: false\` 2`] = `1. captains-log (explicit): [BABEL] unknown file: expected this error to be captured (While processing: "base$0")`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws when babel transform errors and \`throws: false\` 2`] = ``;
 
-exports[`tests targeting the FixtureOptions interface can test that code.js babel output is unchanged 1`] = `expected output to not change, but it did`;
+exports[`tests targeting the FixtureOptions interface can test that code.js babel output is unchanged 1`] = ``;
 
-exports[`tests targeting the FixtureOptions interface can test that code.js babel output matches output.js 1`] = `actual output does not match expected output`;
+exports[`tests targeting the FixtureOptions interface can test that code.js babel output matches output.js 1`] = ``;
 
 exports[`tests targeting the FixtureOptions interface throws if exec.js and code.js file in same directory 1`] = `failed to validate configuration for test "1. fixture": a fixture cannot contain both an exec file and a code or output file`;
 
-exports[`tests targeting the FixtureOptions interface throws if exec.js and code.js file in same directory 2`] = `plugin is a required parameter`;
+exports[`tests targeting the FixtureOptions interface throws if exec.js and code.js file in same directory 2`] = ``;
 
 exports[`tests targeting the FixtureOptions interface throws when loading .babelrc.mjs file using \`transformSync\` method 1`] = `5. mjs: You appear to be using a native ECMAScript module configuration file, which is only supported when running Babel asynchronously.`;
 
-exports[`tests targeting the FixtureOptions interface throws when loading .babelrc.mjs file using \`transformSync\` method 2`] = `plugin is a required parameter`;
+exports[`tests targeting the FixtureOptions interface throws when loading .babelrc.mjs file using \`transformSync\` method 2`] = ``;
 
-exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing code.js 1`] = `
-Cannot assign to read only property 'message' of object 'SyntaxError: /repos/babel-plugin-tester/test/fixtures/code-file-bad/fixture/code.js: Missing semicolon. (1:2)
+exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing code.js 1`] = ``;
 
-[0m[31m[1m>[22m[39m[90m 1 |[39m []fd[33m;[39ms[33m;[39m][0m
-[0m [90m   |[39m   [31m[1m^[22m[39m[0m
-[0m [90m 2 |[39m[0m'
-`;
+exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing code.js 2`] = ``;
 
-exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing code.js 2`] = `plugin is a required parameter`;
+exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing exec.js 1`] = ``;
 
-exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing exec.js 1`] = `
-Cannot assign to read only property 'message' of object 'SyntaxError: unknown: Missing semicolon. (1:2)
+exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing exec.js 2`] = ``;
 
-[0m[31m[1m>[22m[39m[90m 1 |[39m []fd[33m;[39ms[33m;[39m][0m
-[0m [90m   |[39m   [31m[1m^[22m[39m[0m'
-`;
+exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing options files 1`] = ``;
 
-exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing exec.js 2`] = `plugin is a required parameter`;
+exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing options files 2`] = ``;
 
-exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing options files 1`] = `
-/repos/babel-plugin-tester/test/fixtures/options-js-bad/fixture/options.js: Unexpected token (4:2)
-
-[0m [90m 2 |[39m   pluginOptions[33m:[39m {[0m
-[0m [90m 3 |[39m     bar[33m:[39m[0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m   }[0m
-[0m [90m   |[39m   [31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m }[33m;[39m[0m
-[0m [90m 6 |[39m[0m
-`;
-
-exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing options files 2`] = `plugin is a required parameter`;
-
-exports[`tests targeting the PluginTesterOptions interface applies \`formatResult\` globally 1`] = `actual output does not match output.js`;
+exports[`tests targeting the PluginTesterOptions interface applies \`formatResult\` globally 1`] = ``;
 
 exports[`tests targeting the PluginTesterOptions interface applies \`formatResult\` globally 2`] = ``;
 
@@ -104,25 +84,37 @@ exports[`tests targeting the PluginTesterOptions interface applies \`snapshot\` 
 
 exports[`tests targeting the PluginTesterOptions interface applies \`snapshot\` globally 2`] = ``;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`babelOptions.babelrc: true\` and \`babelOptions.filename\` is unset 1`] = `failed to validate configuration for test "1. captains-log (explicit)": \`babelOptions.babelrc\` is enabled but \`babelOptions.filename\` was not provided`;
+exports[`tests targeting the PluginTesterOptions interface applies \`snapshot\` globally 3`] = ``;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`babelOptions.babelrc: true\` and \`babelOptions.filename\` is unset 2`] = ``;
+exports[`tests targeting the PluginTesterOptions interface applies \`snapshot\` globally 4`] = `failed to validate configuration for test "1. black-box (preset)": neither \`output\` nor \`outputFixture\` can be provided with \`snapshot\` enabled`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`describe\` or \`it\` functions are not available in the global scope 1`] = `testing environment must define \`describe\` in its global scope`;
+exports[`tests targeting the PluginTesterOptions interface throws if \`babelOptions.babelrc: true\` and \`babelOptions.filename\` is unset 1`] = `failed to validate configuration for test "1. fixture": \`babelOptions.babelrc\` is enabled but \`babelOptions.filename\` was not provided`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`describe\` or \`it\` functions are not available in the global scope 2`] = `testing environment must define \`it\` in its global scope`;
+exports[`tests targeting the PluginTesterOptions interface throws if \`babelOptions.babelrc: true\` and \`babelOptions.filename\` is unset 2`] = `failed to validate configuration for test "2. black-box (preset)": \`babelOptions.babelrc\` is enabled but \`babelOptions.filename\` was not provided`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 1`] = `invalid 'endOfLine' value`;
+exports[`tests targeting the PluginTesterOptions interface throws if \`describe\` or \`it\` functions are not available in the global scope 1`] = ``;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 2`] = ``;
+exports[`tests targeting the PluginTesterOptions interface throws if \`describe\` or \`it\` functions are not available in the global scope 2`] = ``;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid even if \`throws\` is not \`false\` 1`] = `1. captains-log (explicit): invalid 'endOfLine' value`;
+exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 1`] = `failed to validate configuration: invalid 'endOfLine' option`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid even if \`throws\` is not \`false\` 2`] = ``;
+exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 2`] = `1. black-box (preset): failed to validate configuration: invalid 'endOfLine' option`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`formatResult\` throws even if \`throws\` is not \`false\` 1`] = `1. captains-log (explicit): faux error`;
+exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid even if \`throws\` is not \`false\` 1`] = `1. fixture: failed to validate configuration: invalid 'endOfLine' option`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`formatResult\` throws even if \`throws\` is not \`false\` 2`] = ``;
+exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid even if \`throws\` is not \`false\` 2`] = `2. black-box (preset): failed to validate configuration: invalid 'endOfLine' option`;
+
+exports[`tests targeting the PluginTesterOptions interface throws if \`formatResult\` throws even if \`throws\` is not \`false\` 1`] = `1. fixture: faux error`;
+
+exports[`tests targeting the PluginTesterOptions interface throws if \`formatResult\` throws even if \`throws\` is not \`false\` 2`] = `2. black-box (preset): faux error`;
+
+exports[`tests targeting the PluginTesterOptions interface throws if \`titleNumbering\` is invalid 1`] = ``;
+
+exports[`tests targeting the PluginTesterOptions interface throws if \`titleNumbering\` is invalid 2`] = ``;
+
+exports[`tests targeting the PluginTesterOptions interface throws if \`titleNumbering\` is invalid 3`] = ``;
+
+exports[`tests targeting the PluginTesterOptions interface throws if \`titleNumbering\` is invalid 4`] = ``;
 
 exports[`tests targeting the PluginTesterOptions interface throws if both plugin- and preset-specific options are provided 1`] = `failed to validate configuration: cannot test a plugin and a preset simultaneously. Specify one set of options or the other`;
 
@@ -142,19 +134,19 @@ exports[`tests targeting the PluginTesterOptions interface throws if neither \`p
 
 exports[`tests targeting the PluginTesterOptions interface throws if setup throws 1`] = `1. fixture: setup function failed: bad setup`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if setup throws 2`] = `1. captains-log (explicit): setup function failed: bad setup`;
+exports[`tests targeting the PluginTesterOptions interface throws if setup throws 2`] = `2. captains-log (explicit): setup function failed: bad setup`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if setup throws 3`] = `1. fixture: setup function failed: bad setup`;
+exports[`tests targeting the PluginTesterOptions interface throws if setup throws 3`] = `3. fixture: setup function failed: bad setup`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if setup throws 4`] = `1. black-box (preset): setup function failed: bad setup`;
+exports[`tests targeting the PluginTesterOptions interface throws if setup throws 4`] = `4. black-box (preset): setup function failed: bad setup`;
 
 exports[`tests targeting the PluginTesterOptions interface throws if teardown throws 1`] = `1. fixture: teardown function failed: bad teardown`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if teardown throws 2`] = `1. captains-log (explicit): teardown function failed: bad teardown`;
+exports[`tests targeting the PluginTesterOptions interface throws if teardown throws 2`] = `2. captains-log (explicit): teardown function failed: bad teardown`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if teardown throws 3`] = `1. fixture: setup function failed: bad teardown`;
+exports[`tests targeting the PluginTesterOptions interface throws if teardown throws 3`] = `3. fixture: teardown function failed: bad teardown`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if teardown throws 4`] = `. black-box (preset): setup function failed: bad teardown`;
+exports[`tests targeting the PluginTesterOptions interface throws if teardown throws 4`] = `4. black-box (preset): teardown function failed: bad teardown`;
 
 exports[`tests targeting the TestObject interface accepts a string literal \`tests\` array item asserting babel output is unchanged 1`] = `
 1. captains-log (explicit): expected output to not change, but it did
@@ -167,7 +159,7 @@ var hi = 'hey';
 `;
 
 exports[`tests targeting the TestObject interface accepts a string literal \`tests\` array item asserting babel output is unchanged 2`] = `
-1. black-box (preset): expected output to not change, but it did
+2. black-box (preset): expected output to not change, but it did
 
 actual:
 var ih = 'hey';
@@ -176,7 +168,7 @@ expected:
 var hi = 'hey';
 `;
 
-exports[`tests targeting the TestObject interface can test that \`code\`/\`codeFixture\` and \`output\`/\`outputFixture\` babel output matches 1`] = `actual output does not match expected output`;
+exports[`tests targeting the TestObject interface can test that \`code\`/\`codeFixture\` and \`output\`/\`outputFixture\` babel output matches 1`] = ``;
 
 exports[`tests targeting the TestObject interface can test that \`code\`/\`codeFixture\` and \`output\`/\`outputFixture\` babel output matches 2`] = `
 1. black-box (preset): actual output does not match expected output
@@ -188,17 +180,17 @@ expected:
 const olleh = 'hey';
 `;
 
-exports[`tests targeting the TestObject interface can test that \`code\`/\`codeFixture\` babel output is unchanged 1`] = `expected output to not change, but it did`;
+exports[`tests targeting the TestObject interface can test that \`code\`/\`codeFixture\` babel output is unchanged 1`] = ``;
 
-exports[`tests targeting the TestObject interface can test that string literal babel output is unchanged 1`] = `expected output to not change, but it did`;
+exports[`tests targeting the TestObject interface can test that string literal babel output is unchanged 1`] = ``;
 
-exports[`tests targeting the TestObject interface overrides global \`snapshot\` with test-level \`snapshot\` 1`] = `actual output does not match expected output`;
+exports[`tests targeting the TestObject interface overrides global \`snapshot\` with test-level \`snapshot\` 1`] = ``;
 
-exports[`tests targeting the TestObject interface overrides global \`snapshot\` with test-level \`snapshot\` 2`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface overrides global \`snapshot\` with test-level \`snapshot\` 2`] = ``;
 
-exports[`tests targeting the TestObject interface resolves absolute \`codeFixture\`/\`outputFixture\`/\`execFixture\` path regardless of \`filepath\` 1`] = `actual output does not match expected output`;
+exports[`tests targeting the TestObject interface resolves absolute \`codeFixture\`/\`outputFixture\`/\`execFixture\` path regardless of \`filepath\` 1`] = ``;
 
-exports[`tests targeting the TestObject interface resolves absolute \`codeFixture\`/\`outputFixture\`/\`execFixture\` path regardless of \`filepath\` 2`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface resolves absolute \`codeFixture\`/\`outputFixture\`/\`execFixture\` path regardless of \`filepath\` 2`] = ``;
 
 exports[`tests targeting the TestObject interface takes a snapshot if \`snapshot\` is enabled: 1. captains-log (explicit) 1`] = `
 
@@ -212,35 +204,35 @@ var ih = 'hey';
 
 exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is empty 1`] = `failed to validate configuration for test "1. captains-log (explicit)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
 
-exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is empty 2`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is empty 2`] = ``;
 
-exports[`tests targeting the TestObject interface throws if \`toMatchSnapshot\` function is not available in the value returned by \`expect()\` 1`] = `testing environment must define \`describe\` in its global scope`;
+exports[`tests targeting the TestObject interface throws if \`toMatchSnapshot\` function is not available in the value returned by \`expect()\` 1`] = ``;
 
-exports[`tests targeting the TestObject interface throws if \`toMatchSnapshot\` function is not available in the value returned by \`expect()\` 2`] = `testing environment must define \`it\` in its global scope`;
+exports[`tests targeting the TestObject interface throws if \`toMatchSnapshot\` function is not available in the value returned by \`expect()\` 2`] = ``;
 
-exports[`tests targeting the TestObject interface throws if babel output is unchanged and \`snapshot\` is enabled 1`] = `code was unmodified but attempted to take a snapshot. If the code should not be modified, set \`snapshot: false\``;
+exports[`tests targeting the TestObject interface throws if babel output is unchanged and \`snapshot\` is enabled 1`] = ``;
 
-exports[`tests targeting the TestObject interface throws if babel output is unchanged and \`snapshot\` is enabled 2`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws if babel output is unchanged and \`snapshot\` is enabled 2`] = ``;
 
 exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 2`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 2`] = ``;
 
-exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 3`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 3`] = ``;
 
-exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 4`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 4`] = ``;
 
 exports[`tests targeting the TestObject interface throws if both \`output\` and \`outputFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
 
-exports[`tests targeting the TestObject interface throws if both \`output\` and \`outputFixture\` are provided 2`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws if both \`output\` and \`outputFixture\` are provided 2`] = ``;
 
 exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 2`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 2`] = ``;
 
-exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 3`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 3`] = ``;
 
-exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 4`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 4`] = ``;
 
 exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`exec\`/\`execFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`exec\` nor \`execFixture\` can be provided with \`snapshot\` enabled`;
 
@@ -248,11 +240,11 @@ exports[`tests targeting the TestObject interface throws if both \`snapshot\` an
 
 exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`output\`/\`outputFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`output\` nor \`outputFixture\` can be provided with \`snapshot\` enabled`;
 
-exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`output\`/\`outputFixture\` are provided 2`] = `code was unmodified but attempted to take a snapshot. If the code should not be modified, set \`snapshot: false\``;
+exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`output\`/\`outputFixture\` are provided 2`] = ``;
 
-exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`throws\` are provided 1`] = `expected babel to throw an error, but it did not`;
+exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`throws\` are provided 1`] = ``;
 
-exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`throws\` are provided 2`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`throws\` are provided 2`] = ``;
 
 exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`throws\` are provided: 1. undefined 1`] = ``;
 
@@ -260,34 +252,24 @@ exports[`tests targeting the TestObject interface throws if test object is missi
 
 exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 1`] = `failed to validate configuration for test "1. captains-log (explicit)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
 
-exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 2`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 2`] = ``;
 
-exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 3`] = `failed to validate configuration for test "1. captains-log (explicit)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
+exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 3`] = ``;
 
-exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 4`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 4`] = ``;
 
-exports[`tests targeting the TestObject interface throws with helpful message if \`codeFixture\`/\`outputFixture\`/\`execFixture\` cannot be read 1`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/fake-file.js'`;
+exports[`tests targeting the TestObject interface throws with helpful message if \`codeFixture\`/\`outputFixture\`/\`execFixture\` cannot be read 1`] = `failed to open file (ENOENT): /repos/babel-plugin-tester/fake-file.js`;
 
-exports[`tests targeting the TestObject interface throws with helpful message if \`codeFixture\`/\`outputFixture\`/\`execFixture\` cannot be read 2`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws with helpful message if \`codeFixture\`/\`outputFixture\`/\`execFixture\` cannot be read 2`] = `failed to open file (EISDIR): /repos/babel-plugin-tester/test`;
 
-exports[`tests targeting the TestObject interface throws with helpful message if \`codeFixture\`/\`outputFixture\`/\`execFixture\` cannot be read 3`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/fake-file.js'`;
+exports[`tests targeting the TestObject interface throws with helpful message if \`codeFixture\`/\`outputFixture\`/\`execFixture\` cannot be read 3`] = `failed to open file (ENOENT): /repos/babel-plugin-tester/fake-file.js`;
 
-exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`code\`/\`codeFixture\` 1`] = `
-Cannot assign to read only property 'message' of object 'SyntaxError: unknown: Unexpected token (1:0)
+exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`code\`/\`codeFixture\` 1`] = ``;
 
-[0m[31m[1m>[22m[39m[90m 1 |[39m ][fkfhgo]fo{r[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m'
-`;
+exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`code\`/\`codeFixture\` 2`] = ``;
 
-exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`code\`/\`codeFixture\` 2`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`code\`/\`codeFixture\` 3`] = ``;
 
-exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`code\`/\`codeFixture\` 3`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`exec\`/\`execFixture\` 1`] = ``;
 
-exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`exec\`/\`execFixture\` 1`] = `
-Cannot assign to read only property 'message' of object 'SyntaxError: unknown: Missing semicolon. (1:2)
-
-[0m[31m[1m>[22m[39m[90m 1 |[39m []fd[33m;[39ms[33m;[39m][0m
-[0m [90m   |[39m   [31m[1m^[22m[39m[0m'
-`;
-
-exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`exec\`/\`execFixture\` 2`] = `plugin is a required parameter`;
+exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`exec\`/\`execFixture\` 2`] = ``;
