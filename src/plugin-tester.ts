@@ -116,7 +116,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     const baseConfig: PartialPluginTesterBaseConfig = {
       babel: rawBaseConfig.babel || require('@babel/core'),
       baseBabelOptions: rawBaseConfig.babelOptions,
-      filepath: rawBaseConfig.filepath ?? rawBaseConfig.filename ?? tryInferFilepath(),
+      filepath: rawBaseConfig.filepath || rawBaseConfig.filename || tryInferFilepath(),
       endOfLine: rawBaseConfig.endOfLine,
       baseSetup: rawBaseConfig.setup,
       baseTeardown: rawBaseConfig.teardown,
@@ -144,7 +144,12 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     }
 
     baseConfig.describeBlockTitle =
-      rawBaseConfig.title ?? baseConfig.pluginName ?? baseConfig.presetName;
+      rawBaseConfig.title === false
+        ? false
+        : rawBaseConfig.title ||
+          baseConfig.pluginName ||
+          baseConfig.presetName ||
+          undefined;
 
     return baseConfig as PluginTesterBaseConfig;
 
