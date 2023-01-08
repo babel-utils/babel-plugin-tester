@@ -37,6 +37,20 @@ const parseScriptFilepathRegExp =
 export default pluginTester;
 
 /**
+ * Internal current test counter. Used for automatic title numbering via the
+ * `titleNumbering` and `restartTitleNumbering` babel-plugin-tester options.
+ */
+let currentTestNumber = 1;
+
+/**
+ * This function has the same effect as calling `pluginTester` with
+ * `restartTitleNumbering: true`.
+ */
+export function restartTestTitleNumbering() {
+  currentTestNumber = 1;
+}
+
+/**
  * An abstraction around babel to help you write tests for your babel plugin or
  * preset. It was built to work with Jest, but most of the functionality should
  * work with Mocha, Jasmine, and any other framework that defines standard
@@ -251,7 +265,6 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     const testsIsArray = Array.isArray(tests);
     const fixturesAbsolutePath = getAbsolutePath(filepath, fixtures);
     const testConfigs: PluginTesterTestConfig[] = [];
-    let currentTestNumber = 1;
 
     if (fixturesAbsolutePath) {
       if (fs.statSync(fixturesAbsolutePath).isDirectory()) {
