@@ -59,7 +59,7 @@ plugin or preset. It was built to work with [Jest][4] (and by extension
   - [Custom Snapshot Serialization](#custom-snapshot-serialization)
   - [Formatting Output with Prettier](#formatting-output-with-prettier)
   - [Built-In Debugging Support](#built-in-debugging-support)
-  - [`TEST_ONLY` and `TEST_SKIP` Environment Variables](#test_only-and-test_skip-environment-variables)
+  - [`TEST_ONLY`/`TEST_NUM_ONLY` and `TEST_SKIP`/`TEST_NUM_SKIP` Environment Variables](#test_onlytest_num_only-and-test_skiptest_num_skip-environment-variables)
   - [`setup` and `teardown` Run Order](#setup-and-teardown-run-order)
 - [Inspiration](#inspiration)
 - [Issues](#issues)
@@ -1543,20 +1543,48 @@ The following [debug namespaces][98] are available for activation:
 
 <!-- lint enable list-item-style -->
 
-### `TEST_ONLY` and `TEST_SKIP` Environment Variables
+### `TEST_ONLY`/`TEST_NUM_ONLY` and `TEST_SKIP`/`TEST_NUM_SKIP` Environment Variables
 
 The optional `TEST_ONLY` and `TEST_SKIP` environment variables are recognized by
 babel-plugin-tester, allowing you to control which tests are run in an adhoc
 fashion without having to modify your test configuration code.
 
 The values of these variables will be transformed into regular expressions via
-`RegExp(value, 'u')` and matched against each test/fixture title (sans
-[automatic numbering][52]). Tests with titles that match `TEST_ONLY` will be run
-while all others are skipped. On the other hand, tests with titles that match
-`TEST_SKIP` will be skipped while others are run.
+`RegExp(value, 'u')` and matched against each test/fixture title (not including
+[automatically assigned numbers][52] prefixed to titles). Tests with titles that
+match `TEST_ONLY` will be run while all others are skipped. On the other hand,
+tests with titles that match `TEST_SKIP` will be skipped while others are run.
+
+For example, to skip the test titled "this is the name of a failing unit test":
+
+```bash
+TEST_SKIP='name of a failing' npx jest
+```
 
 Given both `TEST_ONLY` and `TEST_SKIP`, tests matched by `TEST_SKIP` will
-_always_ be skipped, even if they are also matched by `TEST_ONLY`.
+_always_ be skipped, even if they are also matched by `TEST_ONLY`. These
+environment variables also override both the fixture-specific
+[`skip`][99]/[`only`][100] and test object [`skip`][101]/[`only`][102]
+properties _if they conflict_.
+
+In addition to `TEST_ONLY` and `TEST_SKIP`, you can also target tests
+specifically by their [automatically assigned number][52] using `TEST_NUM_ONLY`
+and `TEST_NUM_SKIP`. These environment variables function identically to their
+counterparts except they accept one or more numbers separated by commas (spaces
+around commas are ignored) instead of regular expressions. Inclusive ranges
+(e.g. `4-9`) are also supported.
+
+For example, the following will skip tests numbered 1, 3, 5, and 6-10
+(inclusive):
+
+```bash
+# Spaces around commas don't matter and sequential/final commas are ignored
+TEST_NUM_SKIP='5,1, 6-10,,  3,' npx jest
+```
+
+`TEST_NUM_ONLY` and `TEST_NUM_SKIP` are meaningless if [`titleNumbering`][52] is
+`false` or your tests are otherwise unnumbered, and may match multiple tests if
+[automatic numbering is restarted][103].
 
 ### `setup` and `teardown` Run Order
 
@@ -1576,7 +1604,7 @@ the following order:
 The API was inspired by:
 
 - ESLint's [RuleTester][ruletester].
-- [@thejameskyle][99]'s [tweet][jamestweet].
+- [@thejameskyle][104]'s [tweet][jamestweet].
 - Babel's own
   [`@babel/helper-plugin-test-runner`][@babel/helper-plugin-test-runner].
 
@@ -1790,4 +1818,9 @@ MIT
 [96]: https://npm.im/debug
 [97]: https://www.npmjs.com/package/debug#environment-variables
 [98]: https://www.npmjs.com/package/debug#namespace-colors
-[99]: https://github.com/jamiebuilds
+[99]: #skip
+[100]: #only
+[101]: #skip-1
+[102]: #only-1
+[103]: #restarttitlenumbering
+[104]: https://github.com/jamiebuilds
