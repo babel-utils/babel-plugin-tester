@@ -1479,24 +1479,27 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('applies `formatResult` globally and passes it both updated and deprecated parameters', async () => {
     expect.hasAssertions();
 
-    const formatResult = jest.fn(() => `var xyz = 'xyz';`);
+    const formatResultResult = "var xyz = 'xyz';";
+    const formatResult = jest.fn(() => formatResultResult);
     const simpleFailingPath = getFixturePath('simple-failing');
     const simpleFailingContent = getFixtureContents('simple-failing/fixture/code.js');
     const simpleFailingContentPath = `${simpleFailingPath}/fixture/code.js`;
 
     await runPluginTester(
       getDummyPluginOptions({
+        filepath: __filename,
         formatResult,
         fixtures: simpleFailingPath,
-        tests: [{ code: simpleTest, output: formatResult() }]
+        tests: [{ code: simpleTest, output: formatResultResult }]
       })
     );
 
     await runPluginTester(
       getDummyPresetOptions({
+        filepath: __filename,
         formatResult,
         fixtures: simpleFailingPath,
-        tests: [{ code: simpleTest, output: formatResult() }]
+        tests: [{ code: simpleTest, output: formatResultResult }]
       })
     );
 
@@ -1602,7 +1605,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('applies `snapshot` globally', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
+    await runPluginTester(
       getDummyPluginOptions({
         snapshot: true,
         fixtures: simpleFixture
@@ -1610,14 +1613,14 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+      getDummyPluginOptions({
         snapshot: true,
         tests: [{ code: simpleTest, output: shouldNotBeSeen }]
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTester(
+      getDummyPresetOptions({
         snapshot: true,
         fixtures: simpleFixture
       })
@@ -1634,7 +1637,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       getDummyPluginOptions({
         snapshot: false,
         fixtures: simpleFixture,
-        tests: [simpleTest]
+        tests: [{ code: simpleTest, output: simpleTest }]
       })
     );
 
@@ -1642,7 +1645,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       getDummyPresetOptions({
         snapshot: false,
         fixtures: simpleFixture,
-        tests: [simpleTest]
+        tests: [{ code: simpleTest, output: simpleTest }]
       })
     );
   });
@@ -1732,7 +1735,8 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       ['3. another one', expect.any(Function)],
       ['4. fixture', expect.any(Function)],
       [`5. ${dummyPresetName}`, expect.any(Function)],
-      ['6. another-one', expect.any(Function)]
+      [`6. ${dummyPresetName}`, expect.any(Function)],
+      ['7. another-one', expect.any(Function)]
     ]);
   });
 
@@ -1775,7 +1779,8 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       ['3. another one', expect.any(Function)],
       ['4. fixture', expect.any(Function)],
       [`5. ${dummyPresetName}`, expect.any(Function)],
-      ['6. another-one', expect.any(Function)]
+      [`6. ${dummyPresetName}`, expect.any(Function)],
+      ['7. another-one', expect.any(Function)]
     ]);
   });
 
@@ -1941,20 +1946,19 @@ describe('tests targeting the PluginTesterOptions interface', () => {
 
     await runPluginTester(
       getDummyPresetOptions({
-        restartTitleNumbering: true,
         tests: [{ code: simpleTest, title: 'another-one' }]
       })
     );
 
     expect(itSpy.mock.calls).toMatchObject([
       [`1. ${fixtureTitle}`, expect.any(Function)],
-      ['2. a-custom-title', expect.any(Function)],
+      ['a-custom-title', expect.any(Function)],
       [fixtureTitle, expect.any(Function)],
-      ['1. another one', expect.any(Function)],
-      ['2. fixture', expect.any(Function)],
-      [`3. ${dummyPresetName}`, expect.any(Function)],
+      ['2. another one', expect.any(Function)],
+      ['3. fixture', expect.any(Function)],
       [`4. ${dummyPresetName}`, expect.any(Function)],
-      ['1. another-one', expect.any(Function)]
+      [`5. ${dummyPresetName}`, expect.any(Function)],
+      ['6. another-one', expect.any(Function)]
     ]);
   });
 
@@ -2050,15 +2054,6 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     await runPluginTester(
-      getDummyPluginOptions({
-        restartTitleNumbering: true,
-        titleNumbering: 'tests-only',
-        fixtures: getFixturePath('option-title'),
-        tests: { 'another one': simpleTest }
-      })
-    );
-
-    await runPluginTester(
       getDummyPresetOptions({
         restartTitleNumbering: true,
         titleNumbering: false,
@@ -2067,14 +2062,22 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
+    await runPluginTester(
+      getDummyPluginOptions({
+        titleNumbering: 'tests-only',
+        fixtures: getFixturePath('option-title'),
+        tests: { 'another one': simpleTest }
+      })
+    );
+
     expect(itSpy.mock.calls).toMatchObject([
       [`1. ${fixtureTitle}`, expect.any(Function)],
       ['a-custom-title', expect.any(Function)],
-      [fixtureTitle, expect.any(Function)],
-      ['2. another one', expect.any(Function)],
       ['fixture', expect.any(Function)],
       [dummyPresetName, expect.any(Function)],
-      [dummyPresetName, expect.any(Function)]
+      [dummyPresetName, expect.any(Function)],
+      [fixtureTitle, expect.any(Function)],
+      ['1. another one', expect.any(Function)]
     ]);
   });
 

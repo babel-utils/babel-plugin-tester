@@ -80,9 +80,14 @@ export function addPendingJestTest(
       if (isNativeError(error)) {
         // ? Since we don't have the real Jest `it` function to do it for us,
         // ? let's make debugging a little easier by pinpointing which test failed
-        error.message = `${testName}: ${error.message}`;
+        try {
+          error.message = `${testName}: ${error.message}`;
+        } catch {
+          // ? Sometimes error.message is annoyingly a read-only property
+          error = error.constructor(`${testName}: ${error.message}`);
+        }
 
-        if (isAssertionError(error)) {
+        if (isNativeError(error) && isAssertionError(error)) {
           error.message += `\n\nactual:\n${error.actual}\n\nexpected:\n${error.expected}`;
         }
       }
