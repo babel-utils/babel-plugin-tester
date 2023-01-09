@@ -323,8 +323,9 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       } else {
         (describeBlock?.tests || testConfigs).push(
           ...Object.entries(tests)
-            .filter(([/*title, */ test]) => {
-              // TODO: debug statement here
+            .filter(([title, test]) => {
+              // TODO: debug statement here instead of void
+              void title;
               return Boolean(test);
             })
             .map(([title, test]) => {
