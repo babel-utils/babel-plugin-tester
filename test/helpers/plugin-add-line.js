@@ -11,9 +11,9 @@ function addLinePlugin() {
     name: 'add-line',
     visitor: {
       Program(path) {
-        path.get('body').unshiftContainer('body', {
+        path.unshiftContainer('body', {
           type: 'StringLiteral',
-          value: '"hello world"'
+          value: 'hello world'
         });
       }
     }

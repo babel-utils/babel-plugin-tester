@@ -1,1 +1,1 @@
-console.log('hello');
+elosnoc.gol('hello');

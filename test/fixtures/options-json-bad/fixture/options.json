@@ -1,5 +1,8 @@
 {
   "pluginOptions": {
     "bar":
+  },
+  "presetOptions": {
+    "bar":
   }
 }

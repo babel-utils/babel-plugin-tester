@@ -1,8 +1,5 @@
 module.exports = {
-  pluginOptions: {
-    bar:
-  },
   presetOptions: {
-    bar:
+    rootFoo: 'rootBar'
   }
 };

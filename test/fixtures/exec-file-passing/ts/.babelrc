@@ -1,3 +1,6 @@
 {
-  "plugins": [["@babel/plugin-syntax-typescript"]]
+  "presets": [
+    ["@babel/preset-env", { "targets": { "node": true } }],
+    ["@babel/preset-typescript"]
+  ]
 }

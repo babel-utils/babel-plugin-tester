@@ -16,7 +16,7 @@ const dummyDoneCallback: jest.DoneCallback = () => {
 };
 dummyDoneCallback.fail = dummyDoneCallback;
 
-let pendingJestTests: Promise<unknown>[];
+let runnableJestTests: (() => Promise<unknown>)[] = [];
 
 /**
  * Dummy `tests` element and/or `code` option value.
@@ -71,12 +71,14 @@ export const dummyPresetPluginName = 'black-box (preset-plugin)';
  * This function is used by those mocks to keep track of the tests that
  * babel-plugin-tester passes to functions like `it`.
  */
-export function addPendingJestTest(
+export function addRunnableJestTest(
   testName: string,
   testFn: jest.ProvidesCallback | undefined
 ) {
-  pendingJestTests.push(
-    Promise.resolve(testFn?.(dummyDoneCallback)).catch(async (error: unknown) => {
+  runnableJestTests.push(async () => {
+    try {
+      return await testFn?.(dummyDoneCallback);
+    } catch (error) {
       if (isNativeError(error)) {
         // ? Since we don't have the real Jest `it` function to do it for us,
         // ? let's make debugging a little easier by pinpointing which test failed
@@ -84,6 +86,7 @@ export function addPendingJestTest(
           error.message = `${testName}: ${error.message}`;
         } catch {
           // ? Sometimes error.message is annoyingly a read-only property
+          // eslint-disable-next-line no-ex-assign
           error = error.constructor(`${testName}: ${error.message}`);
         }
 
@@ -97,19 +100,26 @@ export function addPendingJestTest(
       }
 
       throw error;
+    }
 
-      function isAssertionError(error: Error): error is AssertionError {
-        return error.name == 'AssertionError';
-      }
-    })
-  );
+    function isAssertionError(error: Error): error is AssertionError {
+      return error.name == 'AssertionError';
+    }
+  });
 }
 
 /**
- * Returns any pending Jest tests.
+ * Returns any runnable Jest test functions.
  */
-export function getPendingJestTests() {
-  return pendingJestTests;
+export function getRunnableJestTests() {
+  return runnableJestTests;
+}
+
+/**
+ * Clears out any runnable Jest test functions.
+ */
+export function clearRunnableJestTests() {
+  runnableJestTests = [];
 }
 
 /**
@@ -158,22 +168,31 @@ export function getDummyPresetOptions(
  * those globals before `pluginTester` is invoked.
  *
  * This function wraps `pluginTester`, ensuring the tests that it passes to
- * functions like `it` are eventually run and their results awaited. In the
- * event of an exception, any pending tests are cancelled and the pending queue
- * is cleared.
+ * functions like `it` are **sequentially run** and their results awaited. In
+ * the event of an exception, the remaining tests run to completion. Either way,
+ * in the end, the queue is cleared.
  */
 export async function runPluginTester(options?: PluginTesterOptions) {
-  pendingJestTests = [];
+  if (runnableJestTests.length) {
+    throw new Error(
+      'sanity check failed in testing framework: runnableJestTests.length is non-zero'
+    );
+  }
+
+  const pendingTests = [];
 
   try {
     pluginTester(options);
-    return await Promise.all(getPendingJestTests());
+
+    // ? Ensure tests run sequentially
+    for (const test of runnableJestTests) {
+      // eslint-disable-next-line no-await-in-loop
+      await pendingTests[pendingTests.push(test()) - 1];
+    }
+
+    return pendingTests;
   } finally {
-    // ! Must ensure all pending promises settle before Jest tears down its
-    // ! environment. If not, strange errors might occur if the pending
-    // ! promises attempt to interact with emulated APIs (like import/require).
-    await Promise.allSettled(getPendingJestTests());
-    pendingJestTests = [];
+    runnableJestTests = [];
   }
 }
 
@@ -202,28 +221,25 @@ export async function runPluginTesterExpectCapturedError(
     throw new SyntaxError('expected this error to be captured');
   };
 
-  return Promise.all([
-    expect(
-      runPluginTester(
-        getDummyPluginOptions({
-          plugin: faultyPluginOrPreset,
-          tests: [{ code: simpleTest, throws }],
-          fixtures: getFixturePath('simple'),
-          ...overrides
-        })
-      )
-    ).resolves.toBeArrayOfSize(2),
-    expect(
-      runPluginTester(
+  return expect(
+    runPluginTester(
+      getDummyPluginOptions({
+        plugin: faultyPluginOrPreset,
+        tests: [{ code: simpleTest, throws }],
+        fixtures: getFixturePath('simple'),
+        ...overrides
+      })
+    ).then(() => {
+      return runPluginTester(
         getDummyPresetOptions({
           preset: faultyPluginOrPreset,
           tests: [{ code: simpleTest, throws }],
           fixtures: getFixturePath('simple'),
           ...overrides
         })
-      )
-    ).resolves.toBeArrayOfSize(2)
-  ]);
+      );
+    })
+  ).resolves.pass('if this function completes, the test succeeded');
 }
 
 /**
@@ -239,26 +255,27 @@ export async function runPluginTesterExpectThrownExceptionWhenCapturingError(
     throw new SyntaxError('expected this error to be captured');
   };
 
-  return Promise.all([
-    expect(
-      runPluginTester(
-        getDummyPluginOptions({
-          plugin: faultyPluginOrPreset,
-          tests: [{ code: simpleTest, throws }],
-          ...overrides
-        })
-      )
-    ).rejects.toThrowErrorMatchingSnapshot(),
-    expect(
-      runPluginTester(
-        getDummyPresetOptions({
-          preset: faultyPluginOrPreset,
-          tests: [{ code: simpleTest, throws }],
-          ...overrides
-        })
-      )
-    ).rejects.toThrowErrorMatchingSnapshot()
-  ]);
+  return expect(
+    runPluginTester(
+      getDummyPluginOptions({
+        plugin: faultyPluginOrPreset,
+        tests: [{ code: simpleTest, throws }],
+        ...overrides
+      })
+    )
+  )
+    .rejects.toThrowErrorMatchingSnapshot()
+    .then(() => {
+      return expect(
+        runPluginTester(
+          getDummyPresetOptions({
+            preset: faultyPluginOrPreset,
+            tests: [{ code: simpleTest, throws }],
+            ...overrides
+          })
+        )
+      ).rejects.toThrowErrorMatchingSnapshot();
+    });
 }
 
 /**

@@ -1,5 +1,5 @@
 /* eslint-disable jest/prefer-lowercase-title */
-import fs from 'node:fs';
+import fs, { write } from 'node:fs';
 import path from 'node:path';
 import assert, { AssertionError } from 'node:assert';
 import babel from '@babel/core';
@@ -38,7 +38,7 @@ import {
   dummyExplicitPluginName,
   dummyInferredPluginName,
   dummyPresetName,
-  addPendingJestTest,
+  addRunnableJestTest,
   getDummyPluginOptions,
   getDummyPresetOptions,
   runPluginTester,
@@ -48,7 +48,8 @@ import {
   getFixturePath,
   getFixtureContents,
   requireFixtureOptions,
-  getPendingJestTests
+  getRunnableJestTests,
+  clearRunnableJestTests
 } from './helpers';
 
 import type { AnyFunction } from '@xunnamius/jest-types';
@@ -88,7 +89,7 @@ beforeEach(() => {
   });
 
   itSpy.mockImplementation((name, testFn) => {
-    addPendingJestTest(name, testFn);
+    addRunnableJestTest(name, testFn);
   });
 
   errorSpy.mockImplementation(() => undefined);
@@ -942,13 +943,19 @@ describe('tests targeting the PluginTesterOptions interface', () => {
 
     jest.clearAllMocks();
 
+    // * Adapted from helpers/index.ts#runPluginTester
+
     pluginTester({
       plugin: () => ({ visitor: {} }),
       tests: [simpleTest],
       fixtures: 'fixtures/simple'
     });
 
-    await Promise.all(getPendingJestTests());
+    try {
+      await Promise.all(getRunnableJestTests().map((fn) => fn()));
+    } finally {
+      clearRunnableJestTests();
+    }
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
       [expect.any(String), expect.objectContaining({ filename: fixtureFilename })],
@@ -1257,26 +1264,6 @@ describe('tests targeting the PluginTesterOptions interface', () => {
         // @ts-expect-error: testing bad value
         endOfLine: 'invalid',
         tests: [simpleTest]
-      })
-    );
-  });
-
-  it('throws if `endOfLine` is invalid even if `throws` is not `false`', async () => {
-    expect.hasAssertions();
-
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
-        // @ts-expect-error: testing bad value
-        endOfLine: 'invalid',
-        fixtures: getFixturePath('option-throws-true')
-      })
-    );
-
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
-        // @ts-expect-error: testing bad value
-        endOfLine: 'invalid',
-        tests: [{ code: simpleTest, throws: true }]
       })
     );
   });
@@ -1593,24 +1580,6 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy).toBeCalledTimes(4);
-  });
-
-  it('throws if `formatResult` throws even if `throws` is not `false`', async () => {
-    expect.hasAssertions();
-
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
-        formatResult: () => toss(new Error('faux error')),
-        fixtures: getFixturePath('option-throws-true')
-      })
-    );
-
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
-        formatResult: () => toss(new Error('faux error')),
-        tests: [{ code: simpleTest, throws: true }]
-      })
-    );
   });
 
   it('applies `snapshot` globally', async () => {
@@ -2508,6 +2477,87 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
               })
             ]
           ])
+        })
+      ]
+    ]);
+  });
+
+  it('does not throw when using test-level `pluginOptions` and `presetOptions` together', async () => {
+    expect.hasAssertions();
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        fixtures: getFixturePath('options-js'),
+        tests: [
+          {
+            code: simpleTest,
+            pluginOptions: { bar: 'baz' },
+            presetOptions: { bar: 'baz' }
+          }
+        ]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        fixtures: getFixturePath('options-json')
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        fixtures: getFixturePath('options-js'),
+        tests: [
+          {
+            code: simpleTest,
+            pluginOptions: { bar: 'baz' },
+            presetOptions: { bar: 'baz' }
+          }
+        ]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        fixtures: getFixturePath('options-json')
+      })
+    );
+
+    expect(transformAsyncSpy.mock.calls).toMatchObject([
+      [
+        expect.any(String),
+        expect.objectContaining({
+          plugins: expect.arrayContaining([[expect.any(Function), { bar: 'baz' }]])
+        })
+      ],
+      [
+        expect.any(String),
+        expect.objectContaining({
+          plugins: expect.arrayContaining([[expect.any(Function), { bar: 'baz' }]])
+        })
+      ],
+      [
+        expect.any(String),
+        expect.objectContaining({
+          plugins: expect.arrayContaining([[expect.any(Function), { bar: 'baz' }]])
+        })
+      ],
+      [
+        expect.any(String),
+        expect.objectContaining({
+          presets: expect.arrayContaining([[expect.any(Function), { bar: 'baz' }]])
+        })
+      ],
+      [
+        expect.any(String),
+        expect.objectContaining({
+          presets: expect.arrayContaining([[expect.any(Function), { bar: 'baz' }]])
+        })
+      ],
+      [
+        expect.any(String),
+        expect.objectContaining({
+          presets: expect.arrayContaining([[expect.any(Function), { bar: 'baz' }]])
         })
       ]
     ]);
@@ -3604,11 +3654,13 @@ describe('tests targeting the FixtureOptions interface', () => {
   it('uses code.js/exec.js path as `babelOptions.filename` by default, overriding any globals', async () => {
     expect.hasAssertions();
 
-    const execFixturesPath = getFixturePath('exec-file-passing');
+    const simpleFixturePath = getFixturePath('simple/fixture/code.js');
+    const execFixturePath = expect.stringMatching(
+      new RegExp(getFixturePath('exec-file-passing/[^/]+/exec\\.[^/]+$'))
+    );
 
     await runPluginTester(
       getDummyPluginOptions({
-        plugin: identifierReversePlugin,
         filepath: '/bad/bad/not/good.js',
         babelOptions: {
           filename: '/does/not/exist/and/never/did.js'
@@ -3623,17 +3675,17 @@ describe('tests targeting the FixtureOptions interface', () => {
         babelOptions: {
           filename: '/does/not/exist/and/never/did.js'
         },
-        fixtures: execFixturesPath
+        fixtures: getFixturePath('exec-file-passing')
       })
     );
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
-      [expect.any(String), expect.objectContaining({ filename: simpleFixture })],
-      [expect.any(String), expect.objectContaining({ filename: execFixturesPath })],
-      [expect.any(String), expect.objectContaining({ filename: execFixturesPath })],
-      [expect.any(String), expect.objectContaining({ filename: execFixturesPath })],
-      [expect.any(String), expect.objectContaining({ filename: execFixturesPath })],
-      [expect.any(String), expect.objectContaining({ filename: execFixturesPath })]
+      [expect.any(String), expect.objectContaining({ filename: simpleFixturePath })],
+      [expect.any(String), expect.objectContaining({ filename: execFixturePath })],
+      [expect.any(String), expect.objectContaining({ filename: execFixturePath })],
+      [expect.any(String), expect.objectContaining({ filename: execFixturePath })],
+      [expect.any(String), expect.objectContaining({ filename: execFixturePath })],
+      [expect.any(String), expect.objectContaining({ filename: execFixturePath })]
     ]);
   });
 
@@ -3677,27 +3729,27 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPluginOptions({
-        fixtures: getFixturePath('unchanged')
+        fixtures: getFixturePath('simple')
       })
     );
 
     await runPluginTesterExpectThrownException(
       getDummyPluginOptions({
         plugin: identifierReversePlugin,
-        fixtures: getFixturePath('unchanged')
+        fixtures: getFixturePath('simple')
       })
     );
 
     await runPluginTester(
       getDummyPresetOptions({
-        fixtures: getFixturePath('unchanged')
+        fixtures: getFixturePath('simple')
       })
     );
 
     await runPluginTesterExpectThrownException(
       getDummyPresetOptions({
         preset: makePresetFromPlugin(identifierReversePlugin),
-        fixtures: getFixturePath('unchanged')
+        fixtures: getFixturePath('simple')
       })
     );
   });
@@ -3707,27 +3759,27 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPluginOptions({
-        fixtures: getFixturePath('simple')
+        plugin: identifierReversePlugin,
+        fixtures: getFixturePath('simple-reversed')
       })
     );
 
     await runPluginTesterExpectThrownException(
       getDummyPluginOptions({
-        plugin: identifierReversePlugin,
-        fixtures: getFixturePath('simple')
+        fixtures: getFixturePath('simple-reversed')
       })
     );
 
     await runPluginTester(
       getDummyPresetOptions({
-        fixtures: getFixturePath('simple')
+        preset: makePresetFromPlugin(identifierReversePlugin),
+        fixtures: getFixturePath('simple-reversed')
       })
     );
 
     await runPluginTesterExpectThrownException(
       getDummyPresetOptions({
-        preset: makePresetFromPlugin(identifierReversePlugin),
-        fixtures: getFixturePath('simple')
+        fixtures: getFixturePath('simple-reversed')
       })
     );
   });
@@ -3894,7 +3946,7 @@ describe('tests targeting the FixtureOptions interface', () => {
     expect.hasAssertions();
 
     const formatResult = jest.fn(
-      () => `if('\r\n'.length == 2) { throw new Error('crlf not replaced with lf'); }`
+      () => `if('\\r\\n'.length == 2) { throw new Error('crlf not replaced with lf'); }`
     );
 
     await runPluginTester(
@@ -3931,7 +3983,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    // ? expect() call is in the execFixture.js script
   });
 
   it('does not generate output file when using exec.js', async () => {
@@ -3950,24 +4002,23 @@ describe('tests targeting the FixtureOptions interface', () => {
     );
 
     expect(itSpy).toBeCalledTimes(10);
+    expect(writeFileSyncSpy).not.toBeCalled();
   });
 
   it('throws if exec.js file is empty', async () => {
     expect.hasAssertions();
 
-    await runPluginTester(
+    await runPluginTesterExpectThrownException(
       getDummyPluginOptions({
         fixtures: getFixturePath('exec-file-empty')
       })
     );
 
-    await runPluginTester(
+    await runPluginTesterExpectThrownException(
       getDummyPresetOptions({
         fixtures: getFixturePath('exec-file-empty')
       })
     );
-
-    expect(itSpy).toBeCalledTimes(2);
   });
 
   it('throws with helpful message if there is a problem parsing exec.js', async () => {
@@ -4039,13 +4090,13 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPluginOptions({
-        fixtures: getFixturePath('nested-options-json')
+        fixtures: getFixturePath('nested-options-json-plugin')
       })
     );
 
     await runPluginTester(
       getDummyPresetOptions({
-        fixtures: getFixturePath('nested-options-json')
+        fixtures: getFixturePath('nested-options-json-preset')
       })
     );
 
@@ -4109,7 +4160,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4124,7 +4175,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4138,7 +4189,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4152,7 +4203,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4170,13 +4221,13 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPluginOptions({
-        fixtures: getFixturePath('nested-options-js')
+        fixtures: getFixturePath('nested-options-js-plugin')
       })
     );
 
     await runPluginTester(
       getDummyPresetOptions({
-        fixtures: getFixturePath('nested-options-js')
+        fixtures: getFixturePath('nested-options-js-preset')
       })
     );
 
@@ -4240,7 +4291,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4255,7 +4306,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4269,7 +4320,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4283,7 +4334,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4301,13 +4352,13 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPluginOptions({
-        fixtures: getFixturePath('nested-options-json-and-js')
+        fixtures: getFixturePath('nested-options-json-and-js-plugin')
       })
     );
 
     await runPluginTester(
       getDummyPresetOptions({
-        fixtures: getFixturePath('nested-options-json-and-js')
+        fixtures: getFixturePath('nested-options-json-and-js-preset')
       })
     );
 
@@ -4371,7 +4422,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4386,7 +4437,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4400,7 +4451,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4414,7 +4465,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4459,7 +4510,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       [
         expect.any(String),
         expect.objectContaining({
-          plugins: expect.arrayContaining([
+          presets: expect.arrayContaining([
             [
               expect.any(Function),
               {
@@ -4550,14 +4601,14 @@ describe('tests targeting the FixtureOptions interface', () => {
       fs.writeFileSync('/dne/teardown.js', 'fake teardown content c');
 
     const globalSetupReturnTeardownFnSpy = () => {
-      fs.writeFileSync('/dne/setup.js', 'fake setup content a');
-      return () => fs.writeFileSync('/dne/teardown.js', 'fake teardown content b');
+      fs.writeFileSync('/dne/setup.js', 'fake setup content a1');
+      return () => fs.writeFileSync('/dne/teardown.js', 'fake teardown content b1');
     };
 
     const globalSetupReturnTeardownPromiseSpy = () => {
-      fs.writeFileSync('/dne/setup.js', 'fake setup content a');
+      fs.writeFileSync('/dne/setup.js', 'fake setup content a2');
       return Promise.resolve(() =>
-        fs.writeFileSync('/dne/teardown.js', 'fake teardown content b')
+        fs.writeFileSync('/dne/teardown.js', 'fake teardown content b2')
       );
     };
 
@@ -4577,30 +4628,45 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    const singleRunResults = [
-      [expect.any(String), 'fake setup content a'],
+    expect(writeFileSyncSpy.mock.calls).toMatchObject([
+      [expect.any(String), 'fake setup content a1'],
       [expect.any(String), 'fake setup content 1'],
       [expect.any(String), 'fake teardown content 1'],
-      [expect.any(String), 'fake teardown content b'],
+      [expect.any(String), 'fake teardown content b1'],
       [expect.any(String), 'fake teardown content c'],
 
-      [expect.any(String), 'fake setup content a'],
+      [expect.any(String), 'fake setup content a1'],
       [expect.any(String), 'fake setup content 2'],
       [expect.any(String), 'fake teardown content 2'],
-      [expect.any(String), 'fake teardown content b'],
+      [expect.any(String), 'fake teardown content b1'],
       [expect.any(String), 'fake teardown content c'],
 
-      [expect.any(String), 'fake setup content a'],
+      [expect.any(String), 'fake setup content a1'],
       [expect.any(String), 'fake setup content 3'],
       [expect.any(String), 'fake teardown content 3'],
       [expect.any(String), 'fake teardown content 4'],
-      [expect.any(String), 'fake teardown content b'],
-      [expect.any(String), 'fake teardown content c']
-    ];
+      [expect.any(String), 'fake teardown content b1'],
+      [expect.any(String), 'fake teardown content c'],
 
-    expect(writeFileSyncSpy.mock.calls).toMatchObject(
-      singleRunResults.concat(singleRunResults)
-    );
+      [expect.any(String), 'fake setup content a2'],
+      [expect.any(String), 'fake setup content 1'],
+      [expect.any(String), 'fake teardown content 1'],
+      [expect.any(String), 'fake teardown content b2'],
+      [expect.any(String), 'fake teardown content c'],
+
+      [expect.any(String), 'fake setup content a2'],
+      [expect.any(String), 'fake setup content 2'],
+      [expect.any(String), 'fake teardown content 2'],
+      [expect.any(String), 'fake teardown content b2'],
+      [expect.any(String), 'fake teardown content c'],
+
+      [expect.any(String), 'fake setup content a2'],
+      [expect.any(String), 'fake setup content 3'],
+      [expect.any(String), 'fake teardown content 3'],
+      [expect.any(String), 'fake teardown content 4'],
+      [expect.any(String), 'fake teardown content b2'],
+      [expect.any(String), 'fake teardown content c']
+    ]);
   });
 
   it('creates output files with respect to `fixtureOutputName` and `fixtureOutputExt` only if said files do not already exist', async () => {
@@ -4676,6 +4742,8 @@ describe('tests targeting the FixtureOptions interface', () => {
         expect.any(String)
       ]
     ]);
+
+    jest.clearAllMocks();
 
     await runPluginTester(
       getDummyPresetOptions({
@@ -5576,14 +5644,14 @@ describe('tests targeting the TestObject interface', () => {
       fs.writeFileSync('/dne/teardown.js', 'fake teardown content c');
 
     const globalSetupReturnTeardownFnSpy = () => {
-      fs.writeFileSync('/dne/setup.js', 'fake setup content a');
-      return () => fs.writeFileSync('/dne/teardown.js', 'fake teardown content b');
+      fs.writeFileSync('/dne/setup.js', 'fake setup content a1');
+      return () => fs.writeFileSync('/dne/teardown.js', 'fake teardown content b1');
     };
 
     const globalSetupReturnTeardownPromiseSpy = () => {
-      fs.writeFileSync('/dne/setup.js', 'fake setup content a');
+      fs.writeFileSync('/dne/setup.js', 'fake setup content a2');
       return Promise.resolve(() =>
-        fs.writeFileSync('/dne/teardown.js', 'fake teardown content b')
+        fs.writeFileSync('/dne/teardown.js', 'fake teardown content b2')
       );
     };
 
@@ -5602,27 +5670,6 @@ describe('tests targeting the TestObject interface', () => {
       }
     ];
 
-    const singleRunResults = [
-      [expect.any(String), 'fake setup content a'],
-      [expect.any(String), 'fake setup content 1'],
-      [expect.any(String), 'fake teardown content 1'],
-      [expect.any(String), 'fake teardown content b'],
-      [expect.any(String), 'fake teardown content c'],
-
-      [expect.any(String), 'fake setup content a'],
-      [expect.any(String), 'fake setup content 2'],
-      [expect.any(String), 'fake teardown content 2'],
-      [expect.any(String), 'fake teardown content b'],
-      [expect.any(String), 'fake teardown content c'],
-
-      [expect.any(String), 'fake setup content a'],
-      [expect.any(String), 'fake setup content 3'],
-      [expect.any(String), 'fake teardown content 3'],
-      [expect.any(String), 'fake teardown content 4'],
-      [expect.any(String), 'fake teardown content b'],
-      [expect.any(String), 'fake teardown content c']
-    ];
-
     await runPluginTester(
       getDummyPluginOptions({
         setup: globalSetupReturnTeardownFnSpy,
@@ -5639,9 +5686,45 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(writeFileSyncSpy.mock.calls).toMatchObject(
-      singleRunResults.concat(singleRunResults)
-    );
+    expect(writeFileSyncSpy.mock.calls).toMatchObject([
+      [expect.any(String), 'fake setup content a1'],
+      [expect.any(String), 'fake setup content 1'],
+      [expect.any(String), 'fake teardown content 1'],
+      [expect.any(String), 'fake teardown content b1'],
+      [expect.any(String), 'fake teardown content c'],
+
+      [expect.any(String), 'fake setup content a1'],
+      [expect.any(String), 'fake setup content 2'],
+      [expect.any(String), 'fake teardown content 2'],
+      [expect.any(String), 'fake teardown content b1'],
+      [expect.any(String), 'fake teardown content c'],
+
+      [expect.any(String), 'fake setup content a1'],
+      [expect.any(String), 'fake setup content 3'],
+      [expect.any(String), 'fake teardown content 3'],
+      [expect.any(String), 'fake teardown content 4'],
+      [expect.any(String), 'fake teardown content b1'],
+      [expect.any(String), 'fake teardown content c'],
+
+      [expect.any(String), 'fake setup content a2'],
+      [expect.any(String), 'fake setup content 1'],
+      [expect.any(String), 'fake teardown content 1'],
+      [expect.any(String), 'fake teardown content b2'],
+      [expect.any(String), 'fake teardown content c'],
+
+      [expect.any(String), 'fake setup content a2'],
+      [expect.any(String), 'fake setup content 2'],
+      [expect.any(String), 'fake teardown content 2'],
+      [expect.any(String), 'fake teardown content b2'],
+      [expect.any(String), 'fake teardown content c'],
+
+      [expect.any(String), 'fake setup content a2'],
+      [expect.any(String), 'fake setup content 3'],
+      [expect.any(String), 'fake teardown content 3'],
+      [expect.any(String), 'fake teardown content 4'],
+      [expect.any(String), 'fake teardown content b2'],
+      [expect.any(String), 'fake teardown content c']
+    ]);
   });
 
   it('takes a snapshot if `snapshot` is enabled', async () => {

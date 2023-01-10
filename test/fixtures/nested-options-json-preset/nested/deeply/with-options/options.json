@@ -1,7 +1,4 @@
 {
-  "pluginOptions": {
-    "bar": "baz"
-  },
   "presetOptions": {
     "bar": "baz"
   }

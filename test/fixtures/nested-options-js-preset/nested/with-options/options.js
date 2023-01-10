@@ -1,8 +1,6 @@
 module.exports = {
-  pluginOptions: {
-    bar:
-  },
   presetOptions: {
-    bar:
+    rootFoo: null,
+    foo: null
   }
 };

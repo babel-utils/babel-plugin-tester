@@ -100,7 +100,7 @@ exports[`tests targeting both FixtureOptions and TestObject interfaces throws wh
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws when babel transform errors and \`throws: false\` 2`] = `3. fixture: [BABEL] /repos/babel-plugin-tester/test/fixtures/option-throws-false/fixture/code.js: expected this error to be captured (While processing: "base$0")`;
 
-exports[`tests targeting the FixtureOptions interface can test that code.js babel output matches output.js 1`] = `
+exports[`tests targeting the FixtureOptions interface can test that code.js babel output is unchanged 1`] = `
 2. fixture: actual output does not match output.js
 
 actual:
@@ -110,7 +110,7 @@ expected:
 var hi = 'hey';
 `;
 
-exports[`tests targeting the FixtureOptions interface can test that code.js babel output matches output.js 2`] = `
+exports[`tests targeting the FixtureOptions interface can test that code.js babel output is unchanged 2`] = `
 4. fixture: actual output does not match output.js
 
 actual:
@@ -118,6 +118,26 @@ var ih = 'hey';
 
 expected:
 var hi = 'hey';
+`;
+
+exports[`tests targeting the FixtureOptions interface can test that code.js babel output matches output.js 1`] = `
+2. fixture: actual output does not match output.js
+
+actual:
+const hello = 'hey';
+
+expected:
+const olleh = 'hey';
+`;
+
+exports[`tests targeting the FixtureOptions interface can test that code.js babel output matches output.js 2`] = `
+4. fixture: actual output does not match output.js
+
+actual:
+const hello = 'hey';
+
+expected:
+const olleh = 'hey';
 `;
 
 exports[`tests targeting the FixtureOptions interface handles failing exec.js file 1`] = ``;
@@ -128,9 +148,13 @@ exports[`tests targeting the FixtureOptions interface throws if exec.js and code
 
 exports[`tests targeting the FixtureOptions interface throws if exec.js and code.js file in same directory 2`] = `failed to validate configuration for test "2. fixture": a fixture cannot contain both an exec file and a code or output file`;
 
-exports[`tests targeting the FixtureOptions interface throws if exec.js and output.js file in same directory 1`] = ``;
+exports[`tests targeting the FixtureOptions interface throws if exec.js and output.js file in same directory 1`] = `failed to validate configuration for test "1. fixture": a fixture cannot contain both an exec file and a code or output file`;
 
-exports[`tests targeting the FixtureOptions interface throws if exec.js and output.js file in same directory 2`] = ``;
+exports[`tests targeting the FixtureOptions interface throws if exec.js and output.js file in same directory 2`] = `failed to validate configuration for test "2. fixture": a fixture cannot contain both an exec file and a code or output file`;
+
+exports[`tests targeting the FixtureOptions interface throws if exec.js file is empty 1`] = `sanity check failed in testing framework: runnableJestTests.length is non-zero`;
+
+exports[`tests targeting the FixtureOptions interface throws if exec.js file is empty 2`] = `sanity check failed in testing framework: runnableJestTests.length is non-zero`;
 
 exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing code.js 1`] = `
 1. fixture: /repos/babel-plugin-tester/test/fixtures/code-file-bad/fixture/code.js: Missing semicolon. (1:2)
@@ -167,13 +191,14 @@ exports[`tests targeting the FixtureOptions interface throws with helpful messag
 
 [0m [90m 2 |[39m   pluginOptions[33m:[39m {[0m
 [0m [90m 3 |[39m     bar[33m:[39m[0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m   }[0m
+[0m[31m[1m>[22m[39m[90m 4 |[39m   }[33m,[39m[0m
 [0m [90m   |[39m   [31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m }[33m;[39m[0m
-[0m [90m 6 |[39m[0m
+[0m [90m 5 |[39m   presetOptions[33m:[39m {[0m
+[0m [90m 6 |[39m     bar[33m:[39m[0m
+[0m [90m 7 |[39m   }[0m
 `;
 
-exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing options files 2`] = `Unexpected token } in JSON at position 36`;
+exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing options files 2`] = `/repos/babel-plugin-tester/test/fixtures/options-json-bad/fixture/options.json: Unexpected token } in JSON at position 36`;
 
 exports[`tests targeting the PluginTesterOptions interface applies \`snapshot\` globally 1`] = `failed to validate configuration for test "2. captains-log (explicit)": neither \`output\` nor \`outputFixture\` can be provided with \`snapshot\` enabled`;
 
