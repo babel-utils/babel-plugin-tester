@@ -13,6 +13,7 @@ import {
   runPluginUnderTestHere,
   runPresetUnderTestHere,
   validTitleNumberingValues,
+  type Range,
   type ResultFormatter,
   type PluginTesterOptions,
   type TestObject,
@@ -34,6 +35,10 @@ const parseErrorStackRegExp =
 
 const parseScriptFilepathRegExp =
   /\/babel-plugin-tester\/(dist|src)\/(index|plugin-tester)\.(j|t)s$/;
+
+const isIntegerRegExp = /^\d+$/;
+
+const isIntegerRangeRegExp = /^(?<startStr>\d+)-(?<endStr>\d+)$/;
 
 export default pluginTester;
 
@@ -90,7 +95,10 @@ export function pluginTester(options: PluginTesterOptions = {}) {
 
   let hasTests = false;
   const baseConfig = resolveBaseConfig();
+  const envConfig = resolveConfigFromEnvironmentVariables();
   const normalizedTests = normalizeTests();
+
+  // TODO: debug statements here printing resolved configs
 
   if (!hasTests) {
     // TODO: debug statement here
@@ -274,6 +282,59 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           })
         ].find((ndx) => ndx != -1);
       }
+    }
+  }
+
+  function resolveConfigFromEnvironmentVariables() {
+    return {
+      skipTestsByRegExp: stringToRegExp(process.env.TEST_SKIP),
+      onlyTestsByRegExp: stringToRegExp(process.env.TEST_ONLY),
+      skipTestsByRange: stringToRanges('TEST_NUM_SKIP', process.env.TEST_NUM_SKIP),
+      onlyTestsByRange: stringToRanges('TEST_NUM_ONLY', process.env.TEST_NUM_ONLY)
+    };
+
+    function stringToRegExp(str: string | undefined) {
+      return str === undefined ? undefined : new RegExp(str, 'u');
+    }
+
+    function stringToRanges(name: string, str: string | undefined): (number | Range)[] {
+      if (typeof str != 'string') {
+        return [];
+      }
+
+      return str
+        .split(',')
+        .map((s) => {
+          s = s.trim();
+
+          if (s) {
+            if (isIntegerRegExp.test(s)) {
+              return Number(s);
+            }
+
+            const { startStr, endStr } = s.match(isIntegerRangeRegExp)?.groups || {};
+
+            if (startStr && endStr) {
+              const start = Number(startStr);
+              const end = Number(endStr);
+
+              if (start > end) {
+                throw new TypeError(
+                  `invalid environment variable "${name}": invalid range ${s}: ${start} is greater than ${end}`
+                );
+              } else if (start == end) {
+                return start;
+              }
+
+              return { start, end };
+            }
+
+            throw new TypeError(
+              `invalid environment variable "${name}": invalid range ${s}`
+            );
+          }
+        })
+        .filter((s): s is NonNullable<typeof s> => Boolean(s));
     }
   }
 
@@ -490,12 +551,9 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             ? trimAndFixLineEndings(fs.readFileSync(outputPath, 'utf8'), endOfLine, code)
             : undefined;
 
-          const titleNumberPrefix = useFixtureTitleNumbering
-            ? `${currentTestNumber++}. `
-            : '';
-
           const testConfig: MaybePluginTesterTestFixtureConfig = mergeWith(
             { [$type]: 'fixture-object' } as const,
+            // ! Keep the # of source objects to <=4 to get type inference
             { babelOptions: baseBabelOptions },
             {
               babelOptions: {
@@ -506,7 +564,26 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             },
             { babelOptions: babelOptions || {} },
             {
-              testBlockTitle: `${titleNumberPrefix}${title || blockTitle}`,
+              // ? This is last to ensure plugins/presets babelOptions are
+              // ? always arrays
+              babelOptions: { plugins: [], presets: [] },
+              testBlockTitle: (() => {
+                const titleString = title || blockTitle;
+                if (useFixtureTitleNumbering) {
+                  const numericPrefix = currentTestNumber++;
+                  return {
+                    numericPrefix,
+                    titleString,
+                    fullString: `${numericPrefix}. ${titleString}`
+                  };
+                } else {
+                  return {
+                    numericPrefix: undefined,
+                    titleString,
+                    fullString: titleString
+                  };
+                }
+              })(),
               only,
               skip,
               expectedError: throws ?? error,
@@ -521,8 +598,6 @@ export function pluginTester(options: PluginTesterOptions = {}) {
               exec,
               execFixture: execPath
             },
-            // ? This is last to ensure plugins/presets babelOptions are arrays
-            { babelOptions: { plugins: [], presets: [] } },
             mergeCustomizer
           );
 
@@ -603,12 +678,9 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           : readCode(filepath, outputFixture);
       const exec = rawExec ?? readCode(filepath, execFixture);
 
-      const titleNumberPrefix = useTestObjectTitleNumbering
-        ? `${currentTestNumber++}. `
-        : '';
-
       const testConfig: MaybePluginTesterTestObjectConfig = mergeWith(
         { [$type]: 'test-object' } as const,
+        // ! Keep the # of source objects to <=4 to get type inference
         { babelOptions: baseBabelOptions },
         {
           babelOptions: {
@@ -620,8 +692,27 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         },
         { babelOptions: babelOptions || {} },
         {
+          // ? This is last to ensure plugins/presets babelOptions are always
+          // ? arrays
+          babelOptions: { plugins: [], presets: [] },
           snapshot: snapshot ?? baseSnapshot,
-          testBlockTitle: `${titleNumberPrefix}${title || pluginName || presetName}`,
+          testBlockTitle: (() => {
+            const titleString = (title || pluginName || presetName) as string;
+            if (useTestObjectTitleNumbering) {
+              const numericPrefix = currentTestNumber++;
+              return {
+                numericPrefix,
+                titleString,
+                fullString: `${numericPrefix}. ${titleString}`
+              };
+            } else {
+              return {
+                numericPrefix: undefined,
+                titleString,
+                fullString: titleString
+              };
+            }
+          })(),
           only,
           skip,
           expectedError: throws ?? error,
@@ -639,8 +730,6 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           exec: exec ? trimAndFixLineEndings(exec, endOfLine) : undefined,
           execFixture
         },
-        // ? This is last to ensure plugins/presets babelOptions are arrays
-        { babelOptions: { plugins: [], presets: [] } },
         mergeCustomizer
       );
 
@@ -671,15 +760,31 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           registerTestsWithTestingFramework(testConfig.tests);
         });
       } else {
-        const { skip, only, testBlockTitle } = testConfig;
+        const {
+          skip,
+          only,
+          testBlockTitle: { numericPrefix, titleString, fullString }
+        } = testConfig;
 
-        if (skip) {
-          it.skip(testBlockTitle, frameworkTestWrapper(testConfig));
+        let method: 'skip' | 'only' | undefined = undefined;
+
+        if (
+          envConfig.skipTestsByRegExp?.test(titleString) ||
+          numericPrefixInRanges(numericPrefix, envConfig.skipTestsByRange)
+        ) {
+          method = 'skip';
+        } else if (
+          envConfig.onlyTestsByRegExp?.test(titleString) ||
+          numericPrefixInRanges(numericPrefix, envConfig.onlyTestsByRange)
+        ) {
+          method = 'only';
+        } else if (skip) {
+          method = 'skip';
         } else if (only) {
-          it.only(testBlockTitle, frameworkTestWrapper(testConfig));
-        } else {
-          it(testBlockTitle, frameworkTestWrapper(testConfig));
+          method = 'only';
         }
+
+        (method ? it[method] : it)(fullString, frameworkTestWrapper(testConfig));
       }
     });
   }
@@ -812,7 +917,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n';
       const formattedOutput = [code, separator, result].join('');
 
-      expect(`\n${formattedOutput}\n`).toMatchSnapshot(testBlockTitle);
+      expect(`\n${formattedOutput}\n`).toMatchSnapshot(testBlockTitle.fullString);
     } else if (expectedError) {
       if (typeof expectedError === 'function') {
         if (expectedError === Error || expectedError.prototype instanceof Error) {
@@ -973,7 +1078,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
 
     function throwTypeError(message: string) {
       throw new TypeError(
-        `failed to validate configuration for test "${testBlockTitle}": ${message}`
+        `failed to validate configuration for test "${testBlockTitle.fullString}": ${message}`
       );
     }
   }
@@ -1094,4 +1199,23 @@ function finalizePluginAndPresetRunOrder(
       );
     }
   }
+}
+
+/**
+ * Determines if `numericPrefix` equals at least one number or is covered by at
+ * least one range Range in the `ranges` array.
+ */
+function numericPrefixInRanges(
+  numericPrefix: number | undefined,
+  ranges: (number | Range)[]
+) {
+  if (typeof numericPrefix == 'number') {
+    return ranges.some((range) => {
+      return typeof range == 'number'
+        ? numericPrefix == range
+        : numericPrefix >= range.start && numericPrefix <= range.end;
+    });
+  }
+
+  return false;
 }

@@ -804,7 +804,11 @@ type PluginTesterSharedTestConfigProperties = {
     plugins: NonNullable<Babel.TransformOptions['plugins']>;
     presets: NonNullable<Babel.TransformOptions['presets']>;
   };
-  testBlockTitle: NonNullable<TestObject['title'] | FixtureOptions['title']>;
+  testBlockTitle: {
+    numericPrefix: number | undefined;
+    titleString: string;
+    fullString: string;
+  };
   only?: TestObject['only'] | FixtureOptions['only'];
   skip?: TestObject['skip'] | FixtureOptions['skip'];
   expectedError?: TestObject['throws'] | FixtureOptions['throws'];
@@ -924,3 +928,13 @@ export type PluginTesterTestConfig =
   | PluginTesterTestDescribeConfig
   | PluginTesterTestObjectConfig
   | PluginTesterTestFixtureConfig;
+
+/**
+ * An internal type describing an inclusive range of numbers.
+ *
+ * @internal
+ */
+export type Range = {
+  start: number;
+  end: number;
+};
