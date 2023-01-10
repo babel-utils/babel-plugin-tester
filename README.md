@@ -622,12 +622,12 @@ Note that this file cannot appear in the same directory as [`exec.js`][58].
 
 This file's contents will be used as the input into babel at transform time just
 like the [`code.js`][59] file, except the output will be _evaluated_ in the
-[same _CJS_ context][61] as the the test runner itself, meaning it supports
-stuff like a/sync IIFEs and has access to `expect` (if, for example, you are
-using Jest), `require`, and other globals provided by your test framework _but
-not `import`, top-level await, or any other ESM syntax_. Hence, while any file
-extension can be used (e.g. `.ts`, `.vue`, `.jsx`), this file will always be
-evaluated as CJS.
+[same _CJS_ context][61] as the test runner itself, meaning it supports features
+like a/sync IIFEs and debugging breakpoints (!) and has access to `expect` (if,
+for example, you are using Jest), `require`, and other globals provided by your
+test framework. However, the context does not support _`import`, top-level
+await, or any other ESM syntax_. Hence, while any file extension can be used
+(e.g. `.ts`, `.vue`, `.jsx`), this file will always be evaluated as CJS.
 
 The test will always pass unless an exception is thrown (e.g. when an `expect()`
 fails).
@@ -1015,11 +1015,13 @@ Note that this property cannot appear in the same test object as the
 ###### `exec`
 
 The provided source will be transformed just like the [`code`][81] property,
-except the output will be _evaluated_ in the [same _CJS_ context][61] as the the
-test runner itself, meaning it supports stuff like a/sync IIFEs and has access
-to `expect` (if, for example, you are using Jest), `require`, and other globals
-provided by your test framework _but not `import`, top-level await, or any other
-ESM syntax_.
+except the output will be _evaluated_ in the [same _CJS_ context][61] as the
+test runner itself, meaning it supports features like a/sync IIFEs and debugging
+breakpoints (!) and has access to `expect` (if, for example, you are using
+Jest), `require`, and other globals provided by your test framework. However,
+the context does not support _`import`, top-level await, or any other ESM
+syntax_. Hence, while any file extension can be used (e.g. `.ts`, `.vue`,
+`.jsx`), this file will always be evaluated as CJS.
 
 The test will always pass unless an exception is thrown (e.g. when an `expect()`
 fails).
@@ -1279,7 +1281,7 @@ pluginTester({
     },
     {
       // This source will be transformed just like the code property, except the
-      // produced code will be evaluated in the same CJS context as the the test
+      // produced code will be evaluated in the same CJS context as the test
       // runner. This lets us make more advanced assertions on the output.
       exec: `
         const hello = "hi";
