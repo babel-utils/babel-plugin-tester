@@ -41,6 +41,9 @@ const isIntegerRegExp = /^\d+$/;
 
 const isIntegerRangeRegExp = /^(?<startStr>\d+)-(?<endStr>\d+)$/;
 
+const noop = () => undefined;
+Object.freeze(noop);
+
 export default pluginTester;
 
 /**
@@ -122,8 +125,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         formatResult: ((r) => r) as ResultFormatter,
         snapshot: false,
         fixtureOutputName: 'output',
-        setup: () => undefined,
-        teardown: () => undefined
+        setup: noop,
+        teardown: noop
       },
       options,
       mergeCustomizer
@@ -198,9 +201,9 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         // * https://xunn.at/babel-helper-plugin-utils-src
         return rawBaseConfig.plugin!(
           {
-            assertVersion: () => undefined,
-            targets: () => undefined,
-            assumption: () => undefined
+            assertVersion: noop,
+            targets: noop,
+            assumption: noop
           },
           {},
           process.cwd()
@@ -431,7 +434,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       }
 
       const rootOptions = mergeWith(
-        { setup: () => undefined, teardown: () => undefined },
+        { setup: noop, teardown: noop } as object,
         fixtureOptions,
         readFixtureOptions(fixturesDirectory),
         mergeCustomizer
@@ -588,8 +591,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
               only,
               skip,
               expectedError: throws ?? error,
-              testSetup: setup,
-              testTeardown: teardown,
+              testSetup: setup || noop,
+              testTeardown: teardown || noop,
               formatResult: formatResult || baseFormatResult,
               fixtureOutputBasename,
               code,
@@ -663,9 +666,9 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         execFixture
       } = mergeWith(
         {
-          setup: () => undefined,
-          teardown: () => undefined
-        },
+          setup: noop,
+          teardown: noop
+        } as object,
         testObject,
         mergeCustomizer
       );
@@ -717,8 +720,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           only,
           skip,
           expectedError: throws ?? error,
-          testSetup: setup,
-          testTeardown: teardown,
+          testSetup: setup || noop,
+          testTeardown: teardown || noop,
           formatResult: formatResult || baseFormatResult,
           // ? trimAndFixLineEndings is called later on the babel output instead
           code,
@@ -799,13 +802,13 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       const setupFunctions = [baseSetup, testSetup];
       const teardownFunctions = [testTeardown, baseTeardown];
 
-      for (const setupFn of setupFunctions) {
+      for (const [index, setupFn] of setupFunctions.entries()) {
         try {
           // eslint-disable-next-line no-await-in-loop
           const maybeTeardownFn = await setupFn();
 
           if (typeof maybeTeardownFn === 'function') {
-            teardownFunctions.unshift(maybeTeardownFn);
+            teardownFunctions.splice(index - 1, 0, maybeTeardownFn);
           }
         } catch (error) {
           throw new Error(
