@@ -1,1 +1,1 @@
-expect.fail('failed!');
+expect('failed!').toBe('passed!');

@@ -3946,7 +3946,7 @@ describe('tests targeting the FixtureOptions interface', () => {
     expect.hasAssertions();
 
     const formatResult = jest.fn(
-      () => `if('\\r\\n'.length == 2) { throw new Error('crlf not replaced with lf'); }`
+      () => "if(`\r\n`.length == 2) { throw new Error('crlf not replaced with lf'); }"
     );
 
     await runPluginTester(

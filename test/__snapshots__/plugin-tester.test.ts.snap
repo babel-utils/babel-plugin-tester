@@ -140,9 +140,19 @@ expected:
 const olleh = 'hey';
 `;
 
-exports[`tests targeting the FixtureOptions interface handles failing exec.js file 1`] = ``;
+exports[`tests targeting the FixtureOptions interface handles failing exec.js file 1`] = `
+1. fixture: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
 
-exports[`tests targeting the FixtureOptions interface handles failing exec.js file 2`] = ``;
+Expected: [32m"[7mpass[27med!"[39m
+Received: [31m"[7mfail[27med!"[39m
+`;
+
+exports[`tests targeting the FixtureOptions interface handles failing exec.js file 2`] = `
+2. fixture: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+Expected: [32m"[7mpass[27med!"[39m
+Received: [31m"[7mfail[27med!"[39m
+`;
 
 exports[`tests targeting the FixtureOptions interface throws if exec.js and code.js file in same directory 1`] = `failed to validate configuration for test "1. fixture": a fixture cannot contain both an exec file and a code or output file`;
 
@@ -152,9 +162,25 @@ exports[`tests targeting the FixtureOptions interface throws if exec.js and outp
 
 exports[`tests targeting the FixtureOptions interface throws if exec.js and output.js file in same directory 2`] = `failed to validate configuration for test "2. fixture": a fixture cannot contain both an exec file and a code or output file`;
 
-exports[`tests targeting the FixtureOptions interface throws if exec.js file is empty 1`] = `sanity check failed in testing framework: runnableJestTests.length is non-zero`;
+exports[`tests targeting the FixtureOptions interface throws if exec.js file is empty 1`] = `
+1. fixture: attempted to execute babel output but output was empty. An empty string cannot be evaluated
 
-exports[`tests targeting the FixtureOptions interface throws if exec.js file is empty 2`] = `sanity check failed in testing framework: runnableJestTests.length is non-zero`;
+actual:
+false
+
+expected:
+true
+`;
+
+exports[`tests targeting the FixtureOptions interface throws if exec.js file is empty 2`] = `
+2. fixture: attempted to execute babel output but output was empty. An empty string cannot be evaluated
+
+actual:
+false
+
+expected:
+true
+`;
 
 exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing code.js 1`] = `
 1. fixture: /repos/babel-plugin-tester/test/fixtures/code-file-bad/fixture/code.js: Missing semicolon. (1:2)
