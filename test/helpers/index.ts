@@ -165,6 +165,10 @@ export async function runPluginTester(options?: PluginTesterOptions) {
     pluginTester(options);
     return await Promise.all(getPendingJestTests());
   } finally {
+    // ! Must ensure all pending promises settle before Jest tears down its
+    // ! environment. If not, strange errors might occur if the pending
+    // ! promises attempt to interact with emulated APIs (like import/require).
+    await Promise.allSettled(getPendingJestTests());
     pendingJestTests = [];
   }
 }
