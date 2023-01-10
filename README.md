@@ -685,6 +685,10 @@ specified here override ([`lodash.mergeWith`][lodash.mergewith]) those from the
 will be concatenated and explicitly undefined values will unset previously
 defined values during merging.
 
+Unlike with babel-plugin-tester's options, you can safely mix plugin-specific
+properties (like `pluginOptions`) with preset-specific properties (like
+[`presetOptions`][24]) in your options files.
+
 ###### `presetOptions`
 
 This is used to pass options into your preset at transform time. Properties
@@ -692,6 +696,10 @@ specified here override ([`lodash.mergeWith`][lodash.mergewith]) those from the
 [`presetOptions`][14] option provided to babel-plugin-tester. Note that arrays
 will be concatenated and explicitly undefined values will unset previously
 defined values during merging.
+
+Unlike with babel-plugin-tester's options, you can safely mix plugin-specific
+properties (like [`pluginOptions`][22]) with preset-specific properties (like
+`presetOptions`) in your options files.
 
 ###### `title`
 
@@ -851,6 +859,10 @@ specified here override ([`lodash.mergeWith`][lodash.mergewith]) those from the
 will be concatenated and explicitly undefined values will unset previously
 defined values during merging.
 
+Unlike with babel-plugin-tester's options, you can safely mix plugin-specific
+properties (like `pluginOptions`) with preset-specific properties (like
+[`presetOptions`][23]) in your test objects.
+
 ###### `presetOptions`
 
 This is used to pass options into your preset at transform time. Properties
@@ -858,6 +870,10 @@ specified here override ([`lodash.mergeWith`][lodash.mergewith]) those from the
 [`presetOptions`][14] option provided to babel-plugin-tester. Note that arrays
 will be concatenated and explicitly undefined values will unset previously
 defined values during merging.
+
+Unlike with babel-plugin-tester's options, you can safely mix plugin-specific
+properties (like [`pluginOptions`][21]) with preset-specific properties (like
+`presetOptions`) in your test objects.
 
 ###### `title`
 
