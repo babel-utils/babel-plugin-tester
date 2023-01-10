@@ -1085,6 +1085,13 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   }
 }
 
+/**
+ * Custom lodash merge customizer that causes source arrays to be concatenated
+ * and successive `undefined` values to unset (delete) the property if it
+ * exists.
+ *
+ * @see https://lodash.com/docs/4.17.15#mergeWith
+ */
 function mergeCustomizer(
   objValue: unknown,
   srcValue: unknown,
@@ -1101,6 +1108,11 @@ function mergeCustomizer(
   return undefined;
 }
 
+/**
+ * Take the dirname of a `filename` and join `basename` to it, creating an
+ * absolute path. If `basename` is already absolute, it will be returned as is.
+ * If either `basename` or `filename` is falsy, `undefined` is returned instead.
+ */
 function getAbsolutePath(filename?: string, basename?: string) {
   return !basename
     ? undefined
@@ -1111,6 +1123,10 @@ function getAbsolutePath(filename?: string, basename?: string) {
     : undefined;
 }
 
+/**
+ * Synchronously `require()` the first available options file within a fixture.
+ * Any errors will be passed up to the calling function.
+ */
 function readFixtureOptions(baseDirectory: string) {
   const optionsPath = [
     path.join(baseDirectory, 'options.js'),
@@ -1120,11 +1136,19 @@ function readFixtureOptions(baseDirectory: string) {
   return optionsPath ? (require(optionsPath) as FixtureOptions) : {};
 }
 
+/**
+ * Synchronously read in the file at `filename` after transforming the path into
+ * an absolute path if it is not one already. Any errors will be passed up to
+ * the calling function.
+ */
 function readCode(filename?: string, fixture?: string) {
   const path = getAbsolutePath(filename, fixture);
   return (path ? fs.readFileSync(path, 'utf8') : '') || undefined;
 }
 
+/**
+ * Trim a string and normalize any line ending characters.
+ */
 function trimAndFixLineEndings(
   source: string,
   endOfLine: NonNullable<PluginTesterOptions['endOfLine']>,
