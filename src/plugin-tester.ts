@@ -530,9 +530,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           // ? trimAndFixLineEndings is called later on the babel output instead
           const code = readCode(codePath);
 
-          const exec = execPath
-            ? trimAndFixLineEndings(readCode(execPath), endOfLine)
-            : undefined;
+          // ? trimAndFixLineEndings is called later on the babel output instead
+          const exec = execPath ? readCode(execPath) : undefined;
 
           const outputExtension = (
             fixtureOutputExt ||
@@ -734,7 +733,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
               ? trimAndFixLineEndings(output, endOfLine, code)
               : undefined,
           outputFixture,
-          exec: exec ? trimAndFixLineEndings(exec, endOfLine) : undefined,
+          exec,
           execFixture
         },
         mergeCustomizer
@@ -956,6 +955,11 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       );
 
       if (exec !== undefined) {
+        assert(
+          result.length > 0,
+          'attempted to execute babel output but it was empty. An empty string cannot be evaluated'
+        );
+
         const fakeModule = { exports: {} };
         const context = createContext({
           ...globalThis,
