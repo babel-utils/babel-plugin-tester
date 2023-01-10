@@ -896,6 +896,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       !errored && typeof rawBabelOutput == 'string'
         ? trimAndFixLineEndings(
             formatResult(rawBabelOutput || '', {
+              cwd: formatResultFilepath ? path.dirname(formatResultFilepath) : undefined,
               filepath: formatResultFilepath,
               filename: formatResultFilepath
             }),
