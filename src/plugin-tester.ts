@@ -535,8 +535,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             : undefined;
 
           const outputExtension = (
-                fixtureOutputExt ||
-                baseFixtureOutputExt ||
+            fixtureOutputExt ||
+            baseFixtureOutputExt ||
             // ? It is impossible for any of the following to be undefined
             (codeFilename || execFilename)!.split('.').pop()!
           ).replace(/^\./, '');
@@ -753,9 +753,14 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       }
 
       finalizePluginAndPresetRunOrder(testConfig.babelOptions);
-      validateTestConfig(testConfig);
-      hasTests = true;
 
+      validateTestConfig(testConfig, {
+        hasCodeAndCodeFixture: !!(rawCode && codeFixture),
+        hasOutputAndOutputFixture: !!(rawOutput && outputFixture),
+        hasExecAndExecFixture: !!(rawExec && execFixture)
+      });
+
+      hasTests = true;
       return testConfig;
     }
   }
@@ -975,23 +980,23 @@ export function pluginTester(options: PluginTesterOptions = {}) {
 
         expect(`\n${formattedOutput}\n`).toMatchSnapshot(testBlockTitle.fullString);
       } else if (output !== undefined) {
-      assert.equal(
-        result,
-        output,
-        `actual output does not match ${
-          testConfig[$type] == 'fixture-object'
-            ? testConfig.fixtureOutputBasename
-            : 'expected output'
-        }`
-      );
+        assert.equal(
+          result,
+          output,
+          `actual output does not match ${
+            testConfig[$type] == 'fixture-object'
+              ? testConfig.fixtureOutputBasename
+              : 'expected output'
+          }`
+        );
       } else if (testConfig[$type] == 'fixture-object' && outputFixture) {
-      fs.writeFileSync(outputFixture, result);
-    } else {
-      assert.equal(
-        result,
-        trimAndFixLineEndings(code, endOfLine),
-        'expected output to not change, but it did'
-      );
+        fs.writeFileSync(outputFixture, result);
+      } else {
+        assert.equal(
+          result,
+          trimAndFixLineEndings(code, endOfLine),
+          'expected output to not change, but it did'
+        );
       }
     }
   }
@@ -999,12 +1004,34 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   function validateTestConfig<
     T extends MaybePluginTesterTestObjectConfig | MaybePluginTesterTestFixtureConfig
   >(
-    testConfig: T
+    testConfig: T,
+    knownViolations?: {
+      hasCodeAndCodeFixture: boolean;
+      hasOutputAndOutputFixture: boolean;
+      hasExecAndExecFixture: boolean;
+    }
   ): // * See: https://stackoverflow.com/a/71741336/1367414
   // @ts-expect-error: encountering the limits of type inference as of 4.9.4
   asserts testConfig is T extends MaybePluginTesterTestObjectConfig
     ? PluginTesterTestObjectConfig
     : PluginTesterTestFixtureConfig {
+    if (knownViolations) {
+      const { hasCodeAndCodeFixture, hasOutputAndOutputFixture, hasExecAndExecFixture } =
+        knownViolations;
+
+      if (hasCodeAndCodeFixture) {
+        throwTypeError('`code` cannot be provided with `codeFixture`');
+      }
+
+      if (hasOutputAndOutputFixture) {
+        throwTypeError('`output` cannot be provided with `outputFixture`');
+      }
+
+      if (hasExecAndExecFixture) {
+        throwTypeError('`exec` cannot be provided with `execFixture`');
+      }
+    }
+
     const {
       testBlockTitle,
       skip,
@@ -1156,7 +1183,7 @@ function readFixtureOptions(baseDirectory: string) {
   ].find((p) => fs.existsSync(p));
 
   try {
-  return optionsPath ? (require(optionsPath) as FixtureOptions) : {};
+    return optionsPath ? (require(optionsPath) as FixtureOptions) : {};
   } catch (error) {
     const message = `${isNativeError(error) ? error.message : error}`;
     throw new Error(
