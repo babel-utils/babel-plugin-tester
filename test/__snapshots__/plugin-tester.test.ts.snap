@@ -10,7 +10,15 @@ expected:
 var hi = 'hey';
 `;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces handles failing \`tests\` and \`fixtures\` gracefully 2`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces handles failing \`tests\` and \`fixtures\` gracefully 2`] = `
+2. black-box (preset): expected output to not change, but it did
+
+actual:
+var ih = 'hey';
+
+expected:
+var hi = 'hey';
+`;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`it.skip\` or \`it.only\` functions are not available in the global scope when using \`skip\`/\`only\` 1`] = `failed to validate configuration for test "1. fixture": testing environment does not support \`it.skip(...)\` method`;
 
@@ -20,25 +28,9 @@ exports[`tests targeting both FixtureOptions and TestObject interfaces throws if
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`it.skip\` or \`it.only\` functions are not available in the global scope when using \`skip\`/\`only\` 4`] = `failed to validate configuration for test "4. black-box (preset)": testing environment does not support \`it.only(...)\` method`;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` callback doesn't return \`true\` 1`] = `
-1. fixture: expected \`throws\`/\`error\` function to return true
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` callback doesn't return \`true\` 1`] = `1. fixture: expected \`throws\`/\`error\` function to return true`;
 
-actual:
-undefined
-
-expected:
-undefined
-`;
-
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` callback doesn't return \`true\` 2`] = `
-3. fixture: expected \`throws\`/\`error\` function to return true
-
-actual:
-undefined
-
-expected:
-undefined
-`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` callback doesn't return \`true\` 2`] = `3. fixture: expected \`throws\`/\`error\` function to return true`;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` is not \`false\` but no error thrown 1`] = `
 1. fixture: expected babel to throw an error, but it did not
@@ -50,7 +42,15 @@ expected:
 true
 `;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` is not \`false\` but no error thrown 2`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if \`throws\` is not \`false\` but no error thrown 2`] = `
+3. fixture: expected babel to throw an error, but it did not
+
+actual:
+false
+
+expected:
+true
+`;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`only\` and \`skip\` are provided 1`] = `failed to validate configuration for test "1. fixture": cannot enable both \`skip\` and \`only\` in the same test`;
 
@@ -64,9 +64,9 @@ exports[`tests targeting both FixtureOptions and TestObject interfaces throws if
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 4`] = `failed to validate configuration for test "4. black-box (preset)": neither \`exec\` nor \`execFixture\` can be provided with \`throws\` or \`error\``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 5`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/fake-file.js'`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 5`] = `failed to validate configuration for test "5. captains-log (explicit)": neither \`exec\` nor \`execFixture\` can be provided with \`throws\` or \`error\``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 6`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/fake-file.js'`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`exec\`/\`execFixture\`/exec.js are provided 6`] = `failed to validate configuration for test "6. black-box (preset)": neither \`exec\` nor \`execFixture\` can be provided with \`throws\` or \`error\``;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 1`] = `failed to validate configuration for test "1. fixture": a fixture cannot be provided with \`throws\` or \`error\` and also contain an output file`;
 
@@ -76,9 +76,25 @@ exports[`tests targeting both FixtureOptions and TestObject interfaces throws if
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 4`] = `failed to validate configuration for test "4. black-box (preset)": neither \`output\` nor \`outputFixture\` can be provided with \`throws\` or \`error\``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 5`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/fake-file.js'`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 5`] = `failed to validate configuration for test "5. captains-log (explicit)": neither \`output\` nor \`outputFixture\` can be provided with \`throws\` or \`error\``;
 
-exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 6`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/fake-file.js'`;
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws if both \`throws\` and \`output\`/\`outputFixture\`/output.js are provided 6`] = `failed to validate configuration for test "6. black-box (preset)": neither \`output\` nor \`outputFixture\` can be provided with \`throws\` or \`error\``;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws when TEST_NUM_SKIP or TEST_NUM_ONLY are passed invalid values 1`] = `invalid environment variable "TEST_NUM_ONLY": invalid range -1`;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws when TEST_NUM_SKIP or TEST_NUM_ONLY are passed invalid values 2`] = `invalid environment variable "TEST_NUM_SKIP": invalid range 2--4`;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws when TEST_NUM_SKIP or TEST_NUM_ONLY are passed invalid values 3`] = `invalid environment variable "TEST_NUM_ONLY": invalid range 2-`;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws when TEST_NUM_SKIP or TEST_NUM_ONLY are passed invalid values 4`] = `invalid environment variable "TEST_NUM_SKIP": invalid range 2 - 4`;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws when TEST_NUM_SKIP or TEST_NUM_ONLY are passed invalid values 5`] = `invalid environment variable "TEST_NUM_ONLY": invalid range 5-2: 5 is greater than 2`;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws when TEST_NUM_SKIP or TEST_NUM_ONLY are passed invalid values 6`] = `invalid environment variable "TEST_NUM_SKIP": invalid range 2 4`;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws when TEST_NUM_SKIP or TEST_NUM_ONLY are passed invalid values 7`] = `invalid environment variable "TEST_NUM_ONLY": invalid range seven`;
+
+exports[`tests targeting both FixtureOptions and TestObject interfaces throws when TEST_NUM_SKIP or TEST_NUM_ONLY are passed invalid values 8`] = `invalid environment variable "TEST_NUM_SKIP": invalid range +1`;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces throws when babel transform errors and \`throws: false\` 1`] = `1. fixture: [BABEL] /repos/babel-plugin-tester/test/fixtures/option-throws-false/fixture/code.js: expected this error to be captured (While processing: "base$0")`;
 
@@ -94,17 +110,27 @@ expected:
 var hi = 'hey';
 `;
 
-exports[`tests targeting the FixtureOptions interface handles failing exec.js file 1`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the FixtureOptions interface can test that code.js babel output matches output.js 2`] = `
+4. fixture: actual output does not match output.js
 
-exports[`tests targeting the FixtureOptions interface handles failing exec.js file 2`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+actual:
+var ih = 'hey';
+
+expected:
+var hi = 'hey';
+`;
+
+exports[`tests targeting the FixtureOptions interface handles failing exec.js file 1`] = ``;
+
+exports[`tests targeting the FixtureOptions interface handles failing exec.js file 2`] = ``;
 
 exports[`tests targeting the FixtureOptions interface throws if exec.js and code.js file in same directory 1`] = `failed to validate configuration for test "1. fixture": a fixture cannot contain both an exec file and a code or output file`;
 
 exports[`tests targeting the FixtureOptions interface throws if exec.js and code.js file in same directory 2`] = `failed to validate configuration for test "2. fixture": a fixture cannot contain both an exec file and a code or output file`;
 
-exports[`tests targeting the FixtureOptions interface throws if exec.js and output.js file in same directory 1`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the FixtureOptions interface throws if exec.js and output.js file in same directory 1`] = ``;
 
-exports[`tests targeting the FixtureOptions interface throws if exec.js and output.js file in same directory 2`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the FixtureOptions interface throws if exec.js and output.js file in same directory 2`] = ``;
 
 exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing code.js 1`] = `
 1. fixture: /repos/babel-plugin-tester/test/fixtures/code-file-bad/fixture/code.js: Missing semicolon. (1:2)
@@ -265,13 +291,43 @@ var ih = 'hey';
 
 `;
 
+exports[`tests targeting the TestObject interface takes a snapshot if \`snapshot\` is enabled: 2. black-box (preset) 1`] = `
+
+var hi = 'hey';
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+var ih = 'hey';
+
+`;
+
+exports[`tests targeting the TestObject interface takes a snapshot if \`snapshot\` is enabled: black-box (preset) 1`] = `
+
+var hi = 'hey';
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+var ih = 'hey';
+
+`;
+
+exports[`tests targeting the TestObject interface takes a snapshot if \`snapshot\` is enabled: captains-log (explicit) 1`] = `
+
+var hi = 'hey';
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+var ih = 'hey';
+
+`;
+
 exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is empty 1`] = `failed to validate configuration for test "1. captains-log (explicit)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
 
 exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is empty 2`] = `failed to validate configuration for test "2. black-box (preset)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
 
-exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is transformed into an empty string 1`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is transformed into an empty string 1`] = ``;
 
-exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is transformed into an empty string 2`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is transformed into an empty string 2`] = ``;
 
 exports[`tests targeting the TestObject interface throws if babel output is unchanged and \`snapshot\` is enabled 1`] = `
 1. captains-log (explicit): code was unmodified but attempted to take a snapshot. If the code should not be modified, set \`snapshot: false\`
@@ -293,9 +349,9 @@ expected:
 true
 `;
 
-exports[`tests targeting the TestObject interface throws if both \`code\` and \`codeFixture\` are provided 1`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the TestObject interface throws if both \`code\` and \`codeFixture\` are provided 1`] = ``;
 
-exports[`tests targeting the TestObject interface throws if both \`code\` and \`codeFixture\` are provided 2`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the TestObject interface throws if both \`code\` and \`codeFixture\` are provided 2`] = ``;
 
 exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
@@ -305,9 +361,9 @@ exports[`tests targeting the TestObject interface throws if both \`code\`/\`code
 
 exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 4`] = `EISDIR: illegal operation on a directory, read`;
 
-exports[`tests targeting the TestObject interface throws if both \`exec\` and \`execFixture\` are provided 1`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the TestObject interface throws if both \`exec\` and \`execFixture\` are provided 1`] = ``;
 
-exports[`tests targeting the TestObject interface throws if both \`exec\` and \`execFixture\` are provided 2`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the TestObject interface throws if both \`exec\` and \`execFixture\` are provided 2`] = ``;
 
 exports[`tests targeting the TestObject interface throws if both \`output\` and \`outputFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
 
@@ -357,13 +413,13 @@ exports[`tests targeting the TestObject interface throws if test object is non-n
 
 exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 4`] = `failed to validate configuration for test "4. black-box (preset)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
 
-exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 5`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 5`] = ``;
 
-exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 6`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 6`] = ``;
 
-exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 7`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 7`] = ``;
 
-exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 8`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
+exports[`tests targeting the TestObject interface throws if test object is non-nullish and missing both \`code\` and \`codeFixture\` 8`] = ``;
 
 exports[`tests targeting the TestObject interface throws with helpful message if \`codeFixture\`/\`outputFixture\`/\`execFixture\` cannot be read 1`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/fake-file.js'`;
 

@@ -12,6 +12,18 @@ var output = paragraph + 'one' + 'paragraph' + \`\\two\`;
 
 `;
 
+exports[`captains-log captains-log: captains-log 1`] = `
+
+var output = paragraph + "one"+
+
+'paragraph' + \`\\two\`
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+var output = paragraph + 'one' + 'paragraph' + \`\\two\`;
+
+`;
+
 exports[`unknown plugin 4. using jest snapshots: 4. using jest snapshots 1`] = `
 
 

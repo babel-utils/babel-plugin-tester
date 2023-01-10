@@ -1,1 +1,1 @@
-export default <div></div> as any;
+export default (<div></div> as any);
