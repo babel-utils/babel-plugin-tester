@@ -6,6 +6,7 @@ import { EOL } from 'node:os';
 import { isNativeError } from 'node:util/types';
 import mergeWith from 'lodash.mergewith';
 import stripIndent from 'strip-indent';
+import { createContext, Script } from 'node:vm';
 
 import { $type } from './symbols';
 
@@ -887,54 +888,28 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       }
     })();
 
-    const formatResultFilepath = codeFixture || execFixture || filepath;
-
-    // ? We split rawBabelOutput and result into two steps to ensure exceptions
-    // ? thrown by trimAndFixLineEndings and formatResult are not erroneously
-    // ? captured when we only really care about errors thrown by babel
-    const result =
-      !errored && typeof rawBabelOutput == 'string'
-        ? trimAndFixLineEndings(
-            formatResult(rawBabelOutput || '', {
-              cwd: formatResultFilepath ? path.dirname(formatResultFilepath) : undefined,
-              filepath: formatResultFilepath,
-              filename: formatResultFilepath
-            }),
-            endOfLine,
-            code
-          )
-        : rawBabelOutput;
-
     assert(!expectedError || errored, 'expected babel to throw an error, but it did not');
 
-    if (exec !== undefined) {
-      // TODO: implement run in context via node vm
-    } else if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
-      assert(
-        result !== code,
-        'code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`'
-      );
-
-      const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n';
-      const formattedOutput = [code, separator, result].join('');
-
-      expect(`\n${formattedOutput}\n`).toMatchSnapshot(testBlockTitle.fullString);
-    } else if (expectedError) {
+    if (expectedError) {
       if (typeof expectedError === 'function') {
         if (expectedError === Error || expectedError.prototype instanceof Error) {
           assert(
-            result instanceof expectedError,
+            rawBabelOutput instanceof expectedError,
             `expected error to be an instance of ${
               expectedError.name || 'the expected error'
             }`
           );
         } else if (
-          (expectedError as Exclude<typeof expectedError, Class<Error>>)(result) !== true
+          (expectedError as Exclude<typeof expectedError, Class<Error>>)(
+            rawBabelOutput
+          ) !== true
         ) {
           assert.fail('expected `throws`/`error` function to return true');
         }
       } else {
-        const resultString = isNativeError(result) ? result.message : String(result);
+        const resultString = isNativeError(rawBabelOutput)
+          ? rawBabelOutput.message
+          : String(rawBabelOutput);
 
         if (typeof expectedError === 'string') {
           assert(
@@ -946,11 +921,54 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             expectedError.test(resultString),
             `expected "${resultString}" to match ${expectedError}`
           );
-        } // ? Else condition is handled in the assert above
+        } // ? Else condition is handled by the typeof === 'function' branch
       }
-    } else if (typeof result !== 'string') {
-      throw new TypeError(`unexpected result type "${typeof result}" (excepted string)`);
-    } else if (typeof output === 'string') {
+    } else if (typeof rawBabelOutput !== 'string') {
+      throw new TypeError(
+        `unexpected babel output type "${typeof rawBabelOutput}" (excepted string)`
+      );
+    } else {
+      const formatResultFilepath = codeFixture || execFixture || filepath;
+
+      // ? We split rawBabelOutput and result into two steps to ensure
+      // ? exceptions thrown by trimAndFixLineEndings and formatResult are not
+      // ? erroneously captured when we only really care about errors thrown by
+      // ? babel
+      const result = trimAndFixLineEndings(
+        formatResult(rawBabelOutput || '', {
+          cwd: formatResultFilepath ? path.dirname(formatResultFilepath) : undefined,
+          filepath: formatResultFilepath,
+          filename: formatResultFilepath
+        }),
+        endOfLine,
+        code
+      );
+
+      if (exec !== undefined) {
+        const fakeModule = { exports: {} };
+        const context = createContext({
+          ...globalThis,
+          module: fakeModule,
+          exports: fakeModule.exports,
+          require
+        });
+
+        new Script(result, { filename: execFixture }).runInContext(context, {
+          displayErrors: true,
+          breakOnSigint: true,
+          microtaskMode: 'afterEvaluate'
+        });
+      } else if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
+        assert(
+          result !== code,
+          'code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`'
+        );
+
+        const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n';
+        const formattedOutput = [code, separator, result].join('');
+
+        expect(`\n${formattedOutput}\n`).toMatchSnapshot(testBlockTitle.fullString);
+      } else if (output !== undefined) {
       assert.equal(
         result,
         output,
@@ -960,11 +978,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             : 'expected output'
         }`
       );
-    } else if (
-      testConfig[$type] == 'fixture-object' &&
-      outputFixture &&
-      output === undefined
-    ) {
+      } else if (testConfig[$type] == 'fixture-object' && outputFixture) {
       fs.writeFileSync(outputFixture, result);
     } else {
       assert.equal(
@@ -972,6 +986,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         trimAndFixLineEndings(code, endOfLine),
         'expected output to not change, but it did'
       );
+      }
     }
   }
 
