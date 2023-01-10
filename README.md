@@ -640,8 +640,9 @@ file might contain:
 expect(() => throw new Error('throw expression')).toThrow('throw expression');
 ```
 
-Before being evaluated, this file's contents will have whitespace trimmed, line
-endings [converted][57], and then get [formatted by prettier][39].
+After being transformed by babel but before being evaluated, the babel output
+will have whitespace trimmed, line endings [converted][57], and then get
+[formatted by prettier][39].
 
 Note that this file cannot appear in the same directory as [`code.js`][59] or
 [`output.js`][56]. If more than one `exec.*` file exists in a directory, the
