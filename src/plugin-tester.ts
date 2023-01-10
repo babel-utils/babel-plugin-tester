@@ -345,7 +345,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   function normalizeTests() {
     const { describeBlockTitle, filepath, tests, fixtures } = baseConfig;
     const testsIsArray = Array.isArray(tests);
-    const fixturesAbsolutePath = getAbsolutePath(filepath, fixtures);
+    const fixturesAbsolutePath = getAbsolutePathUsingFilepathDirname(filepath, fixtures);
     const testConfigs: PluginTesterTestConfig[] = [];
 
     const useFixtureTitleNumbering =
@@ -470,6 +470,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             return file.name.startsWith('exec.');
           }) || {};
 
+        // ! Code in the else branch is relying specifically on this check
         if (!codeFilename && !execFilename) {
           createAndPushFixtureConfigs({
             fixturesDirectory: fixtureSubdir,
@@ -527,32 +528,29 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           } = localOptions;
 
           // ? trimAndFixLineEndings is called later on the babel output instead
-          const code = codePath ? fs.readFileSync(codePath, 'utf8') : undefined;
+          const code = readCode(codePath);
 
           const exec = execPath
-            ? trimAndFixLineEndings(fs.readFileSync(execPath, 'utf8'), endOfLine)
+            ? trimAndFixLineEndings(readCode(execPath), endOfLine)
             : undefined;
 
-          const outputExtension = codeFilename
-            ? (
+          const outputExtension = (
                 fixtureOutputExt ||
                 baseFixtureOutputExt ||
-                codeFilename.split('.').pop()!
-              ).replace(/^\./, '')
-            : undefined;
+            // ? It is impossible for any of the following to be undefined
+            (codeFilename || execFilename)!.split('.').pop()!
+          ).replace(/^\./, '');
 
-          const fixtureOutputBasename = codeFilename
-            ? `${fixtureOutputName || baseFixtureOutputName}.${outputExtension}`
-            : undefined;
+          const fixtureOutputBasename = `${
+            fixtureOutputName || baseFixtureOutputName
+          }.${outputExtension}`;
 
-          const outputPath = codeFilename
-            ? path.join(fixtureSubdir, fixtureOutputBasename!)
-            : undefined;
+          const outputPath = path.join(fixtureSubdir, fixtureOutputBasename);
 
           const hasOutputFile = outputPath && fs.existsSync(outputPath);
 
           const output = hasOutputFile
-            ? trimAndFixLineEndings(fs.readFileSync(outputPath, 'utf8'), endOfLine, code)
+            ? trimAndFixLineEndings(readCode(outputPath), endOfLine, code)
             : undefined;
 
           const testConfig: MaybePluginTesterTestFixtureConfig = mergeWith(
@@ -673,13 +671,18 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         mergeCustomizer
       );
 
-      const codeFixture = rawCodeFixture ?? fixture;
-      const code =
-        rawCode !== undefined ? stripIndent(rawCode) : readCode(filepath, codeFixture);
+      const codeFixture = getAbsolutePathUsingFilepathDirname(
+        filepath,
+        rawCodeFixture ?? fixture
+      );
+
+      const code = rawCode !== undefined ? stripIndent(rawCode) : readCode(codeFixture);
+
       const output =
         rawOutput !== undefined
           ? stripIndent(rawOutput)
           : readCode(filepath, outputFixture);
+
       const exec = rawExec ?? readCode(filepath, execFixture);
 
       const testConfig: MaybePluginTesterTestObjectConfig = mergeWith(
@@ -689,7 +692,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         {
           babelOptions: {
             filename:
-              getAbsolutePath(filepath, codeFixture) ||
+              getAbsolutePathUsingFilepathDirname(filepath, codeFixture) ||
               filepath ||
               baseBabelOptions.filename
           }
@@ -1127,17 +1130,18 @@ function mergeCustomizer(
 }
 
 /**
- * Take the dirname of a `filename` and join `basename` to it, creating an
+ * Take the dirname of `filepath` and join `basename` to it, creating an
  * absolute path. If `basename` is already absolute, it will be returned as is.
- * If either `basename` or `filename` is falsy, `undefined` is returned instead.
+ * If either `basename` is falsy or `filepath` is falsy and `basename` is not
+ * absolute, `undefined` is returned instead.
  */
-function getAbsolutePath(filename?: string, basename?: string) {
+function getAbsolutePathUsingFilepathDirname(filepath?: string, basename?: string) {
   return !basename
     ? undefined
     : path.isAbsolute(basename)
     ? basename
-    : filename
-    ? path.join(path.dirname(filename), basename)
+    : filepath
+    ? path.join(path.dirname(filepath), basename)
     : undefined;
 }
 
@@ -1151,17 +1155,56 @@ function readFixtureOptions(baseDirectory: string) {
     path.join(baseDirectory, 'options.json')
   ].find((p) => fs.existsSync(p));
 
+  try {
   return optionsPath ? (require(optionsPath) as FixtureOptions) : {};
+  } catch (error) {
+    const message = `${isNativeError(error) ? error.message : error}`;
+    throw new Error(
+      // ? Some realms/runtimes don't include the failing path, so we make sure
+      message.includes(optionsPath!) ? message : `${optionsPath}: ${message}`
+    );
+  }
 }
 
 /**
- * Synchronously read in the file at `filename` after transforming the path into
- * an absolute path if it is not one already. Any errors will be passed up to
- * the calling function.
+ * Synchronously read in the file at `filepath` after transforming the path into
+ * an absolute path if it is not one already. If `filepath` is `undefined`,
+ * `undefined` is returned.
  */
-function readCode(filename?: string, fixture?: string) {
-  const path = getAbsolutePath(filename, fixture);
-  return (path ? fs.readFileSync(path, 'utf8') : '') || undefined;
+function readCode<T extends string | undefined>(filepath: T): T;
+/**
+ * Synchronously read in the file at the path created by taking the dirname of
+ * `filepath` and joining `basename` to it, yielding an absolute path. If
+ * `basename` is already an absolute path, it will be read in as-is. If either
+ * `basename` is falsy or `filepath` is falsy and `basename` is not absolute,
+ * `undefined` is returned instead.
+ */
+function readCode(
+  filepath: string | undefined,
+  basename: string | undefined
+): string | undefined;
+function readCode(filepath: string | undefined, basename?: string): string | undefined {
+  const codePath =
+    arguments.length == 1
+      ? filepath
+      : getAbsolutePathUsingFilepathDirname(filepath, basename);
+
+  if (!codePath) {
+    return undefined;
+  }
+
+  /* istanbul ignore next */
+  if (!path.isAbsolute(codePath)) {
+    throw new Error(`"${codePath}" is not an absolute path`);
+  }
+
+  try {
+    return fs.readFileSync(codePath, 'utf8');
+  } catch (error) {
+    const message = `${isNativeError(error) ? error.message : error}`;
+    // ? Some realms/runtimes don't include the failing path, so we make sure
+    throw new Error(message.includes(codePath) ? message : `${codePath}: ${message}`);
+  }
 }
 
 /**
