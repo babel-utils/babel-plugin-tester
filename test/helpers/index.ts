@@ -87,7 +87,11 @@ export function addPendingJestTest(
           error = error.constructor(`${testName}: ${error.message}`);
         }
 
-        if (isNativeError(error) && isAssertionError(error)) {
+        if (
+          isNativeError(error) &&
+          isAssertionError(error) &&
+          (error.actual !== undefined || error.actual !== error.expected)
+        ) {
           error.message += `\n\nactual:\n${error.actual}\n\nexpected:\n${error.expected}`;
         }
       }
