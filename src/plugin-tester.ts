@@ -167,6 +167,61 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       tests: rawBaseConfig.tests || []
     };
 
+    if (baseConfig.fixtures !== undefined && typeof baseConfig.fixtures != 'string') {
+      throw new TypeError(
+        'failed to validate configuration: `fixtures`, if defined, must be a string'
+      );
+    }
+
+    if (
+      baseConfig.tests !== undefined &&
+      !Array.isArray(baseConfig.tests) &&
+      (!baseConfig.tests || typeof baseConfig.tests != 'object')
+    ) {
+      throw new TypeError(
+        'failed to validate configuration: `tests`, if defined, must be an array or an object'
+      );
+    }
+
+    baseConfig.tests = Array.isArray(baseConfig.tests)
+      ? baseConfig.tests.filter((test, ndx) => {
+          // TODO: debug statement here
+
+          if (
+            Array.isArray(test) ||
+            (typeof test != 'string' &&
+              test !== null &&
+              test !== undefined &&
+              typeof test != 'object')
+          ) {
+            throw new TypeError(
+              `failed to validate configuration: \`tests\` array item at index ${ndx} must be a string, TestObject, or nullish`
+            );
+          }
+
+          return typeof test == 'string' || Boolean(test);
+        })
+      : Object.fromEntries(
+          Object.entries(baseConfig.tests).filter(([title, test]) => {
+            // TODO: debug statement here instead of void
+
+            if (
+              Array.isArray(test) ||
+              (typeof test != 'string' &&
+                test !== null &&
+                test !== undefined &&
+                typeof test != 'object')
+            ) {
+              throw new TypeError(
+                `failed to validate configuration: \`tests\` object property "${title}" must have a value of type string, TestObject, or nullish`
+              );
+            }
+
+            void title;
+            return typeof test == 'string' || Boolean(test);
+          })
+        );
+
     if (rawBaseConfig.plugin) {
       baseConfig.plugin = rawBaseConfig.plugin;
       baseConfig.pluginName =
@@ -378,27 +433,16 @@ export function pluginTester(options: PluginTesterOptions = {}) {
 
       if (testsIsArray) {
         (describeBlock?.tests || testConfigs).push(
-          ...tests
-            .filter((test) => {
-              // TODO: debug statement here
-              return Boolean(test);
-            })
-            .map((test) => createTestConfig(test))
+          ...tests.map((test) => createTestConfig(test))
         );
       } else {
         (describeBlock?.tests || testConfigs).push(
-          ...Object.entries(tests)
-            .filter(([title, test]) => {
-              // TODO: debug statement here instead of void
-              void title;
-              return Boolean(test);
-            })
-            .map(([title, test]) => {
-              return createTestConfig({
-                title,
-                ...(typeof test == 'string' ? { code: test } : test)
-              });
-            })
+          ...Object.entries(tests).map(([title, test]) => {
+            return createTestConfig({
+              title,
+              ...(typeof test == 'string' ? { code: test } : test)
+            });
+          })
         );
       }
     }
