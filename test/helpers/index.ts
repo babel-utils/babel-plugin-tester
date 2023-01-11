@@ -201,9 +201,10 @@ export async function runPluginTester(options?: PluginTesterOptions) {
  * an error matching a Jest snapshot.
  */
 export async function runPluginTesterExpectThrownException(
-  options?: PluginTesterOptions
+  options?: PluginTesterOptions,
+  { customExpect = expect }: { customExpect?: jest.Expect } = {}
 ) {
-  await expect(runPluginTester(options)).rejects.toThrowErrorMatchingSnapshot();
+  await customExpect(runPluginTester(options)).rejects.toThrowErrorMatchingSnapshot();
 }
 
 /**

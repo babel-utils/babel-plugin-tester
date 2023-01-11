@@ -260,14 +260,6 @@ exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine
 
 exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 2`] = `1. black-box (preset): failed to validate configuration: invalid \`endOfLine\` option`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid even if \`throws\` is not \`false\` 1`] = `1. fixture: failed to validate configuration: invalid \`endOfLine\` option`;
-
-exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid even if \`throws\` is not \`false\` 2`] = `2. black-box (preset): failed to validate configuration: invalid \`endOfLine\` option`;
-
-exports[`tests targeting the PluginTesterOptions interface throws if \`formatResult\` throws even if \`throws\` is not \`false\` 1`] = `1. fixture: faux error`;
-
-exports[`tests targeting the PluginTesterOptions interface throws if \`formatResult\` throws even if \`throws\` is not \`false\` 2`] = `2. black-box (preset): faux error`;
-
 exports[`tests targeting the PluginTesterOptions interface throws if \`titleNumbering\` is invalid 1`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
 
 exports[`tests targeting the PluginTesterOptions interface throws if \`titleNumbering\` is invalid 2`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
@@ -370,26 +362,6 @@ var ih = 'hey';
 
 `;
 
-exports[`tests targeting the TestObject interface takes a snapshot if \`snapshot\` is enabled: black-box (preset) 1`] = `
-
-var hi = 'hey';
-
-      ↓ ↓ ↓ ↓ ↓ ↓
-
-var ih = 'hey';
-
-`;
-
-exports[`tests targeting the TestObject interface takes a snapshot if \`snapshot\` is enabled: captains-log (explicit) 1`] = `
-
-var hi = 'hey';
-
-      ↓ ↓ ↓ ↓ ↓ ↓
-
-var ih = 'hey';
-
-`;
-
 exports[`tests targeting the TestObject interface throws if \`exec\`/\`execFixture\` is empty 1`] = `
 1. captains-log (explicit): attempted to execute babel output but it was empty. An empty string cannot be evaluated
 
@@ -458,6 +430,10 @@ exports[`tests targeting the TestObject interface throws if \`tests\` value is i
 
 exports[`tests targeting the TestObject interface throws if \`tests\` value is invalid 14`] = `failed to validate configuration: \`tests\` object property "test" must have a value of type string, TestObject, or nullish`;
 
+exports[`tests targeting the TestObject interface throws if \`toMatchSnapshot\` function is not available in the value returned by \`expect()\` when \`snapshot\` is enabled 1`] = `failed to validate configuration for test "1. captains-log (explicit)": testing environment does not support \`expect(...).toMatchSnapshot\` method`;
+
+exports[`tests targeting the TestObject interface throws if \`toMatchSnapshot\` function is not available in the value returned by \`expect()\` when \`snapshot\` is enabled 2`] = `failed to validate configuration for test "2. black-box (preset)": testing environment does not support \`expect(...).toMatchSnapshot\` method`;
+
 exports[`tests targeting the TestObject interface throws if babel output is unchanged and \`snapshot\` is enabled 1`] = `
 1. captains-log (explicit): code was unmodified but attempted to take a snapshot. If the code should not be modified, set \`snapshot: false\`
 
@@ -478,41 +454,41 @@ expected:
 true
 `;
 
-exports[`tests targeting the TestObject interface throws if both \`code\` and \`codeFixture\` are provided 1`] = ``;
+exports[`tests targeting the TestObject interface throws if both \`code\` and \`codeFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": \`code\` cannot be provided with \`codeFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`code\` and \`codeFixture\` are provided 2`] = ``;
+exports[`tests targeting the TestObject interface throws if both \`code\` and \`codeFixture\` are provided 2`] = `failed to validate configuration for test "2. black-box (preset)": \`code\` cannot be provided with \`codeFixture\``;
 
 exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 2`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 2`] = `failed to validate configuration for test "2. captains-log (explicit)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 3`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 3`] = `failed to validate configuration for test "3. black-box (preset)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 4`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws if both \`code\`/\`codeFixture\` and \`exec\`/\`execFixture\` are provided 4`] = `failed to validate configuration for test "4. black-box (preset)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`exec\` and \`execFixture\` are provided 1`] = ``;
+exports[`tests targeting the TestObject interface throws if both \`exec\` and \`execFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": \`exec\` cannot be provided with \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`exec\` and \`execFixture\` are provided 2`] = ``;
+exports[`tests targeting the TestObject interface throws if both \`exec\` and \`execFixture\` are provided 2`] = `failed to validate configuration for test "2. black-box (preset)": \`exec\` cannot be provided with \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`output\` and \`outputFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
+exports[`tests targeting the TestObject interface throws if both \`output\` and \`outputFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": \`output\` cannot be provided with \`outputFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`output\` and \`outputFixture\` are provided 2`] = `failed to validate configuration for test "2. black-box (preset)": a string or object with a \`code\`, \`codeFixture\`, \`exec\`, or \`execFixture\` must be provided`;
+exports[`tests targeting the TestObject interface throws if both \`output\` and \`outputFixture\` are provided 2`] = `failed to validate configuration for test "2. black-box (preset)": \`output\` cannot be provided with \`outputFixture\``;
 
 exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 2`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 2`] = `failed to validate configuration for test "2. captains-log (explicit)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 3`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 3`] = `failed to validate configuration for test "3. black-box (preset)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
-exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 4`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws if both \`output\`/\`outputFixture\` and \`exec\`/\`execFixture\` are provided 4`] = `failed to validate configuration for test "4. black-box (preset)": neither \`code\`, \`codeFixture\`, \`output\`, nor \`outputFixture\` can be provided with \`exec\` or \`execFixture\``;
 
 exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`exec\`/\`execFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`exec\` nor \`execFixture\` can be provided with \`snapshot\` enabled`;
 
-exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`exec\`/\`execFixture\` are provided 2`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/test/helpers/if you see this text, the test is failing'`;
+exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`exec\`/\`execFixture\` are provided 2`] = `failed to validate configuration for test "2. black-box (preset)": neither \`exec\` nor \`execFixture\` can be provided with \`snapshot\` enabled`;
 
 exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`output\`/\`outputFixture\` are provided 1`] = `failed to validate configuration for test "1. captains-log (explicit)": neither \`output\` nor \`outputFixture\` can be provided with \`snapshot\` enabled`;
 
-exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`output\`/\`outputFixture\` are provided 2`] = `ENOENT: no such file or directory, open '/repos/babel-plugin-tester/test/helpers/if you see this text, the test is failing'`;
+exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`output\`/\`outputFixture\` are provided 2`] = `failed to validate configuration for test "2. black-box (preset)": neither \`output\` nor \`outputFixture\` can be provided with \`snapshot\` enabled`;
 
 exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`throws\` are provided 1`] = `
 1. captains-log (explicit): expected babel to throw an error, but it did not
@@ -562,7 +538,7 @@ exports[`tests targeting the TestObject interface throws with helpful message if
 [0m [90m   |[39m   [31m[1m^[22m[39m[0m
 `;
 
-exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`code\`/\`codeFixture\` 3`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`code\`/\`codeFixture\` 3`] = `/repos/babel-plugin-tester/test/fixtures/code-file-bad: EISDIR: illegal operation on a directory, read`;
 
 exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`exec\`/\`execFixture\` 1`] = `
 1. captains-log (explicit): /repos/babel-plugin-tester/test/helpers/index.ts: Missing semicolon. (1:2)
@@ -571,4 +547,4 @@ exports[`tests targeting the TestObject interface throws with helpful message if
 [0m [90m   |[39m   [31m[1m^[22m[39m[0m
 `;
 
-exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`exec\`/\`execFixture\` 2`] = `EISDIR: illegal operation on a directory, read`;
+exports[`tests targeting the TestObject interface throws with helpful message if there is a problem parsing \`exec\`/\`execFixture\` 2`] = `/repos/babel-plugin-tester/test/fixtures/code-file-bad: EISDIR: illegal operation on a directory, read`;

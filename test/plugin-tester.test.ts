@@ -5275,7 +5275,7 @@ describe('tests targeting the TestObject interface', () => {
 
     const code = `
       var someCode = 'cool';
-      require('fs').writeFileSync('fake.js', someCode);
+      require('fs').writeFileSync('/dne/fake.js', someCode);
     `;
 
     const formatResult = jest.fn((r: string) => r);
@@ -5288,13 +5288,13 @@ describe('tests targeting the TestObject interface', () => {
           {
             code,
             output:
-              "var someCode = 'cool';\nrequire('fs').writeFileSync('fake.js', someCode);"
+              "var someCode = 'cool';\nrequire('fs').writeFileSync('/dne/fake.js', someCode);"
           },
           {
             code,
             output: `
               var someCode = 'cool';
-                require('fs').writeFileSync('fake.js', someCode);
+              require('fs').writeFileSync('/dne/fake.js', someCode);
             `
           },
           { exec: code }
@@ -5316,7 +5316,7 @@ describe('tests targeting the TestObject interface', () => {
             code,
             output: `
                 var someCode = 'cool';
-              require('fs').writeFileSync('/dne/fake.js', someCode);
+                require('fs').writeFileSync('/dne/fake.js', someCode);
             `
           },
           { exec: code }
@@ -5327,33 +5327,39 @@ describe('tests targeting the TestObject interface', () => {
     expect(transformAsyncSpy.mock.calls).toMatchObject([
       [stripIndent(code), expect.any(Object)],
       [stripIndent(code), expect.any(Object)],
+      [code, expect.any(Object)],
       [stripIndent(code), expect.any(Object)],
-      [stripIndent(code), expect.any(Object)]
+      [stripIndent(code), expect.any(Object)],
+      [code, expect.any(Object)]
     ]);
 
     expect(writeFileSyncSpy.mock.calls).toMatchObject([
-      [expect.any(Object), 'cool'],
-      [expect.any(Object), 'cool']
+      [expect.any(String), 'cool'],
+      [expect.any(String), 'cool']
     ]);
 
-    expect(formatResult).toBeCalledTimes(4);
+    expect(formatResult).toBeCalledTimes(6);
   });
 
   it('does not strip `codeFixture`/`outputFixture`/`execFixture` of any indentation before transformation', async () => {
     expect.hasAssertions();
 
     const codeFixture = getFixturePath('codeFixture-indented.js');
-    const codeFixtureContents = getFixtureContents('codeFixture-indented.js');
     const outputFixture = getFixturePath('outputFixture-indented.js');
+    const codeFixtureContents = getFixtureContents('codeFixture-indented.js', {
+      trim: false
+    });
 
     await runPluginTester(
       getDummyPluginOptions({
+        plugin: identifierReversePlugin,
         tests: [{ codeFixture, outputFixture }, { execFixture: codeFixture }]
       })
     );
 
     await runPluginTester(
       getDummyPresetOptions({
+        preset: makePresetFromPlugin(identifierReversePlugin),
         tests: [{ codeFixture, outputFixture }, { execFixture: codeFixture }]
       })
     );
@@ -5409,27 +5415,29 @@ describe('tests targeting the TestObject interface', () => {
   it('throws if both `code`/`codeFixture` and `exec`/`execFixture` are provided', async () => {
     expect.hasAssertions();
 
+    const path = getFixturePath('simple/fixture/code.js');
+
     await runPluginTesterExpectThrownException(
       getDummyPluginOptions({ tests: [{ code: simpleTest, exec: simpleTest }] })
     );
 
     await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({ tests: [{ code: simpleTest, execFixture: simpleFixture }] })
+      getDummyPluginOptions({ tests: [{ code: simpleTest, execFixture: path }] })
     );
 
     await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({ tests: [{ codeFixture: simpleFixture, exec: simpleTest }] })
+      getDummyPresetOptions({ tests: [{ codeFixture: path, exec: simpleTest }] })
     );
 
     await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
-        tests: [{ codeFixture: simpleFixture, execFixture: simpleFixture }]
-      })
+      getDummyPresetOptions({ tests: [{ codeFixture: path, execFixture: path }] })
     );
   });
 
   it('throws if both `output`/`outputFixture` and `exec`/`execFixture` are provided', async () => {
     expect.hasAssertions();
+
+    const path = getFixturePath('simple/fixture/code.js');
 
     await runPluginTesterExpectThrownException(
       getDummyPluginOptions({
@@ -5439,21 +5447,19 @@ describe('tests targeting the TestObject interface', () => {
 
     await runPluginTesterExpectThrownException(
       getDummyPluginOptions({
-        tests: [{ code: simpleTest, execFixture: simpleFixture, output: simpleTest }]
+        tests: [{ code: simpleTest, execFixture: path, output: simpleTest }]
       })
     );
 
     await runPluginTesterExpectThrownException(
       getDummyPresetOptions({
-        tests: [{ code: simpleTest, exec: simpleTest, outputFixture: simpleFixture }]
+        tests: [{ code: simpleTest, exec: simpleTest, outputFixture: path }]
       })
     );
 
     await runPluginTesterExpectThrownException(
       getDummyPresetOptions({
-        tests: [
-          { code: simpleTest, execFixture: simpleFixture, outputFixture: simpleFixture }
-        ]
+        tests: [{ code: simpleTest, execFixture: path, outputFixture: path }]
       })
     );
   });
@@ -5461,27 +5467,31 @@ describe('tests targeting the TestObject interface', () => {
   it('throws if both `code` and `codeFixture` are provided', async () => {
     expect.hasAssertions();
 
+    const path = getFixturePath('simple/fixture/code.js');
+
     await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({ tests: [{ code: simpleTest, codeFixture: simpleFixture }] })
+      getDummyPluginOptions({ tests: [{ code: simpleTest, codeFixture: path }] })
     );
 
     await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({ tests: [{ code: simpleTest, codeFixture: simpleFixture }] })
+      getDummyPresetOptions({ tests: [{ code: simpleTest, codeFixture: path }] })
     );
   });
 
   it('throws if both `output` and `outputFixture` are provided', async () => {
     expect.hasAssertions();
 
+    const path = getFixturePath('simple/fixture/code.js');
+
     await runPluginTesterExpectThrownException(
       getDummyPluginOptions({
-        tests: [{ output: simpleTest, outputFixture: simpleFixture }]
+        tests: [{ output: simpleTest, outputFixture: path }]
       })
     );
 
     await runPluginTesterExpectThrownException(
       getDummyPresetOptions({
-        tests: [{ output: simpleTest, outputFixture: simpleFixture }]
+        tests: [{ output: simpleTest, outputFixture: path }]
       })
     );
   });
@@ -5489,12 +5499,14 @@ describe('tests targeting the TestObject interface', () => {
   it('throws if both `exec` and `execFixture` are provided', async () => {
     expect.hasAssertions();
 
+    const path = getFixturePath('simple/fixture/code.js');
+
     await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({ tests: [{ exec: simpleTest, execFixture: simpleFixture }] })
+      getDummyPluginOptions({ tests: [{ exec: simpleTest, execFixture: path }] })
     );
 
     await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({ tests: [{ exec: simpleTest, execFixture: simpleFixture }] })
+      getDummyPresetOptions({ tests: [{ exec: simpleTest, execFixture: path }] })
     );
   });
 
@@ -5607,8 +5619,8 @@ describe('tests targeting the TestObject interface', () => {
     expect(itSpy).toBeCalledTimes(2);
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
-      [getFixtureContents('codeFixture.js'), expect.any(Object)],
-      [getFixtureContents('codeFixture.js'), expect.any(Object)]
+      [getFixtureContents('codeFixture.js', { trim: false }), expect.any(Object)],
+      [getFixtureContents('codeFixture.js', { trim: false }), expect.any(Object)]
     ]);
   });
 
@@ -5839,13 +5851,15 @@ describe('tests targeting the TestObject interface', () => {
       await runPluginTesterExpectThrownException(
         getDummyPluginOptions({
           tests: [{ code: simpleTest, snapshot: true }]
-        })
+        }),
+        { customExpect: oldExpect }
       );
 
       await runPluginTesterExpectThrownException(
         getDummyPresetOptions({
           tests: [{ code: simpleTest, snapshot: true }]
-        })
+        }),
+        { customExpect: oldExpect }
       );
     } finally {
       // @ts-expect-error: It's probably there.
@@ -5882,7 +5896,13 @@ describe('tests targeting the TestObject interface', () => {
 
     await runPluginTesterExpectThrownException(
       getDummyPresetOptions({
-        tests: [{ code: simpleTest, outputFixture: shouldNotBeSeen, snapshot: true }]
+        tests: [
+          {
+            code: simpleTest,
+            outputFixture: getFixturePath('outputFixture.js'),
+            snapshot: true
+          }
+        ]
       })
     );
   });
@@ -5898,7 +5918,7 @@ describe('tests targeting the TestObject interface', () => {
 
     await runPluginTesterExpectThrownException(
       getDummyPresetOptions({
-        tests: [{ execFixture: shouldNotBeSeen, snapshot: true }]
+        tests: [{ execFixture: getFixturePath('execFixture.js'), snapshot: true }]
       })
     );
   });
