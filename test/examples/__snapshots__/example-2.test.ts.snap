@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`unknown plugin 1. unknown plugin: 1. unknown plugin 1`] = `
+
+"hello";
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+'hello';
+
+`;
+
+exports[`unknown plugin 3. unknown plugin: 3. unknown plugin 1`] = `
+
+
+function sayHi(person) {
+  return 'Hello ' + person + '!'
+}
+console.log(sayHi('Jenny'))
+    
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+function iHyas(nosrep) {
+  return 'Hello ' + nosrep + '!';
+}
+elosnoc.gol(iHyas('Jenny'));
+
+`;

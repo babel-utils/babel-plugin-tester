@@ -1,5 +1,5 @@
 /* eslint-disable jest/prefer-lowercase-title */
-import fs, { write } from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import assert, { AssertionError } from 'node:assert';
 import babel from '@babel/core';

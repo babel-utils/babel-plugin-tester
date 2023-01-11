@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`describe block title 5. identifier reverse: 5. identifier reverse 1`] = `
+
+
+function sayHi(person) {
+  return 'Hello ' + person + '!';
+}
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+function iHyas(nosrep) {
+  return 'Hello ' + nosrep + '!';
+}
+
+`;

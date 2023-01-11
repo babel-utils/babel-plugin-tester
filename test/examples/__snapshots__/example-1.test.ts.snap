@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`unknown plugin 5. using jest snapshots: 5. using jest snapshots 1`] = `
+
+
+function sayHi(person) {
+  return 'Hello ' + person + '!'
+}
+      
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+function iHyas(nosrep) {
+  return 'Hello ' + nosrep + '!';
+}
+
+`;
