@@ -242,8 +242,6 @@ exports[`tests targeting the FixtureOptions interface throws with helpful messag
 [0m [90m 7 |[39m   }[0m
 `;
 
-exports[`tests targeting the FixtureOptions interface throws with helpful message if there is a problem parsing options files 2`] = `/repos/babel-plugin-tester/test/fixtures/options-json-bad/fixture/options.json: Unexpected token } in JSON at position 36`;
-
 exports[`tests targeting the PluginTesterOptions interface applies \`snapshot\` globally 1`] = `failed to validate configuration for test "2. captains-log (explicit)": neither \`output\` nor \`outputFixture\` can be provided with \`snapshot\` enabled`;
 
 exports[`tests targeting the PluginTesterOptions interface applies \`snapshot\` globally 2`] = `failed to validate configuration for test "4. black-box (preset)": neither \`output\` nor \`outputFixture\` can be provided with \`snapshot\` enabled`;

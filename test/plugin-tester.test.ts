@@ -4566,11 +4566,13 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
-        fixtures: getFixturePath('options-json-bad')
-      })
-    );
+    await expect(
+      runPluginTester(
+        getDummyPresetOptions({
+          fixtures: getFixturePath('options-json-bad')
+        })
+      )
+    ).rejects.toThrow(/unexpected token/i);
   });
 
   it('recognizes .babelrc files with various extensions', async () => {
