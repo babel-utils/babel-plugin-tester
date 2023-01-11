@@ -704,7 +704,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         fixture,
         codeFixture: rawCodeFixture,
         outputFixture,
-        execFixture
+        execFixture: rawExecFixture
       } = mergeWith(
         {
           setup: noop,
@@ -719,6 +719,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         rawCodeFixture ?? fixture
       );
 
+      const execFixture = getAbsolutePathUsingFilepathDirname(filepath, rawExecFixture);
+
       const code = rawCode !== undefined ? stripIndent(rawCode) : readCode(codeFixture);
 
       const output =
@@ -726,7 +728,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           ? stripIndent(rawOutput)
           : readCode(filepath, outputFixture);
 
-      const exec = rawExec ?? readCode(filepath, execFixture);
+      const exec = rawExec ?? readCode(execFixture);
 
       const testConfig: MaybePluginTesterTestObjectConfig = mergeWith(
         { [$type]: 'test-object' } as const,
@@ -734,10 +736,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         { babelOptions: baseBabelOptions },
         {
           babelOptions: {
-            filename:
-              getAbsolutePathUsingFilepathDirname(filepath, codeFixture) ||
-              filepath ||
-              baseBabelOptions.filename
+            filename: codeFixture || execFixture || filepath || baseBabelOptions.filename
           }
         },
         { babelOptions: babelOptions || {} },
@@ -1063,6 +1062,17 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   asserts testConfig is T extends MaybePluginTesterTestObjectConfig
     ? PluginTesterTestObjectConfig
     : PluginTesterTestFixtureConfig {
+    const {
+      testBlockTitle,
+      skip,
+      only,
+      code,
+      exec,
+      output,
+      babelOptions,
+      expectedError
+    } = testConfig;
+
     if (knownViolations) {
       const { hasCodeAndCodeFixture, hasOutputAndOutputFixture, hasExecAndExecFixture } =
         knownViolations;
@@ -1079,17 +1089,6 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         throwTypeError('`exec` cannot be provided with `execFixture`');
       }
     }
-
-    const {
-      testBlockTitle,
-      skip,
-      only,
-      code,
-      exec,
-      output,
-      babelOptions,
-      expectedError
-    } = testConfig;
 
     if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
       if (!globalContextExpectFnHasToMatchSnapshot) {
