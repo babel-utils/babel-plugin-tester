@@ -3307,7 +3307,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
 
     await runPluginTesterExpectThrownExceptionWhenCapturingError(true, {
       plugin: () => ({ visitor: {} }),
-      preset: () => ({ plugins: [{ visitor: {} }] }),
+      preset: makePresetFromPlugin({ visitor: {} }),
       fixtures: getFixturePath('option-throws-true')
     });
   });
@@ -3595,6 +3595,40 @@ describe('tests targeting the FixtureOptions interface', () => {
       ['1. fixture', expect.any(Function)],
       ['2. fixture', expect.any(Function)]
     ]);
+  });
+
+  it('throws if `fixtures` value is invalid', async () => {
+    expect.hasAssertions();
+
+    await runPluginTesterExpectThrownException(
+      //@ts-expect-error: testing bad tests value
+      getDummyPluginOptions({ fixtures: [false] })
+    );
+
+    await runPluginTesterExpectThrownException(
+      //@ts-expect-error: testing bad tests value
+      getDummyPresetOptions({ fixtures: [false] })
+    );
+
+    //@ts-expect-error: testing bad tests value
+    await runPluginTesterExpectThrownException(getDummyPluginOptions({ fixtures: 5 }));
+    //@ts-expect-error: testing bad tests value
+    await runPluginTesterExpectThrownException(getDummyPresetOptions({ fixtures: 6 }));
+
+    //@ts-expect-error: testing bad tests value
+    await runPluginTesterExpectThrownException(getDummyPluginOptions({ fixtures: {} }));
+    //@ts-expect-error: testing bad tests value
+    await runPluginTesterExpectThrownException(getDummyPresetOptions({ fixtures: {} }));
+
+    await runPluginTesterExpectThrownException(
+      //@ts-expect-error: testing bad tests value
+      getDummyPluginOptions({ fixtures: false })
+    );
+
+    await runPluginTesterExpectThrownException(
+      //@ts-expect-error: testing bad tests value
+      getDummyPresetOptions({ fixtures: false })
+    );
   });
 
   it('replaces dashes with spaces in `it` block `title` when deriving from directory name', async () => {
@@ -4791,8 +4825,6 @@ describe('tests targeting the TestObject interface', () => {
       getDummyPresetOptions({ tests: [simpleTest, undefined, null, simpleTest, ''] })
     );
 
-    expect(itSpy).toHaveBeenCalledTimes(6);
-
     expect(equalSpy.mock.calls).toMatchObject([
       [simpleTest, simpleTest, expect.any(String)],
       [simpleTest, simpleTest, expect.any(String)],
@@ -4801,6 +4833,8 @@ describe('tests targeting the TestObject interface', () => {
       [simpleTest, simpleTest, expect.any(String)],
       ['', '', expect.any(String)]
     ]);
+
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('accepts an object value for `tests`', async () => {
@@ -4908,12 +4942,12 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
-
     expect(transformAsyncSpy.mock.calls).toMatchObject([
-      [getFixtureContents('codeFixture.js'), expect.any(Object)],
-      [getFixtureContents('execFixture.js'), expect.any(Object)]
+      [getFixtureContents('codeFixture.js', { trim: false }), expect.any(Object)],
+      [getFixtureContents('execFixture.js', { trim: false }), expect.any(Object)]
     ]);
+
+    expect(itSpy).toBeCalledTimes(2);
   });
 
   it('resolves absolute `codeFixture`/`outputFixture`/`execFixture` path regardless of `filepath`', async () => {
@@ -4943,8 +4977,8 @@ describe('tests targeting the TestObject interface', () => {
     expect(itSpy).toBeCalledTimes(2);
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
-      [getFixtureContents('codeFixture.js'), expect.any(Object)],
-      [getFixtureContents('execFixture.js'), expect.any(Object)]
+      [getFixtureContents('execFixture.js', { trim: false }), expect.any(Object)],
+      [getFixtureContents('codeFixture.js', { trim: false }), expect.any(Object)]
     ]);
   });
 
@@ -4972,7 +5006,7 @@ describe('tests targeting the TestObject interface', () => {
 
     await runPluginTesterExpectThrownException(
       getDummyPresetOptions({
-        preset: () => ({ plugins: [identifierReversePlugin] }),
+        preset: makePresetFromPlugin(identifierReversePlugin),
         tests: [simpleTest]
       })
     );
@@ -5030,7 +5064,7 @@ describe('tests targeting the TestObject interface', () => {
 
     await runPluginTester(
       getDummyPresetOptions({
-        preset: () => ({ plugins: [identifierReversePlugin] }),
+        preset: makePresetFromPlugin(identifierReversePlugin),
         tests: [
           { code: codeFixtureContents, output: outputFixtureContents },
           { code: codeFixtureContents, outputFixture: outputFixturePath },
@@ -5076,7 +5110,7 @@ describe('tests targeting the TestObject interface', () => {
 
     await runPluginTester(
       getDummyPresetOptions({
-        preset: () => ({ plugins: [deleteVariablesPlugin] }),
+        preset: makePresetFromPlugin(deleteVariablesPlugin),
         tests: [
           {
             code: '',
@@ -5118,7 +5152,7 @@ describe('tests targeting the TestObject interface', () => {
 
     await runPluginTester(
       getDummyPresetOptions({
-        preset: () => ({ plugins: [deleteVariablesPlugin] }),
+        preset: makePresetFromPlugin(deleteVariablesPlugin),
         tests: [
           {
             codeFixture: codeFixturePath,
@@ -5164,7 +5198,7 @@ describe('tests targeting the TestObject interface', () => {
 
     await runPluginTesterExpectThrownException(
       getDummyPresetOptions({
-        preset: () => ({ plugins: [deleteVariablesPlugin] }),
+        preset: makePresetFromPlugin(deleteVariablesPlugin),
         tests: [{ exec: getFixtureContents('codeFixture.js') }]
       })
     );
@@ -5183,6 +5217,10 @@ describe('tests targeting the TestObject interface', () => {
     await runPluginTesterExpectThrownException(
       getDummyPresetOptions({ tests: [{ presetOptions: {} }] })
     );
+  });
+
+  it('throws if `tests` value is invalid', async () => {
+    expect.hasAssertions();
 
     //@ts-expect-error: testing bad tests value
     await runPluginTesterExpectThrownException(getDummyPluginOptions({ tests: [false] }));
@@ -5193,6 +5231,43 @@ describe('tests targeting the TestObject interface', () => {
     await runPluginTesterExpectThrownException(getDummyPluginOptions({ tests: [[]] }));
     //@ts-expect-error: testing bad tests value
     await runPluginTesterExpectThrownException(getDummyPresetOptions({ tests: [[]] }));
+
+    //@ts-expect-error: testing bad tests value
+    await runPluginTesterExpectThrownException(getDummyPluginOptions({ tests: [5] }));
+    //@ts-expect-error: testing bad tests value
+    await runPluginTesterExpectThrownException(getDummyPresetOptions({ tests: [6] }));
+
+    //@ts-expect-error: testing bad tests value
+    await runPluginTesterExpectThrownException(getDummyPluginOptions({ tests: 5 }));
+    //@ts-expect-error: testing bad tests value
+    await runPluginTesterExpectThrownException(getDummyPresetOptions({ tests: 'bad' }));
+
+    await runPluginTesterExpectThrownException(
+      //@ts-expect-error: testing bad tests value
+      getDummyPluginOptions({ tests: { test: [false] } })
+    );
+    await runPluginTesterExpectThrownException(
+      //@ts-expect-error: testing bad tests value
+      getDummyPresetOptions({ tests: { test: false } })
+    );
+
+    await runPluginTesterExpectThrownException(
+      //@ts-expect-error: testing bad tests value
+      getDummyPluginOptions({ tests: { test: [[]] } })
+    );
+    await runPluginTesterExpectThrownException(
+      //@ts-expect-error: testing bad tests value
+      getDummyPresetOptions({ tests: { test: [[]] } })
+    );
+
+    await runPluginTesterExpectThrownException(
+      //@ts-expect-error: testing bad tests value
+      getDummyPluginOptions({ tests: { test: 5 } })
+    );
+    await runPluginTesterExpectThrownException(
+      //@ts-expect-error: testing bad tests value
+      getDummyPresetOptions({ tests: { test: 6 } })
+    );
   });
 
   it('strips `code`, `output`, and `exec` of any indentation before transformation; trims and fixes their line endings afterwards, formatting `code` and `exec` as well', async () => {
