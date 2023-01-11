@@ -1133,7 +1133,7 @@ pluginTester({
     {
       snapshot: false,
       code: 'var hello = "hi";',
-      output: 'var olleh = "hi";'
+      output: "var olleh = 'hi';"
     },
     `
       function sayHi(person) {
@@ -1227,18 +1227,22 @@ pluginTester({
       title: 'unchanged code',
       // Because this is an absolute path, the filepath option above will not
       // be used to resolve this path
-      codeFixture: path.join(__dirname, 'some-path', 'unchanged.js')
+      codeFixture: path.join(
+        __dirname,
+        '../fixtures',
+        'codeFixture-unchanging.js'
+      )
       // No output, outputFixture, or snapshot, so the assertion will be that
       // the plugin does not change this code
     },
     {
       // Because these are not absolute paths, they will be joined with the
       // directory of the filepath option provided above
-      codeFixture: '__fixtures__/changed.js',
+      codeFixture: '../fixtures/codeFixture.js',
       // Because outputFixture is provided, the assertion will be that the
       // plugin will change the contents of "changed.js" to the contents of
       // "changed-output.js"
-      outputFixture: '__fixtures__/changed-output.js'
+      outputFixture: '../fixtures/outputFixture.js'
     },
     {
       // As a convenience, this will have the indentation striped and it will
