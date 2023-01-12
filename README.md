@@ -187,13 +187,14 @@ This is used to provide the babel preset under test. For example:
 ```javascript
 /* file: cool-new-babel-preset.test.js */
 
+import path from 'node:path';
 import { pluginTester } from 'babel-plugin-tester';
 import coolNewBabelPreset from 'cool-new-babel-preset.js';
 
 pluginTester({
   preset: coolNewBabelPreset,
   // A path to a directory containing your test fixtures
-  fixtures: `${__dirname}/__fixtures__`
+  fixtures: path.join(__dirname, 'fixtures')
 });
 
 /* file: cool-new-babel-preset.js */
@@ -260,12 +261,13 @@ To simply reuse your project's [`babel.config.js`][31] or some other
 configuration file, set `babelOptions` like so:
 
 ```javascript
+import path from 'node:path';
 import { pluginTester } from 'babel-plugin-tester';
 
 pluginTester({
   plugin: yourPlugin,
   // ...
-  babelOptions: require('../babel.config.js'),
+  babelOptions: require(path.join('..', 'babel.config.js')),
   // ...
   tests: {
     /* Your test objects */
@@ -548,7 +550,7 @@ The `fixtures` option must be a path to a directory with a structure similar to
 the following:
 
 ```text
-__fixtures__
+fixtures
 ├── first-test         # test title will be: "1. first test"
 │   ├── code.js        # required
 │   └── output.js      # required (unless using the `throws` option)
@@ -567,13 +569,13 @@ __fixtures__
         └── exec.js    # required (alternative to code/output structure)
 ```
 
-Assuming the `__fixtures__` directory is in the same directory as your test
-file, you could use it with the following configuration:
+Assuming the `fixtures` directory is in the same directory as your test file,
+you could use it with the following configuration:
 
 ```javascript
 pluginTester({
   plugin,
-  fixtures: path.join(__dirname, '__fixtures__')
+  fixtures: path.join(__dirname, 'fixtures')
 });
 ```
 
@@ -585,8 +587,8 @@ pluginTester({
 > though `.mjs` config files will cause a segfault until [this issue with
 > V8/Chromium is resolved][55].
 
-And it would run four tests, one for each directory in `__fixtures__` containing
-a file starting with "code" or "exec".
+And it would run four tests, one for each directory in `fixtures` containing a
+file starting with "code" or "exec".
 
 ##### `code.js`
 
@@ -663,11 +665,11 @@ exist in the same directory, `options.js` will take precedence and
 
 Fixtures support deeply nested directory structures as well as shared or "root"
 `options.json` files. For example, placing an `options.json` file in the
-`__fixtures__/nested` directory would make its contents the "global
-configuration" for all fixtures under `__fixtures__/nested`. That is: each
-fixture would [`lodash.mergeWith`][lodash.mergewith] the options provided to
-babel-plugin-tester, `__fixtures__/nested/options.json`, and the contents of
-their local `options.json` file as described above.
+`fixtures/nested` directory would make its contents the "global configuration"
+for all fixtures under `fixtures/nested`. That is: each fixture would
+[`lodash.mergeWith`][lodash.mergewith] the options provided to
+babel-plugin-tester, `fixtures/nested/options.json`, and the contents of their
+local `options.json` file as described above.
 
 What follows are the properties you may use if you provide an options file, all
 of which are optional:
@@ -1148,6 +1150,7 @@ pluginTester({
 ### Full Example
 
 ```javascript
+import path from 'node:path';
 import { pluginTester } from 'babel-plugin-tester';
 import identifierReversePlugin from '../identifier-reverse-plugin';
 
@@ -1229,7 +1232,8 @@ pluginTester({
       // be used to resolve this path
       codeFixture: path.join(
         __dirname,
-        '../fixtures',
+        '..',
+        'fixtures',
         'codeFixture-unchanging.js'
       )
       // No output, outputFixture, or snapshot, so the assertion will be that
@@ -1238,11 +1242,11 @@ pluginTester({
     {
       // Because these are not absolute paths, they will be joined with the
       // directory of the filepath option provided above
-      codeFixture: '../fixtures/codeFixture.js',
+      codeFixture: path.join('..', 'fixtures', 'codeFixture.js'),
       // Because outputFixture is provided, the assertion will be that the
       // plugin will change the contents of "changed.js" to the contents of
       // "changed-output.js"
-      outputFixture: '../fixtures/outputFixture.js'
+      outputFixture: path.join('..', 'fixtures', 'outputFixture.js')
     },
     {
       // As a convenience, this will have the indentation striped and it will
@@ -1342,12 +1346,12 @@ pluginTester({
     {
       // babelOptions.filename will be set to the value of codeFixture for you
       // unless you set it manually here at the test level
-      codeFixture: path.join(__dirname, '__fixtures__/my-file.js')
+      codeFixture: path.join(__dirname, 'fixtures', 'my-file.js')
     },
     {
       // babelOptions.filename will be set to the value of execFixture for you
       // unless you set it manually here at the test level
-      execFixture: path.join(__dirname, '__fixtures__/my-script.js')
+      execFixture: path.join(__dirname, 'fixtures', 'my-script.js')
     }
   ]
 });
@@ -1372,12 +1376,12 @@ pluginTester({
     {
       // babelOptions.filename will be set to the value of codeFixture for you
       // unless you set it manually here at the test level
-      codeFixture: path.join(__dirname, '__fixtures__/my-file.js')
+      codeFixture: path.join(__dirname, 'fixtures', 'my-file.js')
     },
     {
       // babelOptions.filename will be set to the value of execFixture for you
       // unless you set it manually here at the test level
-      execFixture: path.join(__dirname, '__fixtures__/my-script.js')
+      execFixture: path.join(__dirname, 'fixtures', 'my-script.js')
     }
   ]
 });
