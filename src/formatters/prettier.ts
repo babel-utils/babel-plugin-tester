@@ -16,11 +16,11 @@ const configDirectoryCache: Record<string, MaybePrettierOptions> = Object.create
 
 const getCachedConfig = (directory: string) => {
   if (!(directory in configDirectoryCache)) {
-    configDirectoryCache[directory] = resolvePrettierConfig.sync(directory);
     debug(
-      `cached prettier configuration resolved from ${directory}: %O`,
+      `caching prettier configuration resolved from ${directory}: %O`,
       configDirectoryCache[directory]
     );
+    configDirectoryCache[directory] = resolvePrettierConfig.sync(directory);
   } else {
     debug(`using cached prettier configuration resolved from ${directory}`);
   }
@@ -52,7 +52,7 @@ export const prettierFormatter: ResultFormatter<{
 ) => {
   debug('cwd: %O', cwd);
   debug('filepath: %O', filepath);
-  debug('original code: %O', code);
+  debug('original  code: %O', code);
 
   const formattedCode = formatWithPrettier(code, {
     filepath,

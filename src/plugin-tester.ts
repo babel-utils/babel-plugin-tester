@@ -1087,7 +1087,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       execFixture
     } = testConfig;
 
-    debug2(`test framework has triggered test "${testBlockTitle}"`);
+    debug2(`test framework has triggered test "${testBlockTitle.fullString}"`);
 
     let errored = false;
 
