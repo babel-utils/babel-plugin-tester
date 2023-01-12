@@ -1555,10 +1555,17 @@ pluginTester({
 
 ### Built-In Debugging Support
 
-This package uses [debug][97] under the hood; more verbose output, including the
-results of all babel transformations, can be activated by passing the
+This package uses [debug][97] under the hood. To view all possible debugging
+output, including the results of all babel transformations, set the
 `DEBUG='babel-plugin-tester,babel-plugin-tester:*'` [environment variable][98]
-when running babel-plugin-tester.
+when running your tests.
+
+For example:
+
+```bash
+# Those using Windows (but not WSL) have to set environment variable differently
+NODE_ENV='test' DEBUG='babel-plugin-tester,babel-plugin-tester:*' DEBUG_DEPTH='1' npx jest
+```
 
 #### Available Debug Namespaces
 
@@ -1567,9 +1574,35 @@ The following [debug namespaces][99] are available for activation:
 <!-- lint disable list-item-style -->
 
 - `babel-plugin-tester:index`
-- `babel-plugin-tester:tester`
 - `babel-plugin-tester:formatter`
 - `babel-plugin-tester:serializer`
+- `babel-plugin-tester:tester`
+  - `babel-plugin-tester:tester:resolve-base`
+  - `babel-plugin-tester:tester:resolve-env`
+  - `babel-plugin-tester:tester:normalize`
+    - `babel-plugin-tester:tester:normalize:create-desc`
+    - `babel-plugin-tester:tester:normalize:create-fix`
+    - `babel-plugin-tester:tester:normalize:create-obj`
+  - `babel-plugin-tester:tester:register`
+  - `babel-plugin-tester:tester:wrapper`
+  - `babel-plugin-tester:tester:test`
+  - `babel-plugin-tester:tester:validate`
+  - `babel-plugin-tester:tester:read-opts`
+  - `babel-plugin-tester:tester:read-code`
+  - `babel-plugin-tester:tester:eol`
+  - `babel-plugin-tester:tester:finalize`
+
+The `babel-plugin-tester:tester` namespace and its sub-namespaces each have an
+additional `verbose` sub-namespace that can be activated or deactivated at will,
+e.g. `babel-plugin-tester:tester:verbose` and
+`babel-plugin-tester:tester:wrapper:verbose`.
+
+For example, to view all debug output except verbose output:
+
+```bash
+# Those using Windows (but not WSL) have to set environment variable differently
+NODE_ENV='test' DEBUG='babel-plugin-tester,babel-plugin-tester:*,-*:verbose' npx jest
+```
 
 <!-- lint enable list-item-style -->
 
