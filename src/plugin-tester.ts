@@ -45,7 +45,19 @@ const isIntegerRangeRegExp = /^(?<startStr>\d+)-(?<endStr>\d+)$/;
 const noop = () => undefined;
 Object.freeze(noop);
 
-const debug = debugFactory('babel-plugin-tester:tester');
+const getDebuggers = (namespace: string, parentDebugger: debugFactory.Debugger) => {
+  const debug = parentDebugger.extend(namespace);
+
+  return {
+    debug,
+    verbose: debug.extend('verbose')
+  };
+};
+
+const { debug: debug1, verbose: verbose1 } = getDebuggers(
+  'tester',
+  debugFactory('babel-plugin-tester')
+);
 
 export default pluginTester;
 
@@ -60,6 +72,7 @@ let currentTestNumber = 1;
  * `restartTitleNumbering: true`.
  */
 export function restartTestTitleNumbering() {
+  debug1('restarted title numbering');
   currentTestNumber = 1;
 }
 
@@ -70,6 +83,8 @@ export function restartTestTitleNumbering() {
  * `describe` and `it` globals with async support.
  */
 export function pluginTester(options: PluginTesterOptions = {}) {
+  debug1('executing main babel-plugin-tester function');
+
   const globalContextHasExpectFn = 'expect' in globalThis && typeof expect == 'function';
   const globalContextHasTestFn = 'it' in globalThis && typeof it == 'function';
 
@@ -100,21 +115,32 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     );
   }
 
+  debug1('global context check succeeded');
+
   let hasTests = false;
   const baseConfig = resolveBaseConfig();
   const envConfig = resolveConfigFromEnvironmentVariables();
   const normalizedTests = normalizeTests();
 
-  // TODO: debug statements here printing resolved configs
+  verbose1('base configuration: %O', baseConfig);
+  verbose1('environment-derived config: %O', envConfig);
+  verbose1('normalized test blocks: %O', normalizedTests);
 
   if (!hasTests) {
-    // TODO: debug statement here
+    debug1('terminated early: no valid tests provided');
     return;
   }
 
   registerTestsWithTestingFramework(normalizedTests);
 
+  debug1('finished registering all test blocks with testing framework');
+  debug1('finished executing main babel-plugin-tester function');
+
   function resolveBaseConfig(): PluginTesterBaseConfig {
+    const { debug: debug2, verbose: verbose2 } = getDebuggers('resolve-base', debug1);
+
+    debug2('resolving base configuration');
+
     const rawBaseConfig = mergeWith(
       {
         babelOptions: {
@@ -134,6 +160,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       options,
       mergeCustomizer
     );
+
+    verbose2('raw base configuration: %O', rawBaseConfig);
 
     if (
       (rawBaseConfig.plugin &&
@@ -170,6 +198,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       tests: rawBaseConfig.tests || []
     };
 
+    verbose2('partially constructed base configuration: %O', baseConfig);
+
     if (baseConfig.fixtures !== undefined && typeof baseConfig.fixtures != 'string') {
       throw new TypeError(
         'failed to validate configuration: `fixtures`, if defined, must be a string'
@@ -188,8 +218,6 @@ export function pluginTester(options: PluginTesterOptions = {}) {
 
     baseConfig.tests = Array.isArray(baseConfig.tests)
       ? baseConfig.tests.filter((test, ndx) => {
-          // TODO: debug statement here
-
           if (
             Array.isArray(test) ||
             (typeof test != 'string' &&
@@ -202,12 +230,16 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             );
           }
 
-          return typeof test == 'string' || Boolean(test);
+          const result = typeof test == 'string' || Boolean(test);
+
+          if (!result) {
+            debug2(`test item \`%O\` at index ${ndx} was skipped`, test);
+          }
+
+          return result;
         })
       : Object.fromEntries(
           Object.entries(baseConfig.tests).filter(([title, test]) => {
-            // TODO: debug statement here instead of void
-
             if (
               Array.isArray(test) ||
               (typeof test != 'string' &&
@@ -220,17 +252,26 @@ export function pluginTester(options: PluginTesterOptions = {}) {
               );
             }
 
-            void title;
-            return typeof test == 'string' || Boolean(test);
+            const result = typeof test == 'string' || Boolean(test);
+
+            if (!result) {
+              debug2(`test property "${title}" with value \`%O\` was skipped`, test);
+            }
+
+            return result;
           })
         );
 
     if (rawBaseConfig.plugin) {
+      debug2('running in plugin mode');
+
       baseConfig.plugin = rawBaseConfig.plugin;
       baseConfig.pluginName =
         rawBaseConfig.pluginName || tryInferPluginName() || 'unknown plugin';
       baseConfig.basePluginOptions = rawBaseConfig.pluginOptions || {};
     } else if (rawBaseConfig.preset) {
+      debug2('running in preset mode');
+
       baseConfig.preset = rawBaseConfig.preset;
       baseConfig.presetName = rawBaseConfig.presetName || 'unknown preset';
       baseConfig.basePresetOptions = rawBaseConfig.presetOptions;
@@ -248,6 +289,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           baseConfig.presetName ||
           undefined;
 
+    debug2('describe block title: %O', baseConfig.describeBlockTitle);
+
     if (rawBaseConfig.restartTitleNumbering) {
       restartTestTitleNumbering();
     }
@@ -255,9 +298,11 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     return baseConfig as PluginTesterBaseConfig;
 
     function tryInferPluginName() {
+      debug2('attempting to infer plugin name');
+
       try {
         // * https://xunn.at/babel-helper-plugin-utils-src
-        return rawBaseConfig.plugin!(
+        const { name } = rawBaseConfig.plugin!(
           {
             assertVersion: noop,
             targets: noop,
@@ -265,8 +310,12 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           },
           {},
           process.cwd()
-        ).name;
+        );
+
+        debug2('plugin name inference succeeded: %O', name);
+        return name;
       } catch {
+        debug2('plugin name inference failed');
         return undefined;
       }
     }
@@ -274,8 +323,11 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     function tryInferFilepath() {
       // ? Allow the end user to unset filepath by setting it to undefined
       if ('filepath' in rawBaseConfig || 'filename' in rawBaseConfig) {
+        debug2('filepath was manually unset');
         return undefined;
       }
+
+      debug2('attempting to infer filepath');
 
       const oldStackTraceLimit = Error.stackTraceLimit;
       Error.stackTraceLimit = Number.POSITIVE_INFINITY;
@@ -301,19 +353,18 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             .filter(<T>(o: T): o is NonNullable<T> => Boolean(o)) || []
         ).reverse();
 
-        // TODO: debug statement here displaying reversed call stack contents
+        verbose2('reversed call stack: %O', reversedCallStack);
 
         if (reversedCallStack?.length) {
-          // TODO: debug statements below
           const referenceIndex = findReferenceStackIndex(reversedCallStack);
+          verbose2('reference index: %O', referenceIndex);
 
           if (referenceIndex) {
             inferredFilepath = reversedCallStack.at(referenceIndex - 1)?.filePath;
           }
         }
 
-        // TODO: debug statement here outputting inferredFilepath
-
+        debug2('inferred filepath: %O', inferredFilepath);
         return inferredFilepath;
       } finally {
         Error.stackTraceLimit = oldStackTraceLimit;
@@ -348,6 +399,10 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   }
 
   function resolveConfigFromEnvironmentVariables() {
+    const { debug: debug2 } = getDebuggers('resolve-env', debug1);
+
+    debug2('resolving environment variable configuration');
+
     return {
       skipTestsByRegExp: stringToRegExp(process.env.TEST_SKIP),
       onlyTestsByRegExp: stringToRegExp(process.env.TEST_ONLY),
@@ -401,6 +456,10 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   }
 
   function normalizeTests() {
+    const { debug: debug2 } = getDebuggers('normalize', debug1);
+
+    debug2('normalizing test items into test objects');
+
     const { describeBlockTitle, filepath, tests, fixtures } = baseConfig;
     const testsIsArray = Array.isArray(tests);
     const fixturesAbsolutePath = getAbsolutePathUsingFilepathDirname(filepath, fixtures);
@@ -413,34 +472,54 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       baseConfig.titleNumbering == 'all' || baseConfig.titleNumbering == 'tests-only';
 
     if (fixturesAbsolutePath) {
+      debug2(
+        'potentially generating test objects from fixtures path: %O',
+        fixturesAbsolutePath
+      );
+
       if (fs.statSync(fixturesAbsolutePath).isDirectory()) {
+        debug2('generating test objects from fixtures path');
+
         const describeBlock =
           typeof describeBlockTitle == 'string'
             ? createAndPushDescribeConfig(`${describeBlockTitle} fixtures`)
             : undefined;
+
+        if (describeBlock === undefined) {
+          debug2('skipped creating describe block');
+        }
 
         createAndPushFixtureConfigs({
           fixturesDirectory: fixturesAbsolutePath,
           parentDescribeConfig: describeBlock
         });
       } else {
-        // TODO: debug statement here
+        debug2('not generating test objects from fixtures path: path is not a directory');
       }
     }
 
     if (tests && (!testsIsArray || tests.length)) {
+      debug2('generating test objects from tests');
+
       const describeBlock =
         typeof describeBlockTitle == 'string'
           ? createAndPushDescribeConfig(describeBlockTitle)
           : undefined;
 
+      if (describeBlock === undefined) {
+        debug2('skipped creating describe block');
+      }
+
       if (testsIsArray) {
+        debug2(`${tests.length} tests were provided via an array`);
         (describeBlock?.tests || testConfigs).push(
           ...tests.map((test) => createTestConfig(test))
         );
       } else {
+        const entries = Object.entries(tests);
+        debug2(`${entries.length} tests were provided via an object`);
         (describeBlock?.tests || testConfigs).push(
-          ...Object.entries(tests).map(([title, test]) => {
+          ...entries.map(([title, test]) => {
             return createTestConfig({
               title,
               ...(typeof test == 'string' ? { code: test } : test)
@@ -450,12 +529,17 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       }
     }
 
+    debug2('finished normalizing tests');
     return testConfigs;
 
     function createAndPushDescribeConfig(
       describeBlockTitle: PluginTesterTestDescribeConfig['describeBlockTitle'],
       parentDescribeConfig?: PluginTesterTestDescribeConfig
     ) {
+      const { debug: debug3 } = getDebuggers('create-desc', debug2);
+
+      debug3('generating new describe block: %O', describeBlockTitle);
+
       const describeConfig: PluginTesterTestDescribeConfig = {
         [$type]: 'describe-block',
         describeBlockTitle,
@@ -475,8 +559,15 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       fixtureOptions?: FixtureOptions;
       parentDescribeConfig?: PluginTesterTestDescribeConfig;
     }) {
+      const { debug: debug3, verbose: verbose3 } = getDebuggers('create-fix', debug2);
+
+      debug3(
+        'potentially generating test objects from fixture at path %O',
+        fixturesDirectory
+      );
+
       if (!fs.statSync(fixturesDirectory).isDirectory()) {
-        // TODO: debug statement here
+        debug3('test objects generation skipped: path is not a directory');
         return;
       }
 
@@ -487,11 +578,18 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         mergeCustomizer
       );
 
+      verbose3('root options: %O', rootOptions);
+
       fs.readdirSync(fixturesDirectory).forEach((filename) => {
         const fixtureSubdir = path.join(fixturesDirectory, filename);
 
+        debug3(
+          'potentially generating new test object from fixture at subpath %O',
+          fixtureSubdir
+        );
+
         if (!fs.statSync(fixtureSubdir).isDirectory()) {
-          // TODO: debug statement here
+          debug3('test object generation skipped: subpath is not a directory');
           return;
         }
 
@@ -502,6 +600,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           readFixtureOptions(fixtureSubdir),
           mergeCustomizer
         );
+
+        verbose3('localOptions: %O', localOptions);
 
         const directoryFiles = fs
           .readdirSync(fixtureSubdir, { withFileTypes: true })
@@ -517,8 +617,15 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             return file.name.startsWith('exec.');
           }) || {};
 
+        verbose3('code filename: %O', codeFilename);
+        verbose3('exec filename: %O', execFilename);
+
         // ! Code in the else branch is relying specifically on this check
         if (!codeFilename && !execFilename) {
+          debug3(
+            'no code or exec file found in subpath. Skipped generating test object. Subpath will be scanned for nested fixtures'
+          );
+
           createAndPushFixtureConfigs({
             fixturesDirectory: fixtureSubdir,
             fixtureOptions: localOptions,
@@ -528,6 +635,10 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             )
           });
         } else {
+          debug3(
+            'code or exec file found in subpath. Skipped scanning for nested fixtures. Test object will be generated'
+          );
+
           const codePath = codeFilename
             ? path.join(fixtureSubdir, codeFilename)
             : undefined;
@@ -649,6 +760,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             mergeCustomizer
           );
 
+          verbose3('partially constructed fixture-based test object: %O', testConfig);
+
           if (plugin) {
             testConfig.babelOptions.plugins.push([
               plugin,
@@ -662,6 +775,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           }
 
           finalizePluginAndPresetRunOrder(testConfig.babelOptions);
+          verbose3('finalized fixture-based test object: %O', testConfig);
+
           validateTestConfig(testConfig);
           hasTests = true;
 
@@ -671,9 +786,15 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     }
 
     function createTestConfig(testObject: string | TestObject) {
+      const { verbose: verbose3 } = getDebuggers('create-obj', debug2);
+
+      verbose3('generating new test object');
+
       if (typeof testObject === 'string') {
         testObject = { code: testObject };
       }
+
+      verbose3('raw test object: %O', testObject);
 
       const {
         plugin,
@@ -785,6 +906,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         mergeCustomizer
       );
 
+      verbose3('partially constructed test object: %O', testConfig);
+
       if (plugin) {
         testConfig.babelOptions.plugins.push([
           plugin,
@@ -798,6 +921,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       }
 
       finalizePluginAndPresetRunOrder(testConfig.babelOptions);
+      verbose3('finalized test object: %O', testConfig);
 
       validateTestConfig(testConfig, {
         hasCodeAndCodeFixture: !!(rawCode && codeFixture),
@@ -811,8 +935,15 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   }
 
   function registerTestsWithTestingFramework(tests: PluginTesterTestConfig[]) {
+    const { debug: debug2 } = getDebuggers('register', debug1);
+
+    debug2(`registering ${tests.length} blocks with testing framework`);
+
     tests.forEach((testConfig) => {
       if (testConfig[$type] == 'describe-block') {
+        debug2(
+          `registering describe block "${testConfig.describeBlockTitle}" and its sub-blocks`
+        );
         describe(testConfig.describeBlockTitle, () => {
           registerTestsWithTestingFramework(testConfig.tests);
         });
@@ -830,15 +961,29 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           numericPrefixInRanges(numericPrefix, envConfig.skipTestsByRange)
         ) {
           method = 'skip';
+          debug2(
+            `registering test block "${fullString}" (with \`skip\` property enabled via environment variable)`
+          );
         } else if (
           envConfig.onlyTestsByRegExp?.test(titleString) ||
           numericPrefixInRanges(numericPrefix, envConfig.onlyTestsByRange)
         ) {
           method = 'only';
+          debug2(
+            `registering test block "${fullString}" (with \`only\` property enabled via environment variable)`
+          );
         } else if (skip) {
           method = 'skip';
+          debug2(
+            `registering test block "${fullString}" (with \`skip\` property enabled)`
+          );
         } else if (only) {
           method = 'only';
+          debug2(
+            `registering test block "${fullString}" (with \`only\` property enabled)`
+          );
+        } else {
+          debug2(`registering test block "${fullString}"`);
         }
 
         (method ? it[method] : it)(fullString, frameworkTestWrapper(testConfig));
@@ -849,6 +994,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   function frameworkTestWrapper(
     testConfig: PluginTesterTestObjectConfig | PluginTesterTestFixtureConfig
   ) {
+    const { verbose: verbose2 } = getDebuggers('wrapper', debug1);
+
     return async () => {
       const { baseSetup, baseTeardown } = baseConfig;
       const { testSetup, testTeardown } = testConfig;
@@ -856,18 +1003,25 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       const teardownFunctions = [testTeardown, baseTeardown];
 
       for (const [index, setupFn] of setupFunctions.entries()) {
+        verbose2(`running setup function #${index + 1}`);
+
         try {
           // eslint-disable-next-line no-await-in-loop
           const maybeTeardownFn = await setupFn();
 
           if (typeof maybeTeardownFn === 'function') {
+            verbose2(
+              `registered teardown function returned from setup function #${index + 1}`
+            );
             teardownFunctions.splice(index - 1, 0, maybeTeardownFn);
           }
         } catch (error) {
-          throw new Error(
-            `setup function failed: ${isNativeError(error) ? error.message : error}`,
-            { cause: error }
-          );
+          const message = `setup function failed: ${
+            isNativeError(error) ? error.message : error
+          }`;
+
+          verbose2(message);
+          throw new Error(message, { cause: error });
         }
       }
 
@@ -877,8 +1031,11 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         await frameworkTest(testConfig);
       } catch (error) {
         frameworkError = error;
+        verbose2('caught framework test failure');
       } finally {
-        for (const teardownFn of teardownFunctions) {
+        for (const [index, teardownFn] of teardownFunctions.entries()) {
+          verbose2(`running teardown function #${index + 1}`);
+
           try {
             // eslint-disable-next-line no-await-in-loop
             await teardownFn();
@@ -894,15 +1051,16 @@ export function pluginTester(options: PluginTesterOptions = {}) {
               isNativeError(error) ? error.message : error
             }${frameworkErrorMessage}`;
 
+            verbose2(errorMessage);
+
             // eslint-disable-next-line no-unsafe-finally
-            throw new Error(errorMessage, {
-              cause: { error, frameworkError }
-            });
+            throw new Error(errorMessage, { cause: { error, frameworkError } });
           }
         }
 
         // ? Ensure we don't swallow any errors from frameworkTest
         if (frameworkError) {
+          verbose2('rethrowing framework test failure');
           // eslint-disable-next-line no-unsafe-finally
           throw frameworkError;
         }
@@ -913,6 +1071,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   async function frameworkTest(
     testConfig: PluginTesterTestObjectConfig | PluginTesterTestFixtureConfig
   ) {
+    const { debug: debug2, verbose: verbose2 } = getDebuggers('test', debug1);
+
     const { babel, endOfLine, filepath } = baseConfig;
     const {
       babelOptions,
@@ -927,14 +1087,21 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       execFixture
     } = testConfig;
 
+    debug2(`test framework has triggered test "${testBlockTitle}"`);
+
     let errored = false;
 
     const rawBabelOutput = await (async () => {
       try {
-        return (
-          await (babel.transformAsync || babel.transform)(code ?? exec, babelOptions)
-        )?.code;
+        const transformer = babel.transformAsync || babel.transform;
+        const parameters = [code ?? exec, babelOptions] as const;
+        verbose2(
+          `calling babel transform function (${transformer.name}) with parameters: %O`,
+          parameters
+        );
+        return (await transformer(...parameters))?.code;
       } catch (error) {
+        verbose2(`babel transformation failed with error: ${error}`);
         if (expectedError) {
           errored = true;
           return error;
@@ -944,110 +1111,127 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       }
     })();
 
-    assert(!expectedError || errored, 'expected babel to throw an error, but it did not');
+    try {
+      if (expectedError) {
+        debug2('expecting babel transform function to fail with error');
+        assert(errored, 'expected babel to throw an error, but it did not');
 
-    if (expectedError) {
-      if (typeof expectedError === 'function') {
-        if (expectedError === Error || expectedError.prototype instanceof Error) {
+        if (typeof expectedError === 'function') {
+          if (expectedError === Error || expectedError.prototype instanceof Error) {
+            assert(
+              rawBabelOutput instanceof expectedError,
+              `expected error to be an instance of ${
+                expectedError.name || 'the expected error'
+              }`
+            );
+          } else if (
+            (expectedError as Exclude<typeof expectedError, Class<Error>>)(
+              rawBabelOutput
+            ) !== true
+          ) {
+            assert.fail('expected `throws`/`error` function to return true');
+          }
+        } else {
+          const resultString = isNativeError(rawBabelOutput)
+            ? rawBabelOutput.message
+            : String(rawBabelOutput);
+
+          if (typeof expectedError === 'string') {
+            assert(
+              resultString.includes(expectedError),
+              `expected "${resultString}" to include "${expectedError}"`
+            );
+          } else if (expectedError instanceof RegExp) {
+            assert(
+              expectedError.test(resultString),
+              `expected "${resultString}" to match ${expectedError}`
+            );
+          } // ? Else condition is handled by the typeof === 'function' branch
+        }
+      } else if (typeof rawBabelOutput !== 'string') {
+        throw new TypeError(
+          `unexpected babel output type "${typeof rawBabelOutput}" (excepted string)`
+        );
+      } else {
+        debug2('expecting babel transform function to succeed');
+        const formatResultFilepath = codeFixture || execFixture || filepath;
+
+        // ? We split rawBabelOutput and result into two steps to ensure
+        // ? exceptions thrown by trimAndFixLineEndings and formatResult are not
+        // ? erroneously captured when we only really care about errors thrown by
+        // ? babel
+        const result = trimAndFixLineEndings(
+          formatResult(rawBabelOutput || '', {
+            cwd: formatResultFilepath ? path.dirname(formatResultFilepath) : undefined,
+            filepath: formatResultFilepath,
+            filename: formatResultFilepath
+          }),
+          endOfLine,
+          code
+        );
+
+        if (exec !== undefined) {
+          debug2('executing output from babel transform function');
+
           assert(
-            rawBabelOutput instanceof expectedError,
-            `expected error to be an instance of ${
-              expectedError.name || 'the expected error'
+            result.length > 0,
+            'attempted to execute babel output but it was empty. An empty string cannot be evaluated'
+          );
+
+          const fakeModule = { exports: {} };
+          const context = createContext({
+            ...globalThis,
+            module: fakeModule,
+            exports: fakeModule.exports,
+            require
+          });
+
+          new Script(result, { filename: execFixture }).runInContext(context, {
+            displayErrors: true,
+            breakOnSigint: true,
+            microtaskMode: 'afterEvaluate'
+          });
+        } else if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
+          debug2('expecting output from babel transform function to match snapshot');
+
+          assert(
+            result !== code,
+            'code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`'
+          );
+
+          const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n';
+          const formattedOutput = [code, separator, result].join('');
+
+          expect(`\n${formattedOutput}\n`).toMatchSnapshot(testBlockTitle.fullString);
+        } else if (output !== undefined) {
+          debug2(
+            'expecting output from babel transform function to match expected output'
+          );
+
+          assert.equal(
+            result,
+            output,
+            `actual output does not match ${
+              testConfig[$type] == 'fixture-object'
+                ? testConfig.fixtureOutputBasename
+                : 'expected output'
             }`
           );
-        } else if (
-          (expectedError as Exclude<typeof expectedError, Class<Error>>)(
-            rawBabelOutput
-          ) !== true
-        ) {
-          assert.fail('expected `throws`/`error` function to return true');
+        } else if (testConfig[$type] == 'fixture-object' && outputFixture) {
+          debug2('writing output from babel transform function to new output file');
+          fs.writeFileSync(outputFixture, result);
+        } else {
+          debug2('expecting output from babel transform function to match input');
+          assert.equal(
+            result,
+            trimAndFixLineEndings(code, endOfLine),
+            'expected output not to change, but it did'
+          );
         }
-      } else {
-        const resultString = isNativeError(rawBabelOutput)
-          ? rawBabelOutput.message
-          : String(rawBabelOutput);
-
-        if (typeof expectedError === 'string') {
-          assert(
-            resultString.includes(expectedError),
-            `expected "${resultString}" to include "${expectedError}"`
-          );
-        } else if (expectedError instanceof RegExp) {
-          assert(
-            expectedError.test(resultString),
-            `expected "${resultString}" to match ${expectedError}`
-          );
-        } // ? Else condition is handled by the typeof === 'function' branch
       }
-    } else if (typeof rawBabelOutput !== 'string') {
-      throw new TypeError(
-        `unexpected babel output type "${typeof rawBabelOutput}" (excepted string)`
-      );
-    } else {
-      const formatResultFilepath = codeFixture || execFixture || filepath;
-
-      // ? We split rawBabelOutput and result into two steps to ensure
-      // ? exceptions thrown by trimAndFixLineEndings and formatResult are not
-      // ? erroneously captured when we only really care about errors thrown by
-      // ? babel
-      const result = trimAndFixLineEndings(
-        formatResult(rawBabelOutput || '', {
-          cwd: formatResultFilepath ? path.dirname(formatResultFilepath) : undefined,
-          filepath: formatResultFilepath,
-          filename: formatResultFilepath
-        }),
-        endOfLine,
-        code
-      );
-
-      if (exec !== undefined) {
-        assert(
-          result.length > 0,
-          'attempted to execute babel output but it was empty. An empty string cannot be evaluated'
-        );
-
-        const fakeModule = { exports: {} };
-        const context = createContext({
-          ...globalThis,
-          module: fakeModule,
-          exports: fakeModule.exports,
-          require
-        });
-
-        new Script(result, { filename: execFixture }).runInContext(context, {
-          displayErrors: true,
-          breakOnSigint: true,
-          microtaskMode: 'afterEvaluate'
-        });
-      } else if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
-        assert(
-          result !== code,
-          'code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`'
-        );
-
-        const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n';
-        const formattedOutput = [code, separator, result].join('');
-
-        expect(`\n${formattedOutput}\n`).toMatchSnapshot(testBlockTitle.fullString);
-      } else if (output !== undefined) {
-        assert.equal(
-          result,
-          output,
-          `actual output does not match ${
-            testConfig[$type] == 'fixture-object'
-              ? testConfig.fixtureOutputBasename
-              : 'expected output'
-          }`
-        );
-      } else if (testConfig[$type] == 'fixture-object' && outputFixture) {
-        fs.writeFileSync(outputFixture, result);
-      } else {
-        assert.equal(
-          result,
-          trimAndFixLineEndings(code, endOfLine),
-          'expected output to not change, but it did'
-        );
-      }
+    } catch (error) {
+      verbose2(`test failed: ${error}`);
+      throw error;
     }
   }
 
@@ -1065,6 +1249,9 @@ export function pluginTester(options: PluginTesterOptions = {}) {
   asserts testConfig is T extends MaybePluginTesterTestObjectConfig
     ? PluginTesterTestObjectConfig
     : PluginTesterTestFixtureConfig {
+    const { verbose: verbose2 } = getDebuggers('validate', debug1);
+    verbose2('known violations: %O', knownViolations);
+
     const {
       testBlockTitle,
       skip,
@@ -1176,9 +1363,9 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     }
 
     function throwTypeError(message: string) {
-      throw new TypeError(
-        `failed to validate configuration for test "${testBlockTitle.fullString}": ${message}`
-      );
+      const finalMessage = `failed to validate configuration for test "${testBlockTitle.fullString}": ${message}`;
+      verbose2(finalMessage);
+      throw new TypeError(finalMessage);
     }
   }
 }
@@ -1227,15 +1414,24 @@ function getAbsolutePathUsingFilepathDirname(filepath?: string, basename?: strin
  * Any errors will be passed up to the calling function.
  */
 function readFixtureOptions(baseDirectory: string) {
+  const { verbose: verbose2 } = getDebuggers('read-opts', debug1);
+
   const optionsPath = [
     path.join(baseDirectory, 'options.js'),
     path.join(baseDirectory, 'options.json')
   ].find((p) => fs.existsSync(p));
 
   try {
-    return optionsPath ? (require(optionsPath) as FixtureOptions) : {};
+    if (optionsPath) {
+      verbose2(`requiring options file ${optionsPath}`);
+      return require(optionsPath) as FixtureOptions;
+    } else {
+      verbose2('attempt to require options file ignored: no such file exists');
+      return {};
+    }
   } catch (error) {
     const message = `${isNativeError(error) ? error.message : error}`;
+    verbose2(`attempt to require options file failed: ${message}`);
     throw new Error(
       // ? Some realms/runtimes don't include the failing path, so we make sure
       message.includes(optionsPath!) ? message : `${optionsPath}: ${message}`
@@ -1261,24 +1457,33 @@ function readCode(
   basename: string | undefined
 ): string | undefined;
 function readCode(filepath: string | undefined, basename?: string): string | undefined {
+  const { verbose: verbose2 } = getDebuggers('read-code', debug1);
+
   const codePath =
     arguments.length == 1
       ? filepath
       : getAbsolutePathUsingFilepathDirname(filepath, basename);
 
   if (!codePath) {
+    verbose2(
+      `attempt to read in contents from file ignored: no absolute path derivable from filepath "${filepath}" and basename "${basename}"`
+    );
     return undefined;
   }
 
   /* istanbul ignore next */
   if (!path.isAbsolute(codePath)) {
-    throw new Error(`"${codePath}" is not an absolute path`);
+    const message = `"${codePath}" is not an absolute path`;
+    verbose2(`attempt to read in contents from file failed: ${message}`);
+    throw new Error(message);
   }
 
   try {
+    verbose2(`reading in contents from file ${codePath}`);
     return fs.readFileSync(codePath, 'utf8');
   } catch (error) {
     const message = `${isNativeError(error) ? error.message : error}`;
+    verbose2(`attempt to read in contents from file failed: ${message}`);
     // ? Some realms/runtimes don't include the failing path, so we make sure
     throw new Error(message.includes(codePath) ? message : `${codePath}: ${message}`);
   }
@@ -1292,9 +1497,28 @@ function trimAndFixLineEndings(
   endOfLine: NonNullable<PluginTesterOptions['endOfLine']>,
   input = source
 ) {
-  return (
-    endOfLine === false ? source : source.replaceAll(/\r?\n/g, getReplacement())
-  ).trim();
+  const { verbose: verbose2 } = getDebuggers('eol', debug1);
+  source = source.trim();
+
+  if (endOfLine === false) {
+    verbose2('no EOL fix applied: EOL conversion disabled');
+    return source;
+  }
+
+  verbose2(`applying EOL fix "${endOfLine}": all EOL will be replaced`);
+  verbose2(
+    'input (trimmed) with original EOL: %O',
+    source.replaceAll('\r', '\\r').replaceAll('\n', '\\n')
+  );
+
+  const output = source.replaceAll(/\r?\n/g, getReplacement()).trim();
+
+  verbose2(
+    'output (trimmed) with EOL fix applied: %O',
+    output.replaceAll('\r', '\\r').replaceAll('\n', '\\n')
+  );
+
+  return output;
 
   function getReplacement() {
     switch (endOfLine) {
@@ -1315,8 +1539,9 @@ function trimAndFixLineEndings(
         return match[0];
       }
       default: {
+        verbose2(`encountered invalid EOL option "${endOfLine}"`);
         throw new TypeError(
-          'failed to validate configuration: invalid `endOfLine` option'
+          `failed to validate configuration: invalid \`endOfLine\` option "${endOfLine}"`
         );
       }
     }
@@ -1330,15 +1555,24 @@ function trimAndFixLineEndings(
 function finalizePluginAndPresetRunOrder(
   babelOptions: PluginTesterOptions['babelOptions']
 ) {
-  // TODO: debug statements here about replacing symbols and clearing nullish
+  const { verbose: verbose2 } = getDebuggers('finalize', debug1);
 
   if (babelOptions?.plugins) {
     babelOptions.plugins = babelOptions.plugins.filter((p) => {
-      // TODO: debug statement here
-      return Boolean(p);
+      const result = Boolean(p);
+
+      if (!result) {
+        verbose2('a falsy `babelOptions.plugins` item was filtered out');
+      }
+
+      return result;
     });
 
     if (babelOptions.plugins.includes(runPluginUnderTestHere)) {
+      verbose2(
+        'replacing `runPluginUnderTestHere` symbol in `babelOptions.plugins` with plugin under test'
+      );
+
       babelOptions.plugins.splice(
         babelOptions.plugins.indexOf(runPluginUnderTestHere),
         1,
@@ -1349,11 +1583,20 @@ function finalizePluginAndPresetRunOrder(
 
   if (babelOptions?.presets) {
     babelOptions.presets = babelOptions.presets.filter((p) => {
-      // TODO: debug statement here
-      return Boolean(p);
+      const result = Boolean(p);
+
+      if (!result) {
+        verbose2('a falsy `babelOptions.presets` item was filtered out');
+      }
+
+      return result;
     });
 
     if (babelOptions.presets.includes(runPresetUnderTestHere)) {
+      verbose2(
+        'replacing `runPresetUnderTestHere` symbol in `babelOptions.presets` with preset under test'
+      );
+
       babelOptions.presets.splice(
         // ? -1 because we're shifting an element off the beginning afterwards
         babelOptions.presets.indexOf(runPresetUnderTestHere) - 1,
@@ -1362,6 +1605,8 @@ function finalizePluginAndPresetRunOrder(
       );
     }
   }
+
+  verbose2('finalized test object plugin and preset run order');
 }
 
 /**

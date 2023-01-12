@@ -18,7 +18,7 @@ export const unstringSnapshotSerializer: SnapshotSerializer = {
     return isTriggered;
   },
   print: (value: unknown) => {
-    debug('original value: %O', value);
+    debug('original   value: %O', value);
 
     const serializedValue = String(value);
     debug('serialized value: %O', serializedValue);

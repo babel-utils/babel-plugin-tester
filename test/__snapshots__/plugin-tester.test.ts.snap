@@ -11,7 +11,7 @@ var hi = 'hey';
 `;
 
 exports[`tests targeting both FixtureOptions and TestObject interfaces handles failing \`tests\` and \`fixtures\` gracefully 2`] = `
-2. black-box (preset): expected output to not change, but it did
+2. black-box (preset): expected output not to change, but it did
 
 actual:
 var ih = 'hey';
@@ -254,9 +254,9 @@ exports[`tests targeting the PluginTesterOptions interface throws if \`describe\
 
 exports[`tests targeting the PluginTesterOptions interface throws if \`describe\` or \`it\` functions are not available in the global scope 2`] = `incompatible testing environment: testing environment must define \`it\` in its global scope`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 1`] = `failed to validate configuration: invalid \`endOfLine\` option`;
+exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 1`] = `failed to validate configuration: invalid \`endOfLine\` option "invalid"`;
 
-exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 2`] = `1. black-box (preset): failed to validate configuration: invalid \`endOfLine\` option`;
+exports[`tests targeting the PluginTesterOptions interface throws if \`endOfLine\` is invalid 2`] = `1. black-box (preset): failed to validate configuration: invalid \`endOfLine\` option "invalid"`;
 
 exports[`tests targeting the PluginTesterOptions interface throws if \`titleNumbering\` is invalid 1`] = `failed to validate configuration: invalid \`titleNumbering\` option`;
 
@@ -299,7 +299,7 @@ exports[`tests targeting the PluginTesterOptions interface throws if teardown th
 exports[`tests targeting the PluginTesterOptions interface throws if teardown throws 4`] = `4. black-box (preset): teardown function failed: bad teardown`;
 
 exports[`tests targeting the TestObject interface accepts a string literal \`tests\` array item asserting babel output is unchanged 1`] = `
-2. captains-log (explicit): expected output to not change, but it did
+2. captains-log (explicit): expected output not to change, but it did
 
 actual:
 var ih = 'hey';
@@ -309,7 +309,7 @@ var hi = 'hey';
 `;
 
 exports[`tests targeting the TestObject interface accepts a string literal \`tests\` array item asserting babel output is unchanged 2`] = `
-4. black-box (preset): expected output to not change, but it did
+4. black-box (preset): expected output not to change, but it did
 
 actual:
 var ih = 'hey';
