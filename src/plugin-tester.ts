@@ -10,6 +10,7 @@ import { createContext, Script } from 'node:vm';
 import debugFactory from 'debug';
 
 import { $type } from './symbols';
+import { ErrorMessage } from './errors';
 
 import {
   runPluginUnderTestHere,
@@ -104,15 +105,11 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     : false;
 
   if (!globalContextHasDescribeFn) {
-    throw new TypeError(
-      'incompatible testing environment: testing environment must define `describe` in its global scope'
-    );
+    throw new TypeError(ErrorMessage.TestEnvironmentUndefinedDescribe());
   }
 
   if (!globalContextHasTestFn) {
-    throw new TypeError(
-      'incompatible testing environment: testing environment must define `it` in its global scope'
-    );
+    throw new TypeError(ErrorMessage.TestEnvironmentUndefinedIt());
   }
 
   debug1('global context check succeeded');
@@ -171,15 +168,11 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       (rawBaseConfig.preset &&
         (rawBaseConfig.plugin || rawBaseConfig.pluginName || rawBaseConfig.pluginOptions))
     ) {
-      throw new TypeError(
-        'failed to validate configuration: cannot test a plugin and a preset simultaneously. Specify one set of options or the other'
-      );
+      throw new TypeError(ErrorMessage.BadConfigPluginAndPreset());
     }
 
     if (!validTitleNumberingValues.includes(rawBaseConfig.titleNumbering)) {
-      throw new TypeError(
-        'failed to validate configuration: invalid `titleNumbering` option'
-      );
+      throw new TypeError(ErrorMessage.BadConfigInvalidTitleNumbering());
     }
 
     const baseConfig: PartialPluginTesterBaseConfig = {
@@ -201,9 +194,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     verbose2('partially constructed base configuration: %O', baseConfig);
 
     if (baseConfig.fixtures !== undefined && typeof baseConfig.fixtures != 'string') {
-      throw new TypeError(
-        'failed to validate configuration: `fixtures`, if defined, must be a string'
-      );
+      throw new TypeError(ErrorMessage.BadConfigFixturesNotString());
     }
 
     if (
@@ -211,9 +202,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       !Array.isArray(baseConfig.tests) &&
       (!baseConfig.tests || typeof baseConfig.tests != 'object')
     ) {
-      throw new TypeError(
-        'failed to validate configuration: `tests`, if defined, must be an array or an object'
-      );
+      throw new TypeError(ErrorMessage.BadConfigInvalidTestsType());
     }
 
     baseConfig.tests = Array.isArray(baseConfig.tests)
@@ -225,9 +214,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
               test !== undefined &&
               typeof test != 'object')
           ) {
-            throw new TypeError(
-              `failed to validate configuration: \`tests\` array item at index ${ndx} must be a string, TestObject, or nullish`
-            );
+            throw new TypeError(ErrorMessage.BadConfigInvalidTestsArrayItemType(ndx));
           }
 
           const result = typeof test == 'string' || Boolean(test);
@@ -248,7 +235,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
                 typeof test != 'object')
             ) {
               throw new TypeError(
-                `failed to validate configuration: \`tests\` object property "${title}" must have a value of type string, TestObject, or nullish`
+                ErrorMessage.BadConfigInvalidTestsObjectProperty(title)
               );
             }
 
@@ -276,9 +263,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       baseConfig.presetName = rawBaseConfig.presetName || 'unknown preset';
       baseConfig.basePresetOptions = rawBaseConfig.presetOptions;
     } else {
-      throw new TypeError(
-        'failed to validate configuration: must provide either `plugin` or `preset` option'
-      );
+      throw new TypeError(ErrorMessage.BadConfigNoPluginOrPreset());
     }
 
     baseConfig.describeBlockTitle =
@@ -434,21 +419,20 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             if (startStr && endStr) {
               const start = Number(startStr);
               const end = Number(endStr);
+              const range = { start, end };
 
               if (start > end) {
                 throw new TypeError(
-                  `invalid environment variable "${name}": invalid range ${s}: ${start} is greater than ${end}`
+                  ErrorMessage.BadEnvironmentVariableRange(name, s, range)
                 );
               } else if (start == end) {
                 return start;
               }
 
-              return { start, end };
+              return range;
             }
 
-            throw new TypeError(
-              `invalid environment variable "${name}": invalid range ${s}`
-            );
+            throw new TypeError(ErrorMessage.BadEnvironmentVariableRange(name, s));
           }
         })
         .filter((s): s is NonNullable<typeof s> => Boolean(s));
@@ -1016,10 +1000,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             teardownFunctions.splice(index - 1, 0, maybeTeardownFn);
           }
         } catch (error) {
-          const message = `setup function failed: ${
-            isNativeError(error) ? error.message : error
-          }`;
-
+          const message = ErrorMessage.SetupFunctionFailed(error);
           verbose2(message);
           throw new Error(message, { cause: error });
         }
@@ -1041,20 +1022,10 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             await teardownFn();
           } catch (error) {
             // ? Ensure we don't swallow any errors from frameworkTest
-            const frameworkErrorMessage = frameworkError
-              ? `\n\nAdditionally, the testing framework reported the following error: ${
-                  isNativeError(frameworkError) ? frameworkError.message : frameworkError
-                }`
-              : '';
-
-            const errorMessage = `teardown function failed: ${
-              isNativeError(error) ? error.message : error
-            }${frameworkErrorMessage}`;
-
-            verbose2(errorMessage);
-
+            const message = ErrorMessage.TeardownFunctionFailed(error, frameworkError);
+            verbose2(message);
             // eslint-disable-next-line no-unsafe-finally
-            throw new Error(errorMessage, { cause: { error, frameworkError } });
+            throw new Error(message, { cause: { error, frameworkError } });
           }
         }
 
@@ -1114,22 +1085,20 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     try {
       if (expectedError) {
         debug2('expecting babel transform function to fail with error');
-        assert(errored, 'expected babel to throw an error, but it did not');
+        assert(errored, ErrorMessage.ExpectedBabelToThrow());
 
         if (typeof expectedError === 'function') {
           if (expectedError === Error || expectedError.prototype instanceof Error) {
             assert(
               rawBabelOutput instanceof expectedError,
-              `expected error to be an instance of ${
-                expectedError.name || 'the expected error'
-              }`
+              ErrorMessage.ExpectedErrorToBeInstanceOf(expectedError)
             );
           } else if (
             (expectedError as Exclude<typeof expectedError, Class<Error>>)(
               rawBabelOutput
             ) !== true
           ) {
-            assert.fail('expected `throws`/`error` function to return true');
+            assert.fail(ErrorMessage.ExpectedThrowsFunctionToReturnTrue());
           }
         } else {
           const resultString = isNativeError(rawBabelOutput)
@@ -1139,19 +1108,17 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           if (typeof expectedError === 'string') {
             assert(
               resultString.includes(expectedError),
-              `expected "${resultString}" to include "${expectedError}"`
+              ErrorMessage.ExpectedErrorToIncludeString(resultString, expectedError)
             );
           } else if (expectedError instanceof RegExp) {
             assert(
               expectedError.test(resultString),
-              `expected "${resultString}" to match ${expectedError}`
+              ErrorMessage.ExpectedErrorToMatchRegExp(resultString, expectedError)
             );
           } // ? Else condition is handled by the typeof === 'function' branch
         }
       } else if (typeof rawBabelOutput !== 'string') {
-        throw new TypeError(
-          `unexpected babel output type "${typeof rawBabelOutput}" (excepted string)`
-        );
+        throw new TypeError(ErrorMessage.BabelOutputTypeIsNotString(rawBabelOutput));
       } else {
         debug2('expecting babel transform function to succeed');
         const formatResultFilepath = codeFixture || execFixture || filepath;
@@ -1173,10 +1140,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         if (exec !== undefined) {
           debug2('executing output from babel transform function');
 
-          assert(
-            result.length > 0,
-            'attempted to execute babel output but it was empty. An empty string cannot be evaluated'
-          );
+          assert(result.length > 0, ErrorMessage.BabelOutputUnexpectedlyEmpty());
 
           const fakeModule = { exports: {} };
           const context = createContext({
@@ -1196,7 +1160,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
 
           assert(
             result !== code,
-            'code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`'
+            ErrorMessage.AttemptedToSnapshotUnmodifiedBabelOutput()
           );
 
           const separator = '\n\n      ↓ ↓ ↓ ↓ ↓ ↓\n\n';
@@ -1211,11 +1175,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           assert.equal(
             result,
             output,
-            `actual output does not match ${
-              testConfig[$type] == 'fixture-object'
-                ? testConfig.fixtureOutputBasename
-                : 'expected output'
-            }`
+            ErrorMessage.ExpectedOutputToEqualActual(testConfig)
           );
         } else if (testConfig[$type] == 'fixture-object' && outputFixture) {
           debug2('writing output from babel transform function to new output file');
@@ -1225,7 +1185,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           assert.equal(
             result,
             trimAndFixLineEndings(code, endOfLine),
-            'expected output not to change, but it did'
+            ErrorMessage.ExpectedOutputNotToChange()
           );
         }
       }
@@ -1268,86 +1228,64 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         knownViolations;
 
       if (hasCodeAndCodeFixture) {
-        throwTypeError('`code` cannot be provided with `codeFixture`');
+        throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasCodeAndCodeFixture());
       }
 
       if (hasOutputAndOutputFixture) {
-        throwTypeError('`output` cannot be provided with `outputFixture`');
+        throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasOutputAndOutputFixture());
       }
 
       if (hasExecAndExecFixture) {
-        throwTypeError('`exec` cannot be provided with `execFixture`');
+        throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasExecAndExecFixture());
       }
     }
 
     if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
       if (!globalContextExpectFnHasToMatchSnapshot) {
-        throwTypeError(
-          'testing environment does not support `expect(...).toMatchSnapshot` method'
-        );
+        throwTypeErrorWithDebugOutput(ErrorMessage.TestEnvironmentNoSnapshotSupport());
       }
 
       if (output !== undefined) {
-        throwTypeError(
-          'neither `output` nor `outputFixture` can be provided with `snapshot` enabled'
-        );
+        throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasSnapshotAndOutput());
       }
 
       if (exec !== undefined) {
-        throwTypeError(
-          'neither `exec` nor `execFixture` can be provided with `snapshot` enabled'
-        );
+        throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasSnapshotAndExec());
       }
     }
 
     if (skip && only) {
-      throwTypeError('cannot enable both `skip` and `only` in the same test');
+      throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasSkipAndOnly());
     }
 
     if (skip && !globalContextTestFnHasSkip) {
-      throwTypeError('testing environment does not support `it.skip(...)` method');
+      throwTypeErrorWithDebugOutput(ErrorMessage.TestEnvironmentNoSkipSupport());
     }
 
     if (only && !globalContextTestFnHasOnly) {
-      throwTypeError('testing environment does not support `it.only(...)` method');
+      throwTypeErrorWithDebugOutput(ErrorMessage.TestEnvironmentNoOnlySupport());
     }
 
     if (output !== undefined && expectedError !== undefined) {
-      throwTypeError(
-        testConfig[$type] == 'test-object'
-          ? 'neither `output` nor `outputFixture` can be provided with `throws` or `error`'
-          : 'a fixture cannot be provided with `throws` or `error` and also contain an output file'
-      );
+      throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasThrowsAndOutput(testConfig));
     }
 
     if (exec !== undefined && expectedError !== undefined) {
-      throwTypeError(
-        testConfig[$type] == 'test-object'
-          ? 'neither `exec` nor `execFixture` can be provided with `throws` or `error`'
-          : 'a fixture cannot be provided with `throws` or `error` and also contain an exec file'
-      );
+      throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasThrowsAndExec(testConfig));
     }
 
     if (code === undefined && exec === undefined) {
-      throwTypeError(
-        testConfig[$type] == 'test-object'
-          ? 'a string or object with a `code`, `codeFixture`, `exec`, or `execFixture` must be provided'
-          : 'a fixture must contain either a code file or an exec file'
-      );
+      throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasCodeAndExec(testConfig));
     }
 
     if ((code !== undefined || output !== undefined) && exec !== undefined) {
-      throwTypeError(
-        testConfig[$type] == 'test-object'
-          ? 'neither `code`, `codeFixture`, `output`, nor `outputFixture` can be provided with `exec` or `execFixture`'
-          : 'a fixture cannot contain both an exec file and a code or output file'
+      throwTypeErrorWithDebugOutput(
+        ErrorMessage.InvalidHasExecAndCodeOrOutput(testConfig)
       );
     }
 
     if (babelOptions.babelrc && !babelOptions.filename) {
-      throwTypeError(
-        '`babelOptions.babelrc` is enabled but `babelOptions.filename` was not provided'
-      );
+      throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasBabelrcButNoFilename());
     }
 
     if (
@@ -1357,13 +1295,15 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         expectedError instanceof RegExp
       )
     ) {
-      throwTypeError(
-        '`throws`/`error` must be a function, string, boolean, RegExp, or Error subtype'
-      );
+      throwTypeErrorWithDebugOutput(ErrorMessage.InvalidThrowsType());
     }
 
-    function throwTypeError(message: string) {
-      const finalMessage = `failed to validate configuration for test "${testBlockTitle.fullString}": ${message}`;
+    function throwTypeErrorWithDebugOutput(message: string): never {
+      const finalMessage = ErrorMessage.ValidationFailed(
+        testBlockTitle.fullString,
+        message
+      );
+
       verbose2(finalMessage);
       throw new TypeError(finalMessage);
     }
@@ -1430,12 +1370,9 @@ function readFixtureOptions(baseDirectory: string) {
       return {};
     }
   } catch (error) {
-    const message = `${isNativeError(error) ? error.message : error}`;
+    const message = ErrorMessage.GenericErrorWithPath(error, optionsPath);
     verbose2(`attempt to require options file failed: ${message}`);
-    throw new Error(
-      // ? Some realms/runtimes don't include the failing path, so we make sure
-      message.includes(optionsPath!) ? message : `${optionsPath}: ${message}`
-    );
+    throw new Error(message);
   }
 }
 
@@ -1473,7 +1410,7 @@ function readCode(filepath: string | undefined, basename?: string): string | und
 
   /* istanbul ignore next */
   if (!path.isAbsolute(codePath)) {
-    const message = `"${codePath}" is not an absolute path`;
+    const message = ErrorMessage.PathIsNotAbsolute(codePath);
     verbose2(`attempt to read in contents from file failed: ${message}`);
     throw new Error(message);
   }
@@ -1482,10 +1419,9 @@ function readCode(filepath: string | undefined, basename?: string): string | und
     verbose2(`reading in contents from file ${codePath}`);
     return fs.readFileSync(codePath, 'utf8');
   } catch (error) {
-    const message = `${isNativeError(error) ? error.message : error}`;
+    const message = ErrorMessage.GenericErrorWithPath(error, codePath);
     verbose2(`attempt to read in contents from file failed: ${message}`);
-    // ? Some realms/runtimes don't include the failing path, so we make sure
-    throw new Error(message.includes(codePath) ? message : `${codePath}: ${message}`);
+    throw new Error(message);
   }
 }
 
@@ -1540,9 +1476,7 @@ function trimAndFixLineEndings(
       }
       default: {
         verbose2(`encountered invalid EOL option "${endOfLine}"`);
-        throw new TypeError(
-          `failed to validate configuration: invalid \`endOfLine\` option "${endOfLine}"`
-        );
+        throw new TypeError(ErrorMessage.BadConfigInvalidEndOfLine(endOfLine));
       }
     }
   }
