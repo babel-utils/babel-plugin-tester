@@ -987,7 +987,9 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       const teardownFunctions = [testTeardown, baseTeardown];
 
       for (const [index, setupFn] of setupFunctions.entries()) {
-        verbose2(`running setup function #${index + 1}`);
+        verbose2(
+          `running setup function #${index + 1}${setupFn === noop ? ' (noop)' : ''}`
+        );
 
         try {
           // eslint-disable-next-line no-await-in-loop
@@ -1015,7 +1017,11 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         verbose2('caught framework test failure');
       } finally {
         for (const [index, teardownFn] of teardownFunctions.entries()) {
-          verbose2(`running teardown function #${index + 1}`);
+          verbose2(
+            `running teardown function #${index + 1}${
+              teardownFn === noop ? ' (noop)' : ''
+            }`
+          );
 
           try {
             // eslint-disable-next-line no-await-in-loop
