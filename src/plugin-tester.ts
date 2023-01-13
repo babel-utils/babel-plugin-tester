@@ -34,10 +34,10 @@ import {
 import type { Class } from 'type-fest';
 
 const parseErrorStackRegExp =
-  /at (?<fn>\S+) (?:.*? )?\(?(?<path>(?:\/|file:).*?)(?:\)|$)/i;
+  /at (?<fn>\S+) (?:.*? )?\(?(?<path>(?:\/|file:|\w:\\).*?)(?:\)|$)/i;
 
 const parseScriptFilepathRegExp =
-  /\/babel-plugin-tester\/(dist|src)\/(index|plugin-tester)\.(j|t)s$/;
+  /(\/|\\)babel-plugin-tester(\/|\\)(dist|src)(\/|\\)(index|plugin-tester)\.(j|t)s$/;
 
 const isIntegerRegExp = /^\d+$/;
 

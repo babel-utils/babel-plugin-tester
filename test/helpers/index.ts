@@ -299,7 +299,7 @@ export async function runPluginTesterExpectThrownExceptionWhenCapturingError({
  * @example getFixturePath('fixtures');
  */
 export function getFixturePath(fixture = '') {
-  return path.join(__dirname, '..', 'fixtures', fixture);
+  return path.join(__dirname, '..', 'fixtures', ...fixture.split('/'));
 }
 
 /**
@@ -350,7 +350,7 @@ export function requireFixtureOptions(fixture: string): FixtureOptions {
 }
 
 // * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
-function escapeRegExp(str: string) {
+export function escapeRegExp(str: string) {
   // eslint-disable-next-line unicorn/better-regex
   return str.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
