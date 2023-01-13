@@ -41,6 +41,8 @@ plugin or preset. It was built to work with [Jest][4] (and by extension
 [Jasmine][7], [`node:test`][8], and any other framework that defines standard
 `describe` and `it` globals with async support.
 
+This package is tested on both Windows and nix (Ubuntu) environments.
+
 <!-- remark-ignore-start -->
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
