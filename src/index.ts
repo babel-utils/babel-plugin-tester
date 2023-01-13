@@ -228,7 +228,7 @@ export interface PluginTesterOptions {
    * @default "lf"
    * @see https://npm.im/babel-plugin-tester#endOfLine
    */
-  endOfLine?: typeof validEndOfLineValues[number];
+  endOfLine?: (typeof validEndOfLineValues)[number];
   /**
    * This is a `pluginTester` option to provide a setup function run before each
    * test runs. It can return a function which will be treated as a `teardown`
@@ -298,7 +298,7 @@ export interface PluginTesterOptions {
    * @default "all"
    * @see https://npm.im/babel-plugin-tester#titleNumbering
    */
-  titleNumbering?: typeof validTitleNumberingValues[number];
+  titleNumbering?: (typeof validTitleNumberingValues)[number];
   /**
    * Setting this option to `true` will restart test title numbering starting at 1.
    *
@@ -935,6 +935,15 @@ export type PluginTesterTestConfig =
   | PluginTesterTestDescribeConfig
   | PluginTesterTestObjectConfig
   | PluginTesterTestFixtureConfig;
+
+/**
+ * An internal type describing an unresolved configuration.
+ *
+ * @internal
+ */
+export type MaybePluginTesterTestConfig =
+  | MaybePluginTesterTestFixtureConfig
+  | MaybePluginTesterTestObjectConfig;
 
 /**
  * An internal type describing an inclusive range of numbers.
