@@ -3,17 +3,11 @@ import { isNativeError } from 'node:util/types';
 import { $type } from './symbols';
 
 import type {
-  MaybePluginTesterTestFixtureConfig,
-  MaybePluginTesterTestObjectConfig,
+  MaybePluginTesterTestConfig,
+  PluginTesterTestConfig,
   PluginTesterTestFixtureConfig,
-  PluginTesterTestObjectConfig,
   Range
 } from './index';
-
-type TestConfig = PluginTesterTestFixtureConfig | PluginTesterTestObjectConfig;
-type MaybeTestConfig =
-  | MaybePluginTesterTestFixtureConfig
-  | MaybePluginTesterTestObjectConfig;
 
 /**
  * A collection of possible errors and warnings.
@@ -76,7 +70,13 @@ export const ErrorMessage = {
     'attempted to execute babel output but it was empty. An empty string cannot be evaluated',
   AttemptedToSnapshotUnmodifiedBabelOutput: () =>
     'code was unmodified but attempted to take a snapshot. If the code should not be modified, set `snapshot: false`',
-  ExpectedOutputToEqualActual: (testConfig: TestConfig) => {
+  ExpectedOutputToEqualActual: (
+    testConfig:
+      | {
+          [$type]: Exclude<PluginTesterTestConfig[typeof $type], 'fixture-object'>;
+        }
+      | Pick<PluginTesterTestFixtureConfig, typeof $type | 'fixtureOutputBasename'>
+  ) => {
     return `actual output does not match ${
       testConfig[$type] == 'fixture-object'
         ? testConfig.fixtureOutputBasename
@@ -86,7 +86,8 @@ export const ErrorMessage = {
   ExpectedOutputNotToChange: () => 'expected output not to change, but it did',
   ValidationFailed: (title: string, message: string) =>
     `failed to validate configuration for test "${title}": ${message}`,
-  InvalidHasCodeAndCodeFixture: () => '`code` cannot be provided with `codeFixture`',
+  InvalidHasCodeAndCodeFixture: () =>
+    '`code` cannot be provided with `codeFixture` or `fixture`',
   InvalidHasOutputAndOutputFixture: () =>
     '`output` cannot be provided with `outputFixture`',
   InvalidHasExecAndExecFixture: () => '`exec` cannot be provided with `execFixture`',
@@ -97,24 +98,32 @@ export const ErrorMessage = {
   InvalidHasSnapshotAndThrows: () =>
     'neither `throws` nor `error` can be provided with `snapshot` enabled',
   InvalidHasSkipAndOnly: () => 'cannot enable both `skip` and `only` in the same test',
-  InvalidHasThrowsAndOutput: (testConfig: MaybeTestConfig) => {
+  InvalidHasThrowsAndOutput: (
+    testConfig: Pick<MaybePluginTesterTestConfig, typeof $type>
+  ) => {
     return testConfig[$type] == 'test-object'
       ? 'neither `output` nor `outputFixture` can be provided with `throws` or `error`'
       : 'a fixture cannot be provided with `throws` or `error` and also contain an output file';
   },
-  InvalidHasThrowsAndExec: (testConfig: MaybeTestConfig) => {
+  InvalidHasThrowsAndExec: (
+    testConfig: Pick<MaybePluginTesterTestConfig, typeof $type>
+  ) => {
     return testConfig[$type] == 'test-object'
       ? 'neither `exec` nor `execFixture` can be provided with `throws` or `error`'
       : 'a fixture cannot be provided with `throws` or `error` and also contain an exec file';
   },
-  InvalidHasCodeAndExec: (testConfig: MaybeTestConfig) => {
+  InvalidMissingCodeOrExec: (
+    testConfig: Pick<MaybePluginTesterTestConfig, typeof $type>
+  ) => {
     return testConfig[$type] == 'test-object'
-      ? 'a string or object with a `code`, `codeFixture`, `exec`, or `execFixture` must be provided'
+      ? 'a string or object with a `code`, `codeFixture`, `fixture`, `exec`, or `execFixture` must be provided'
       : 'a fixture must contain either a code file or an exec file';
   },
-  InvalidHasExecAndCodeOrOutput: (testConfig: MaybeTestConfig) => {
+  InvalidHasExecAndCodeOrOutput: (
+    testConfig: Pick<MaybePluginTesterTestConfig, typeof $type>
+  ) => {
     return testConfig[$type] == 'test-object'
-      ? 'neither `code`, `codeFixture`, `output`, nor `outputFixture` can be provided with `exec` or `execFixture`'
+      ? 'neither `code`, `codeFixture`, `fixture`, `output`, nor `outputFixture` can be provided with `exec` or `execFixture`'
       : 'a fixture cannot contain both an exec file and a code or output file';
   },
   InvalidHasBabelrcButNoFilename: () =>
