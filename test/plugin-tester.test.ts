@@ -555,6 +555,23 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     expect(transformSyncSpy).toHaveBeenCalledTimes(4);
   });
 
+  it('throws if babel returns a non-string value without throwing an error', async () => {
+    expect.hasAssertions();
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        babel: {
+          transform: () => ({
+            //@ts-expect-error: bad return value
+            code: true
+          })
+        },
+        tests: [simpleTest]
+      }),
+      expectedError: ErrorMessage.BabelOutputTypeIsNotString(true)
+    });
+  });
+
   it('applies `babelOptions` globally', async () => {
     expect.hasAssertions();
 
@@ -907,7 +924,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
         title: false,
         pluginName: undefined,
         fixtures: simpleFixture,
-        tests: [simpleTest]
+        tests: { test: simpleTest }
       })
     );
 
@@ -1028,6 +1045,38 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       [expect.any(String), expect.objectContaining({ filename: fixtureFilename })],
       [expect.any(String), expect.objectContaining({ filename: testFilename })]
     ]);
+  });
+
+  it('throws if `filepath` is undefined and `fixtures` is not an absolute path', async () => {
+    expect.hasAssertions();
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        filepath: undefined,
+        fixtures: 'fixtures/simple',
+        tests: [simpleTest]
+      }),
+      expectedError: ErrorMessage.UnableToDeriveAbsolutePath(
+        undefined,
+        '`filepath`',
+        'fixtures/simple',
+        '`fixtures`'
+      )
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        filepath: '',
+        fixtures: 'fixtures/simple',
+        tests: [simpleTest]
+      }),
+      expectedError: ErrorMessage.UnableToDeriveAbsolutePath(
+        undefined,
+        '`filepath`',
+        'fixtures/simple',
+        '`fixtures`'
+      )
+    });
   });
 
   it('converts line endings with respect to the default `endOfLine`', async () => {
@@ -1487,13 +1536,13 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     await expect(
       runPluginTester(
         getDummyPluginOptions({
-          teardown: () => toss(new Error('bad teardown')),
+          teardown: () => toss('bad teardown'),
           tests: [{ code: simpleTest, output: '' }]
         })
       )
     ).rejects.toMatchObject({
       message: expect.stringMatching(errorRegExp),
-      cause: { error: expect.any(Error), frameworkError: expect.any(AssertionError) }
+      cause: { error: 'bad teardown', frameworkError: expect.any(AssertionError) }
     });
 
     await expect(
@@ -1518,6 +1567,19 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     ).rejects.toMatchObject({
       message: expect.stringMatching(errorRegExp),
       cause: { error: expect.any(Error), frameworkError: expect.any(AssertionError) }
+    });
+
+    await expect(
+      runPluginTester(
+        getDummyPresetOptions({
+          babel: { transform: () => toss('bad plugin') },
+          teardown: () => toss('bad teardown'),
+          tests: [{ code: simpleTest, output: '' }]
+        })
+      )
+    ).rejects.toMatchObject({
+      message: expect.stringMatching(/bad teardown\s+Additionally.+: bad plugin/),
+      cause: { error: 'bad teardown', frameworkError: 'bad plugin' }
     });
   });
 
@@ -3341,10 +3403,26 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
         fixtures: getFixturePath('option-throws-true')
       }
     });
+
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        plugin: () => ({ visitor: {} }),
+        preset: makePresetFromPlugin({ visitor: {} }),
+        fixtures: getFixturePath('option-throws-true')
+      },
+      expectedError: ErrorMessage.ExpectedBabelToThrow()
+    });
   });
 
   it('throws when babel transform errors and `throws: false`', async () => {
     expect.hasAssertions();
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        tests: [{ code: simpleTest, throws: false }]
+      })
+    );
 
     await runPluginTesterExpectThrownExceptionWhenCapturingError({
       throws: false,
@@ -3364,6 +3442,15 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
         fixtures: getFixturePath('option-throws-string')
       }
     });
+
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: 'expected this error to be captured',
+      overrides: { babel: { transform: () => toss('bad plugin') } },
+      expectedError: ErrorMessage.ExpectedErrorToIncludeString(
+        'bad plugin',
+        'expected this error to be captured'
+      )
+    });
   });
 
   it('captures babel transform errors when `throws: RegExp instance`', async () => {
@@ -3374,6 +3461,12 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       overrides: {
         fixtures: getFixturePath('option-throws-regex')
       }
+    });
+
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: /not-captured/,
+      overrides: { babel: { transform: () => toss('bad plugin') } },
+      expectedError: ErrorMessage.ExpectedErrorToMatchRegExp('bad plugin', /not-captured/)
     });
   });
 
@@ -3386,6 +3479,22 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
         fixtures: getFixturePath('option-throws-class')
       }
     });
+
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: SyntaxError,
+      overrides: { babel: { transform: () => toss('bad plugin') } },
+      expectedError: ErrorMessage.ExpectedErrorToBeInstanceOf({ name: SyntaxError.name })
+    });
+
+    const BadClass = { '': class extends Error {} }[''];
+
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: BadClass,
+      overrides: {
+        fixtures: getFixturePath('option-throws-class')
+      },
+      expectedError: ErrorMessage.ExpectedErrorToBeInstanceOf({})
+    });
   });
 
   it('captures babel transform errors when `throws: callback`', async () => {
@@ -3397,10 +3506,6 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
         fixtures: getFixturePath('option-throws-function')
       }
     });
-  });
-
-  it("throws if `throws` callback doesn't return `true`", async () => {
-    expect.hasAssertions();
 
     await runPluginTesterExpectThrownExceptionWhenCapturingError({
       throws: () => false,
@@ -3411,17 +3516,13 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
     });
   });
 
-  it('throws if `throws` is not `false` but no error thrown', async () => {
+  it('throws if `throws` value is invalid', async () => {
     expect.hasAssertions();
 
     await runPluginTesterExpectThrownExceptionWhenCapturingError({
-      throws: true,
-      overrides: {
-        plugin: () => ({ visitor: {} }),
-        preset: makePresetFromPlugin({ visitor: {} }),
-        fixtures: getFixturePath('option-throws-true')
-      },
-      expectedError: ErrorMessage.ExpectedBabelToThrow()
+      //@ts-expect-error: invalid value
+      throws: Symbol('bad'),
+      expectedError: ErrorMessage.InvalidThrowsType()
     });
   });
 
@@ -4767,6 +4868,20 @@ describe('tests targeting the FixtureOptions interface', () => {
       }),
       expectedError: /unexpected token/i
     });
+
+    // eslint-disable-next-line jest/no-untyped-mock-factory
+    jest.doMock(getFixturePath('options-js-bad/fixture/options.js'), () =>
+      toss('bad options')
+    );
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        fixtures: getFixturePath('options-js-bad')
+      }),
+      expectedError: /bad options/
+    });
+
+    jest.dontMock(getFixturePath('options-js-bad/fixture/options.js'));
   });
 
   it('recognizes .babelrc files with various extensions', async () => {
@@ -6034,6 +6149,33 @@ describe('tests targeting the TestObject interface', () => {
 
     await runPluginTester(
       getDummyPresetOptions({ tests: [{ babelOptions: { filename }, code: simpleTest }] })
+    );
+
+    expect(transformAsyncSpy.mock.calls).toMatchObject([
+      [expect.any(String), expect.objectContaining({ filename })],
+      [expect.any(String), expect.objectContaining({ filename })]
+    ]);
+  });
+
+  it('uses global `babelOptions.filename` as test-level `babelOptions.filename` if filepath is unavailable and no fixtures used or test-level `babelOptions` provided', async () => {
+    expect.hasAssertions();
+
+    const filename = getFixturePath('outputFixture.js');
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        filepath: undefined,
+        babelOptions: { filename },
+        tests: [simpleTest]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        filepath: undefined,
+        babelOptions: { filename },
+        tests: [{ code: simpleTest }]
+      })
     );
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([

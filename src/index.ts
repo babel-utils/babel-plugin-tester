@@ -15,6 +15,7 @@ if ('expect' in globalThis && typeof expect?.addSnapshotSerializer == 'function'
   );
   expect.addSnapshotSerializer(unstringSnapshotSerializer);
 } else {
+  /* istanbul ignore next */
   debug(
     'unable to add unstring snapshot serializer: global expect object is missing or unsupported'
   );

@@ -272,6 +272,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         : rawBaseConfig.title ||
           baseConfig.pluginName ||
           baseConfig.presetName ||
+          /* istanbul ignore next */
           undefined;
 
     debug2('describe block title: %O', baseConfig.describeBlockTitle);
@@ -335,7 +336,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
                   }
                 : undefined;
             })
-            .filter(<T>(o: T): o is NonNullable<T> => Boolean(o)) || []
+            .filter(<T>(o: T): o is NonNullable<T> => Boolean(o)) ||
+          /* istanbul ignore next */ []
         ).reverse();
 
         verbose2('reversed call stack: %O', reversedCallStack);
@@ -369,7 +371,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           }),
           reversedCallStack.findIndex(({ functionName, filePath }) => {
             return (
-              functionName == 'pluginTester' && parseScriptFilepathRegExp.test(filePath)
+              functionName == 'pluginTester' &&
+              /* istanbul ignore next */ parseScriptFilepathRegExp.test(filePath)
             );
           }),
           reversedCallStack.findIndex(({ functionName, filePath }) => {
@@ -565,6 +568,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
         fixturesDirectory
       );
 
+      /* istanbul ignore next */
       if (!fs.statSync(fixturesDirectory).isDirectory()) {
         debug3('test objects generation skipped: path is not a directory');
         return;
@@ -688,7 +692,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           const code = readCode(codePath);
 
           // ? trimAndFixLineEndings is called later on the babel output instead
-          const exec = execPath ? readCode(execPath) : undefined;
+          const exec = readCode(execPath);
 
           const outputExtension = (
             fixtureOutputExt ||
@@ -715,7 +719,8 @@ export function pluginTester(options: PluginTesterOptions = {}) {
             { babelOptions: baseBabelOptions },
             {
               babelOptions: {
-                filename: codePath || execPath || baseBabelOptions.filename,
+                // ? It is impossible for the following to be undefined
+                filename: (codePath || execPath) as string,
                 // ? If they have a babelrc, then we'll let them use that
                 babelrc: hasBabelrc
               }
@@ -745,7 +750,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
               only,
               skip,
               expectedError: throws ?? error,
-              testSetup: setup || noop,
+              testSetup: setup || /* istanbul ignore next */ noop,
               testTeardown: teardown || noop,
               formatResult: formatResult || baseFormatResult,
               fixtureOutputBasename,
@@ -888,7 +893,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           only,
           skip,
           expectedError: throws ?? error,
-          testSetup: setup || noop,
+          testSetup: setup || /* istanbul ignore next */ noop,
           testTeardown: teardown || noop,
           formatResult: formatResult || baseFormatResult,
           // ? trimAndFixLineEndings is called later on the babel output instead
@@ -1525,6 +1530,7 @@ function finalizePluginAndPresetRunOrder(
     babelOptions.plugins = babelOptions.plugins.filter((p) => {
       const result = Boolean(p);
 
+      /* istanbul ignore next */
       if (!result) {
         verbose2('a falsy `babelOptions.plugins` item was filtered out');
       }
@@ -1549,6 +1555,7 @@ function finalizePluginAndPresetRunOrder(
     babelOptions.presets = babelOptions.presets.filter((p) => {
       const result = Boolean(p);
 
+      /* istanbul ignore next */
       if (!result) {
         verbose2('a falsy `babelOptions.presets` item was filtered out');
       }

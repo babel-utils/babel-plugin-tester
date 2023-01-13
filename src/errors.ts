@@ -56,7 +56,7 @@ export const ErrorMessage = {
   },
   ExpectedBabelToThrow: () => 'expected babel to throw an error, but it did not',
   // eslint-disable-next-line @typescript-eslint/ban-types
-  ExpectedErrorToBeInstanceOf: (expectedError: Function) =>
+  ExpectedErrorToBeInstanceOf: (expectedError: Function | { name?: string }) =>
     `expected error to be an instance of ${expectedError.name || 'the expected error'}`,
   ExpectedThrowsFunctionToReturnTrue: () =>
     'expected `throws`/`error` function to return true',
@@ -115,6 +115,7 @@ export const ErrorMessage = {
   InvalidMissingCodeOrExec: (
     testConfig: Pick<MaybePluginTesterTestConfig, typeof $type>
   ) => {
+    /* istanbul ignore next */
     return testConfig[$type] == 'test-object'
       ? 'a string or object with a `code`, `codeFixture`, `fixture`, `exec`, or `execFixture` must be provided'
       : 'a fixture must contain either a code file or an exec file';
