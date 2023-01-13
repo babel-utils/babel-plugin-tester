@@ -480,6 +480,17 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       } else {
         debug2('not generating test objects from fixtures path: path is not a directory');
       }
+    } else if (typeof fixtures == 'string') {
+      throw new TypeError(
+        ErrorMessage.UnableToDeriveAbsolutePath(
+          filepath,
+          '`filepath`',
+          fixtures,
+          '`fixtures`'
+        )
+      );
+    } else {
+      debug2('skipped loading fixtures: no fixtures path provided');
     }
 
     if (tests && (!testsIsArray || tests.length)) {
@@ -511,6 +522,10 @@ export function pluginTester(options: PluginTesterOptions = {}) {
           })
         );
       }
+    } else {
+      debug2(
+        'skipped loading test objects from tests: no tests object or array provided'
+      );
     }
 
     debug2('finished normalizing tests');

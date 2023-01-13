@@ -135,5 +135,13 @@ export const ErrorMessage = {
     // ? Some realms/runtimes don't include the failing path, so we make sure
     return !path || message.includes(path) ? message : `${path}: ${message}`;
   },
-  PathIsNotAbsolute: (path: string) => `"${path}" is not an absolute path`
+  PathIsNotAbsolute: /* istanbul ignore next */ (path: string) =>
+    `"${path}" is not an absolute path`,
+  UnableToDeriveAbsolutePath: (
+    filepath: unknown,
+    filepathName: string,
+    basename: unknown,
+    basenameName: string
+  ) =>
+    `unable to derive an absolute path from the provided ${filepathName} and ${basenameName}:\n\n${filepathName}: ${filepath}\n${basenameName}: ${basename}`
 };
