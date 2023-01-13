@@ -12,6 +12,9 @@ import { asMockedFunction } from '@xunnamius/jest-types';
 import { withMockedEnv, withMockedOutput } from './setup';
 import { prettierFormatter } from '../src/formatters/prettier';
 import { unstringSnapshotSerializer } from '../src/serializers/unstring-snapshot';
+import { restartTestTitleNumbering } from '../src/plugin-tester';
+import { ErrorMessage } from '../src/errors';
+import { $type } from '../src/symbols';
 
 import {
   type PluginTesterOptions,
@@ -19,8 +22,6 @@ import {
   runPresetUnderTestHere,
   pluginTester
 } from '../src/index';
-
-import { restartTestTitleNumbering } from '../src/plugin-tester';
 
 import {
   deleteVariablesPlugin,
@@ -49,7 +50,8 @@ import {
   getFixtureContents,
   requireFixtureOptions,
   getRunnableJestTests,
-  clearRunnableJestTests
+  clearRunnableJestTests,
+  regExpContainsString
 } from './helpers';
 
 import type { AnyFunction } from '@xunnamius/jest-types';
@@ -61,6 +63,12 @@ type SpiedFunction<T extends AnyFunction> = jest.SpyInstance<
   ReturnType<T>,
   Parameters<T>
 >;
+
+const dummyTestObject = { [$type]: 'test-object' } as const;
+const dummyFixtureObject = {
+  [$type]: 'fixture-object',
+  fixtureOutputBasename: 'output.js'
+} as const;
 
 let equalSpy: SpiedFunction<typeof assert.equal>;
 let errorSpy: SpiedFunction<typeof console.error>;
@@ -109,7 +117,9 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     delete globalThis.describe;
 
     try {
-      await runPluginTesterExpectThrownException();
+      await runPluginTesterExpectThrownException({
+        expectedError: ErrorMessage.TestEnvironmentUndefinedDescribe()
+      });
     } finally {
       globalThis.describe = oldDescribe;
     }
@@ -118,7 +128,9 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     delete globalThis.it;
 
     try {
-      await runPluginTesterExpectThrownException();
+      await runPluginTesterExpectThrownException({
+        expectedError: ErrorMessage.TestEnvironmentUndefinedIt()
+      });
     } finally {
       globalThis.it = oldIt;
     }
@@ -410,19 +422,27 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('throws if neither `plugin` nor `preset` are provided', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException();
+    await runPluginTesterExpectThrownException({
+      expectedError: ErrorMessage.BadConfigNoPluginOrPreset()
+    });
 
     await runPluginTester({ plugin: getDummyPluginOptions().plugin });
     await runPluginTester({ preset: getDummyPresetOptions().preset });
 
     await runPluginTesterExpectThrownException({
-      pluginName: getDummyPluginOptions().pluginName,
-      pluginOptions: {}
+      options: {
+        pluginName: getDummyPluginOptions().pluginName,
+        pluginOptions: {}
+      },
+      expectedError: ErrorMessage.BadConfigNoPluginOrPreset()
     });
 
     await runPluginTesterExpectThrownException({
-      presetName: getDummyPresetOptions().presetName,
-      presetOptions: {}
+      options: {
+        presetName: getDummyPresetOptions().presetName,
+        presetOptions: {}
+      },
+      expectedError: ErrorMessage.BadConfigNoPluginOrPreset()
     });
   });
 
@@ -430,33 +450,48 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     expect.hasAssertions();
 
     await runPluginTesterExpectThrownException({
-      plugin: getDummyPluginOptions().plugin,
-      preset: getDummyPresetOptions().preset,
-      tests: [simpleTest]
+      options: {
+        plugin: getDummyPluginOptions().plugin,
+        preset: getDummyPresetOptions().preset,
+        tests: [simpleTest]
+      },
+      expectedError: ErrorMessage.BadConfigPluginAndPreset()
     });
 
     await runPluginTesterExpectThrownException({
-      plugin: getDummyPluginOptions().plugin,
-      presetName: getDummyPresetOptions().presetName,
-      tests: [simpleTest]
+      options: {
+        plugin: getDummyPluginOptions().plugin,
+        presetName: getDummyPresetOptions().presetName,
+        tests: [simpleTest]
+      },
+      expectedError: ErrorMessage.BadConfigPluginAndPreset()
     });
 
     await runPluginTesterExpectThrownException({
-      plugin: getDummyPluginOptions().plugin,
-      presetOptions: {},
-      tests: [simpleTest]
+      options: {
+        plugin: getDummyPluginOptions().plugin,
+        presetOptions: {},
+        tests: [simpleTest]
+      },
+      expectedError: ErrorMessage.BadConfigPluginAndPreset()
     });
 
     await runPluginTesterExpectThrownException({
-      preset: getDummyPresetOptions().preset,
-      pluginName: getDummyPluginOptions().pluginName,
-      tests: [simpleTest]
+      options: {
+        preset: getDummyPresetOptions().preset,
+        pluginName: getDummyPluginOptions().pluginName,
+        tests: [simpleTest]
+      },
+      expectedError: ErrorMessage.BadConfigPluginAndPreset()
     });
 
     await runPluginTesterExpectThrownException({
-      preset: getDummyPresetOptions().preset,
-      pluginOptions: {},
-      tests: [simpleTest]
+      options: {
+        preset: getDummyPresetOptions().preset,
+        pluginOptions: {},
+        tests: [simpleTest]
+      },
+      expectedError: ErrorMessage.BadConfigPluginAndPreset()
     });
   });
 
@@ -809,20 +844,22 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('throws if `babelOptions.babelrc: true` and `babelOptions.filename` is unset', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         // ? babelOptions babelrc and filename are set implicitly for fixtures
         fixtures: getFixturePath('options-bad-babelOptions-babelrc-filename')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasBabelrcButNoFilename()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         filepath: undefined,
         babelOptions: { babelrc: true },
         tests: [simpleTest]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasBabelrcButNoFilename()
+    });
   });
 
   it('uses `title` for the `describe` block over any defaults', async () => {
@@ -1251,21 +1288,23 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('throws if `endOfLine` is invalid', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         // @ts-expect-error: testing bad value
         endOfLine: 'invalid',
         fixtures: simpleFixture
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidEndOfLine('invalid')
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         // @ts-expect-error: testing bad value
         endOfLine: 'invalid',
         tests: [simpleTest]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidEndOfLine('invalid')
+    });
   });
 
   it('runs global setup, teardown, and their returned teardown functions/promises in the proper order', async () => {
@@ -1359,65 +1398,73 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('throws if setup throws', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         setup: () => toss(new Error('bad setup')),
         fixtures: simpleFixture
-      })
-    );
+      }),
+      expectedError: ErrorMessage.SetupFunctionFailed('bad setup')
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         setup: () => toss(new Error('bad setup')),
         tests: [simpleTest]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.SetupFunctionFailed('bad setup')
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         setup: () => toss(new Error('bad setup')),
         fixtures: simpleFixture
-      })
-    );
+      }),
+      expectedError: ErrorMessage.SetupFunctionFailed('bad setup')
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         setup: () => toss(new Error('bad setup')),
         tests: [simpleTest]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.SetupFunctionFailed('bad setup')
+    });
   });
 
   it('throws if teardown throws', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         teardown: () => toss(new Error('bad teardown')),
         fixtures: simpleFixture
-      })
-    );
+      }),
+      expectedError: ErrorMessage.TeardownFunctionFailed('bad teardown')
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         teardown: () => toss(new Error('bad teardown')),
         tests: [simpleTest]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.TeardownFunctionFailed('bad teardown')
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         teardown: () => toss(new Error('bad teardown')),
         fixtures: simpleFixture
-      })
-    );
+      }),
+      expectedError: ErrorMessage.TeardownFunctionFailed('bad teardown')
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         teardown: () => toss(new Error('bad teardown')),
         tests: [simpleTest]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.TeardownFunctionFailed('bad teardown')
+    });
   });
 
   it('ensures failing teardown function does not silently consume error from failing test', async () => {
@@ -1592,12 +1639,13 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         snapshot: true,
         tests: [{ code: simpleTest, output: shouldNotBeSeen }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasSnapshotAndOutput()
+    });
 
     await runPluginTester(
       getDummyPresetOptions({
@@ -1606,12 +1654,13 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         snapshot: true,
         tests: [{ code: simpleTest, output: shouldNotBeSeen }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasSnapshotAndOutput()
+    });
 
     await runPluginTester(
       getDummyPluginOptions({
@@ -1945,37 +1994,41 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('throws if `titleNumbering` is invalid', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         // @ts-expect-error: testing bad value
         titleNumbering: 'invalid',
         fixtures: getFixturePath('option-title')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTitleNumbering()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         // @ts-expect-error: testing bad value
         titleNumbering: 'invalid',
         tests: [simpleTest, { code: simpleTest }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTitleNumbering()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         // @ts-expect-error: testing bad value
         titleNumbering: 'invalid',
         fixtures: simpleFixture
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTitleNumbering()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         // @ts-expect-error: testing bad value
         titleNumbering: 'invalid',
         tests: { 'a-custom-title': { code: simpleTest } }
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTitleNumbering()
+    });
   });
 
   it('restarts title numbering if `restartTitleNumbering` is true', async () => {
@@ -2153,21 +2206,25 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
     globalThis.it = () => undefined;
 
     try {
-      await runPluginTesterExpectThrownException(
-        getDummyPluginOptions({ fixtures: getFixturePath('option-skip') })
-      );
+      await runPluginTesterExpectThrownException({
+        options: getDummyPluginOptions({ fixtures: getFixturePath('option-skip') }),
+        expectedError: ErrorMessage.TestEnvironmentNoSkipSupport()
+      });
 
-      await runPluginTesterExpectThrownException(
-        getDummyPresetOptions({ fixtures: getFixturePath('option-only') })
-      );
+      await runPluginTesterExpectThrownException({
+        options: getDummyPresetOptions({ fixtures: getFixturePath('option-only') }),
+        expectedError: ErrorMessage.TestEnvironmentNoOnlySupport()
+      });
 
-      await runPluginTesterExpectThrownException(
-        getDummyPluginOptions({ tests: [{ code: simpleTest, skip: true }] })
-      );
+      await runPluginTesterExpectThrownException({
+        options: getDummyPluginOptions({ tests: [{ code: simpleTest, skip: true }] }),
+        expectedError: ErrorMessage.TestEnvironmentNoSkipSupport()
+      });
 
-      await runPluginTesterExpectThrownException(
-        getDummyPresetOptions({ tests: [{ code: simpleTest, only: true }] })
-      );
+      await runPluginTesterExpectThrownException({
+        options: getDummyPresetOptions({ tests: [{ code: simpleTest, only: true }] }),
+        expectedError: ErrorMessage.TestEnvironmentNoOnlySupport()
+      });
     } finally {
       globalThis.it = oldIt;
     }
@@ -2270,19 +2327,23 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
   it('handles failing `tests` and `fixtures` gracefully', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         plugin: identifierReversePlugin,
         fixtures: getFixturePath('simple')
-      })
-    );
+      }),
+      expectedError: regExpContainsString(
+        ErrorMessage.ExpectedOutputToEqualActual(dummyFixtureObject)
+      )
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         preset: makePresetFromPlugin(identifierReversePlugin),
         tests: [{ code: simpleTest }]
-      })
-    );
+      }),
+      expectedError: regExpContainsString(ErrorMessage.ExpectedOutputNotToChange())
+    });
   });
 
   it('runs multiple tests and fixtures together', async () => {
@@ -3124,11 +3185,15 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
 
     await withMockedEnv(
       async () => {
-        await runPluginTesterExpectThrownException(
-          getDummyPluginOptions({
+        await runPluginTesterExpectThrownException({
+          options: getDummyPluginOptions({
             fixtures: simpleFixture
-          })
-        );
+          }),
+          expectedError: ErrorMessage.BadEnvironmentVariableRange(
+            'TEST_NUM_ONLY',
+            process.env.TEST_NUM_ONLY!
+          )
+        });
       },
       {
         TEST_NUM_ONLY: '-1'
@@ -3137,11 +3202,15 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
 
     await withMockedEnv(
       async () => {
-        await runPluginTesterExpectThrownException(
-          getDummyPresetOptions({
+        await runPluginTesterExpectThrownException({
+          options: getDummyPresetOptions({
             tests: [simpleTest]
-          })
-        );
+          }),
+          expectedError: ErrorMessage.BadEnvironmentVariableRange(
+            'TEST_NUM_SKIP',
+            process.env.TEST_NUM_SKIP!
+          )
+        });
       },
       {
         TEST_NUM_SKIP: '2--4'
@@ -3150,11 +3219,12 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
 
     await withMockedEnv(
       async () => {
-        await runPluginTesterExpectThrownException(
-          getDummyPluginOptions({
+        await runPluginTesterExpectThrownException({
+          options: getDummyPluginOptions({
             fixtures: simpleFixture
-          })
-        );
+          }),
+          expectedError: ErrorMessage.BadEnvironmentVariableRange('TEST_NUM_ONLY', '2-')
+        });
       },
       {
         TEST_NUM_ONLY: '2-,5'
@@ -3163,11 +3233,15 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
 
     await withMockedEnv(
       async () => {
-        await runPluginTesterExpectThrownException(
-          getDummyPresetOptions({
+        await runPluginTesterExpectThrownException({
+          options: getDummyPresetOptions({
             tests: [simpleTest]
-          })
-        );
+          }),
+          expectedError: ErrorMessage.BadEnvironmentVariableRange(
+            'TEST_NUM_SKIP',
+            process.env.TEST_NUM_SKIP!
+          )
+        });
       },
       {
         TEST_NUM_SKIP: '2 - 4'
@@ -3176,11 +3250,15 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
 
     await withMockedEnv(
       async () => {
-        await runPluginTesterExpectThrownException(
-          getDummyPluginOptions({
+        await runPluginTesterExpectThrownException({
+          options: getDummyPluginOptions({
             fixtures: simpleFixture
-          })
-        );
+          }),
+          expectedError: ErrorMessage.BadEnvironmentVariableRange(
+            'TEST_NUM_ONLY',
+            process.env.TEST_NUM_ONLY!
+          )
+        });
       },
       {
         TEST_NUM_ONLY: '5-2'
@@ -3189,11 +3267,12 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
 
     await withMockedEnv(
       async () => {
-        await runPluginTesterExpectThrownException(
-          getDummyPresetOptions({
+        await runPluginTesterExpectThrownException({
+          options: getDummyPresetOptions({
             tests: [simpleTest]
-          })
-        );
+          }),
+          expectedError: ErrorMessage.BadEnvironmentVariableRange('TEST_NUM_SKIP', '2 4')
+        });
       },
       {
         TEST_NUM_SKIP: '2 4, 3, 5'
@@ -3202,11 +3281,15 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
 
     await withMockedEnv(
       async () => {
-        await runPluginTesterExpectThrownException(
-          getDummyPluginOptions({
+        await runPluginTesterExpectThrownException({
+          options: getDummyPluginOptions({
             fixtures: simpleFixture
-          })
-        );
+          }),
+          expectedError: ErrorMessage.BadEnvironmentVariableRange(
+            'TEST_NUM_ONLY',
+            process.env.TEST_NUM_ONLY!
+          )
+        });
       },
       {
         TEST_NUM_ONLY: 'seven'
@@ -3215,11 +3298,15 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
 
     await withMockedEnv(
       async () => {
-        await runPluginTesterExpectThrownException(
-          getDummyPresetOptions({
+        await runPluginTesterExpectThrownException({
+          options: getDummyPresetOptions({
             tests: [simpleTest]
-          })
-        );
+          }),
+          expectedError: ErrorMessage.BadEnvironmentVariableRange(
+            'TEST_NUM_SKIP',
+            process.env.TEST_NUM_SKIP!
+          )
+        });
       },
       {
         TEST_NUM_SKIP: '+1'
@@ -3230,132 +3317,185 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
   it('throws if both `only` and `skip` are provided', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         fixtures: getFixturePath('option-skip-only')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasSkipAndOnly()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [{ code: simpleTest, only: true, skip: true }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasSkipAndOnly()
+    });
   });
 
   it('captures babel transform errors when `throws: true`', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectCapturedError(true, {
-      fixtures: getFixturePath('option-throws-true')
+    await runPluginTesterExpectCapturedError({
+      throws: true,
+      overrides: {
+        fixtures: getFixturePath('option-throws-true')
+      }
     });
   });
 
   it('throws when babel transform errors and `throws: false`', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownExceptionWhenCapturingError(false, {
-      fixtures: getFixturePath('option-throws-false')
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: false,
+      overrides: {
+        fixtures: getFixturePath('option-throws-false')
+      },
+      expectedError: regExpContainsString('[BABEL]')
     });
   });
 
   it('captures babel transform errors when `throws: string`', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectCapturedError('expected this error to be captured', {
-      fixtures: getFixturePath('option-throws-string')
+    await runPluginTesterExpectCapturedError({
+      throws: 'expected this error to be captured',
+      overrides: {
+        fixtures: getFixturePath('option-throws-string')
+      }
     });
   });
 
   it('captures babel transform errors when `throws: RegExp instance`', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectCapturedError(/captured/, {
-      fixtures: getFixturePath('option-throws-regex')
+    await runPluginTesterExpectCapturedError({
+      throws: /captured/,
+      overrides: {
+        fixtures: getFixturePath('option-throws-regex')
+      }
     });
   });
 
   it('captures babel transform errors when `throws: Error constructor`', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectCapturedError(SyntaxError, {
-      fixtures: getFixturePath('option-throws-class')
+    await runPluginTesterExpectCapturedError({
+      throws: SyntaxError,
+      overrides: {
+        fixtures: getFixturePath('option-throws-class')
+      }
     });
   });
 
   it('captures babel transform errors when `throws: callback`', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectCapturedError(
-      (error) => error instanceof SyntaxError && /captured/.test(error.message),
-      {
+    await runPluginTesterExpectCapturedError({
+      throws: (error) => error instanceof SyntaxError && /captured/.test(error.message),
+      overrides: {
         fixtures: getFixturePath('option-throws-function')
       }
-    );
+    });
   });
 
   it("throws if `throws` callback doesn't return `true`", async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownExceptionWhenCapturingError(() => false, {
-      fixtures: getFixturePath('option-throws-false-function')
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: () => false,
+      overrides: {
+        fixtures: getFixturePath('option-throws-false-function')
+      },
+      expectedError: ErrorMessage.ExpectedThrowsFunctionToReturnTrue()
     });
   });
 
   it('throws if `throws` is not `false` but no error thrown', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownExceptionWhenCapturingError(true, {
-      plugin: () => ({ visitor: {} }),
-      preset: makePresetFromPlugin({ visitor: {} }),
-      fixtures: getFixturePath('option-throws-true')
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        plugin: () => ({ visitor: {} }),
+        preset: makePresetFromPlugin({ visitor: {} }),
+        fixtures: getFixturePath('option-throws-true')
+      },
+      expectedError: ErrorMessage.ExpectedBabelToThrow()
     });
   });
 
   it('throws if both `throws` and `exec`/`execFixture`/exec.js are provided', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownExceptionWhenCapturingError(true, {
-      fixtures: getFixturePath('option-throws-and-exec-file')
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        fixtures: getFixturePath('option-throws-and-exec-file')
+      },
+      expectedError: ErrorMessage.InvalidHasThrowsAndExec(dummyFixtureObject)
     });
 
-    await runPluginTesterExpectThrownExceptionWhenCapturingError(true, {
-      tests: [{ exec: simpleTest, throws: true }]
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        tests: [{ exec: simpleTest, throws: true }]
+      },
+      expectedError: ErrorMessage.InvalidHasThrowsAndExec(dummyTestObject)
     });
 
-    await runPluginTesterExpectThrownExceptionWhenCapturingError(true, {
-      tests: [{ execFixture: getFixturePath('execFixture.js'), throws: true }]
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        tests: [{ execFixture: getFixturePath('execFixture.js'), throws: true }]
+      },
+      expectedError: ErrorMessage.InvalidHasThrowsAndExec(dummyTestObject)
     });
   });
 
   it('throws if both `throws` and `output`/`outputFixture`/output.js are provided', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownExceptionWhenCapturingError(true, {
-      fixtures: getFixturePath('option-throws-and-output-file')
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        fixtures: getFixturePath('option-throws-and-output-file')
+      },
+      expectedError: ErrorMessage.InvalidHasThrowsAndOutput(dummyFixtureObject)
     });
 
-    await runPluginTesterExpectThrownExceptionWhenCapturingError(true, {
-      tests: [{ code: simpleTest, throws: true, output: simpleTest }]
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        tests: [{ code: simpleTest, throws: true, output: simpleTest }]
+      },
+      expectedError: ErrorMessage.InvalidHasThrowsAndOutput(dummyTestObject)
     });
 
-    await runPluginTesterExpectThrownExceptionWhenCapturingError(true, {
-      tests: [
-        {
-          code: simpleTest,
-          throws: true,
-          outputFixture: getFixturePath('outputFixture.js')
-        }
-      ]
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        tests: [
+          {
+            code: simpleTest,
+            throws: true,
+            outputFixture: getFixturePath('outputFixture.js')
+          }
+        ]
+      },
+      expectedError: ErrorMessage.InvalidHasThrowsAndOutput(dummyTestObject)
     });
   });
 
   it('considers deprecated `error` as synonymous with `throws`', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectCapturedError(true, {
-      fixtures: getFixturePath('option-throws-error-deprecated'),
-      tests: [{ code: simpleTest, error: true }]
+    await runPluginTesterExpectCapturedError({
+      throws: true,
+      overrides: {
+        fixtures: getFixturePath('option-throws-error-deprecated'),
+        tests: [{ code: simpleTest, error: true }]
+      }
     });
   });
 
@@ -3600,35 +3740,69 @@ describe('tests targeting the FixtureOptions interface', () => {
   it('throws if `fixtures` value is invalid', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      //@ts-expect-error: testing bad tests value
-      getDummyPluginOptions({ fixtures: [false] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        fixtures: [false]
+      }),
+      expectedError: ErrorMessage.BadConfigFixturesNotString()
+    });
 
-    await runPluginTesterExpectThrownException(
-      //@ts-expect-error: testing bad tests value
-      getDummyPresetOptions({ fixtures: [false] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        fixtures: [false]
+      }),
+      expectedError: ErrorMessage.BadConfigFixturesNotString()
+    });
 
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPluginOptions({ fixtures: 5 }));
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPresetOptions({ fixtures: 6 }));
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        fixtures: 5
+      }),
+      expectedError: ErrorMessage.BadConfigFixturesNotString()
+    });
 
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPluginOptions({ fixtures: {} }));
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPresetOptions({ fixtures: {} }));
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        fixtures: 6
+      }),
+      expectedError: ErrorMessage.BadConfigFixturesNotString()
+    });
 
-    await runPluginTesterExpectThrownException(
-      //@ts-expect-error: testing bad tests value
-      getDummyPluginOptions({ fixtures: false })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        fixtures: {}
+      }),
+      expectedError: ErrorMessage.BadConfigFixturesNotString()
+    });
 
-    await runPluginTesterExpectThrownException(
-      //@ts-expect-error: testing bad tests value
-      getDummyPresetOptions({ fixtures: false })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        fixtures: {}
+      }),
+      expectedError: ErrorMessage.BadConfigFixturesNotString()
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        fixtures: false
+      }),
+      expectedError: ErrorMessage.BadConfigFixturesNotString()
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        fixtures: false
+      }),
+      expectedError: ErrorMessage.BadConfigFixturesNotString()
+    });
   });
 
   it('replaces dashes with spaces in `it` block `title` when deriving from directory name', async () => {
@@ -3767,12 +3941,15 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         plugin: identifierReversePlugin,
         fixtures: getFixturePath('simple')
-      })
-    );
+      }),
+      expectedError: regExpContainsString(
+        ErrorMessage.ExpectedOutputToEqualActual(dummyFixtureObject)
+      )
+    });
 
     await runPluginTester(
       getDummyPresetOptions({
@@ -3780,12 +3957,15 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         preset: makePresetFromPlugin(identifierReversePlugin),
         fixtures: getFixturePath('simple')
-      })
-    );
+      }),
+      expectedError: regExpContainsString(
+        ErrorMessage.ExpectedOutputToEqualActual(dummyFixtureObject)
+      )
+    });
   });
 
   it('can test that code.js babel output matches output.js', async () => {
@@ -3798,11 +3978,12 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         fixtures: getFixturePath('simple-reversed')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.ExpectedOutputToEqualActual(dummyFixtureObject)
+    });
 
     await runPluginTester(
       getDummyPresetOptions({
@@ -3811,11 +3992,12 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         fixtures: getFixturePath('simple-reversed')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.ExpectedOutputToEqualActual(dummyFixtureObject)
+    });
   });
 
   it('formats, trims, and fixes line endings of code.js babel output; trims and fixes line endings of output.js contents', async () => {
@@ -3963,17 +4145,19 @@ describe('tests targeting the FixtureOptions interface', () => {
   it('throws with helpful message if there is a problem parsing code.js', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         fixtures: getFixturePath('code-file-bad')
-      })
-    );
+      }),
+      expectedError: /missing semicolon/i
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         fixtures: getFixturePath('code-file-bad')
-      })
-    );
+      }),
+      expectedError: /missing semicolon/i
+    });
   });
 
   it('formats, trims, and fixes line endings of exec.js babel output', async () => {
@@ -4042,81 +4226,91 @@ describe('tests targeting the FixtureOptions interface', () => {
   it('throws if exec.js file is empty', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         fixtures: getFixturePath('exec-file-empty')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BabelOutputUnexpectedlyEmpty()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         fixtures: getFixturePath('exec-file-empty')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BabelOutputUnexpectedlyEmpty()
+    });
   });
 
   it('throws with helpful message if there is a problem parsing exec.js', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         fixtures: getFixturePath('exec-file-bad')
-      })
-    );
+      }),
+      expectedError: /missing semicolon/i
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         fixtures: getFixturePath('exec-file-bad')
-      })
-    );
+      }),
+      expectedError: /missing semicolon/i
+    });
   });
 
   it('handles failing exec.js file', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         fixtures: getFixturePath('exec-file-failing')
-      })
-    );
+      }),
+      expectedError: /fail/
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         fixtures: getFixturePath('exec-file-failing')
-      })
-    );
+      }),
+      expectedError: /fail/
+    });
   });
 
   it('throws if exec.js and code.js file in same directory', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         fixtures: getFixturePath('exec-and-code-files')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyFixtureObject)
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         fixtures: getFixturePath('exec-and-code-files')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyFixtureObject)
+    });
   });
 
   it('throws if exec.js and output.js file in same directory', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         fixtures: getFixturePath('exec-and-output-files')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyFixtureObject)
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         fixtures: getFixturePath('exec-and-output-files')
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyFixtureObject)
+    });
   });
 
   it('merges global options with those present in options.json', async () => {
@@ -4560,19 +4754,19 @@ describe('tests targeting the FixtureOptions interface', () => {
   it('throws with helpful message if there is a problem parsing options files', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         fixtures: getFixturePath('options-js-bad')
-      })
-    );
+      }),
+      expectedError: /unexpected token/i
+    });
 
-    await expect(
-      runPluginTester(
-        getDummyPresetOptions({
-          fixtures: getFixturePath('options-json-bad')
-        })
-      )
-    ).rejects.toThrow(/unexpected token/i);
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        fixtures: getFixturePath('options-json-bad')
+      }),
+      expectedError: /unexpected token/i
+    });
   });
 
   it('recognizes .babelrc files with various extensions', async () => {
@@ -4993,12 +5187,13 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         plugin: identifierReversePlugin,
         tests: [simpleTest]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.ExpectedOutputNotToChange()
+    });
 
     await runPluginTester(
       getDummyPresetOptions({
@@ -5006,12 +5201,13 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         preset: makePresetFromPlugin(identifierReversePlugin),
         tests: [simpleTest]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.ExpectedOutputNotToChange()
+    });
   });
 
   it('can test that `code`/`codeFixture` babel output is unchanged', async () => {
@@ -5076,17 +5272,23 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [{ code: codeFixtureContents, outputFixture: outputFixturePath }]
-      })
-    );
+      }),
+      expectedError: regExpContainsString(
+        ErrorMessage.ExpectedOutputToEqualActual(dummyTestObject)
+      )
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [{ codeFixture: codeFixturePath, output: outputFixtureContents }]
-      })
-    );
+      }),
+      expectedError: regExpContainsString(
+        ErrorMessage.ExpectedOutputToEqualActual(dummyTestObject)
+      )
+    });
   });
 
   it('handles empty `code`/`codeFixture`', async () => {
@@ -5175,101 +5377,179 @@ describe('tests targeting the TestObject interface', () => {
   it('throws if `exec`/`execFixture` is empty', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [{ exec: '' }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BabelOutputUnexpectedlyEmpty()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [{ execFixture: getFixturePath('execFixture-empty.js') }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BabelOutputUnexpectedlyEmpty()
+    });
   });
 
   it('throws if `exec`/`execFixture` is transformed into an empty string', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         plugin: deleteVariablesPlugin,
         tests: [{ execFixture: getFixturePath('codeFixture.js') }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BabelOutputUnexpectedlyEmpty()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         preset: makePresetFromPlugin(deleteVariablesPlugin),
         tests: [{ exec: getFixtureContents('codeFixture.js') }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.BabelOutputUnexpectedlyEmpty()
+    });
   });
 
   it('throws if test object is non-nullish and missing both `code` and `codeFixture`', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(getDummyPluginOptions({ tests: [{}] }));
-    await runPluginTesterExpectThrownException(getDummyPresetOptions({ tests: [{}] }));
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({ tests: [{}] }),
+      expectedError: ErrorMessage.InvalidMissingCodeOrExec(dummyTestObject)
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({ tests: [{ pluginOptions: {} }] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({ tests: [{}] }),
+      expectedError: ErrorMessage.InvalidMissingCodeOrExec(dummyTestObject)
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({ tests: [{ presetOptions: {} }] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({ tests: [{ pluginOptions: {} }] }),
+      expectedError: ErrorMessage.InvalidMissingCodeOrExec(dummyTestObject)
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({ tests: [{ presetOptions: {} }] }),
+      expectedError: ErrorMessage.InvalidMissingCodeOrExec(dummyTestObject)
+    });
   });
 
   it('throws if `tests` value is invalid', async () => {
     expect.hasAssertions();
 
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPluginOptions({ tests: [false] }));
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPresetOptions({ tests: [false] }));
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: [false]
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsArrayItemType(0)
+    });
 
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPluginOptions({ tests: [[]] }));
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPresetOptions({ tests: [[]] }));
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: [false]
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsArrayItemType(0)
+    });
 
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPluginOptions({ tests: [5] }));
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPresetOptions({ tests: [6] }));
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: [[]]
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsArrayItemType(0)
+    });
 
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPluginOptions({ tests: 5 }));
-    //@ts-expect-error: testing bad tests value
-    await runPluginTesterExpectThrownException(getDummyPresetOptions({ tests: 'bad' }));
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: [[]]
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsArrayItemType(0)
+    });
 
-    await runPluginTesterExpectThrownException(
-      //@ts-expect-error: testing bad tests value
-      getDummyPluginOptions({ tests: { test: [false] } })
-    );
-    await runPluginTesterExpectThrownException(
-      //@ts-expect-error: testing bad tests value
-      getDummyPresetOptions({ tests: { test: false } })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: [5]
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsArrayItemType(0)
+    });
 
-    await runPluginTesterExpectThrownException(
-      //@ts-expect-error: testing bad tests value
-      getDummyPluginOptions({ tests: { test: [[]] } })
-    );
-    await runPluginTesterExpectThrownException(
-      //@ts-expect-error: testing bad tests value
-      getDummyPresetOptions({ tests: { test: [[]] } })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: [6]
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsArrayItemType(0)
+    });
 
-    await runPluginTesterExpectThrownException(
-      //@ts-expect-error: testing bad tests value
-      getDummyPluginOptions({ tests: { test: 5 } })
-    );
-    await runPluginTesterExpectThrownException(
-      //@ts-expect-error: testing bad tests value
-      getDummyPresetOptions({ tests: { test: 6 } })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: 5
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsType()
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: 'bad'
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsType()
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: { test: [false] }
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsObjectProperty('test')
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: { test: false }
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsObjectProperty('test')
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: { test: [[]] }
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsObjectProperty('test')
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: { test: [[]] }
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsObjectProperty('test')
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: { test: 5 }
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsObjectProperty('test')
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        //@ts-expect-error: testing bad tests value
+        tests: { test: 6 }
+      }),
+      expectedError: ErrorMessage.BadConfigInvalidTestsObjectProperty('test')
+    });
   });
 
   it('strips `code`, `output`, and `exec` of any indentation before transformation; trims and fixes their line endings afterwards, formatting `code` and `exec` as well', async () => {
@@ -5419,21 +5699,31 @@ describe('tests targeting the TestObject interface', () => {
 
     const path = getFixturePath('simple/fixture/code.js');
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({ tests: [{ code: simpleTest, exec: simpleTest }] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({ tests: [{ code: simpleTest, exec: simpleTest }] }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyTestObject)
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({ tests: [{ code: simpleTest, execFixture: path }] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        tests: [{ code: simpleTest, execFixture: path }]
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyTestObject)
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({ tests: [{ codeFixture: path, exec: simpleTest }] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        tests: [{ codeFixture: path, exec: simpleTest }]
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyTestObject)
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({ tests: [{ codeFixture: path, execFixture: path }] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        tests: [{ codeFixture: path, execFixture: path }]
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyTestObject)
+    });
   });
 
   it('throws if both `output`/`outputFixture` and `exec`/`execFixture` are provided', async () => {
@@ -5441,29 +5731,33 @@ describe('tests targeting the TestObject interface', () => {
 
     const path = getFixturePath('simple/fixture/code.js');
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [{ code: simpleTest, exec: simpleTest, output: simpleTest }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyTestObject)
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [{ code: simpleTest, execFixture: path, output: simpleTest }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyTestObject)
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [{ code: simpleTest, exec: simpleTest, outputFixture: path }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyTestObject)
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [{ code: simpleTest, execFixture: path, outputFixture: path }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyTestObject)
+    });
   });
 
   it('throws if both `code` and `codeFixture` are provided', async () => {
@@ -5471,13 +5765,19 @@ describe('tests targeting the TestObject interface', () => {
 
     const path = getFixturePath('simple/fixture/code.js');
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({ tests: [{ code: simpleTest, codeFixture: path }] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        tests: [{ code: simpleTest, codeFixture: path }]
+      }),
+      expectedError: ErrorMessage.InvalidHasCodeAndCodeFixture()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({ tests: [{ code: simpleTest, codeFixture: path }] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        tests: [{ code: simpleTest, codeFixture: path }]
+      }),
+      expectedError: ErrorMessage.InvalidHasCodeAndCodeFixture()
+    });
   });
 
   it('throws if both `output` and `outputFixture` are provided', async () => {
@@ -5485,17 +5785,19 @@ describe('tests targeting the TestObject interface', () => {
 
     const path = getFixturePath('simple/fixture/code.js');
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [{ output: simpleTest, outputFixture: path }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasOutputAndOutputFixture()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [{ output: simpleTest, outputFixture: path }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasOutputAndOutputFixture()
+    });
   });
 
   it('throws if both `exec` and `execFixture` are provided', async () => {
@@ -5503,78 +5805,92 @@ describe('tests targeting the TestObject interface', () => {
 
     const path = getFixturePath('simple/fixture/code.js');
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({ tests: [{ exec: simpleTest, execFixture: path }] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        tests: [{ exec: simpleTest, execFixture: path }]
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndExecFixture()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({ tests: [{ exec: simpleTest, execFixture: path }] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        tests: [{ exec: simpleTest, execFixture: path }]
+      }),
+      expectedError: ErrorMessage.InvalidHasExecAndExecFixture()
+    });
   });
 
   it('throws with helpful message if there is a problem parsing `code`/`codeFixture`', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [getFixtureContents('code-file-bad/fixture/code.js')]
-      })
-    );
+      }),
+      expectedError: /missing semicolon/i
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [{ code: getFixtureContents('code-file-bad/fixture/code.js') }]
-      })
-    );
+      }),
+      expectedError: /missing semicolon/i
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: { bad: { codeFixture: getFixturePath('code-file-bad') } }
-      })
-    );
+      }),
+      expectedError: /EISDIR/
+    });
   });
 
   it('throws with helpful message if there is a problem parsing `exec`/`execFixture`', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [{ exec: getFixtureContents('code-file-bad/fixture/code.js') }]
-      })
-    );
+      }),
+      expectedError: /missing semicolon/i
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [{ execFixture: getFixturePath('code-file-bad') }]
-      })
-    );
+      }),
+      expectedError: /EISDIR/
+    });
   });
 
   it('throws with helpful message if `codeFixture`/`outputFixture`/`execFixture` cannot be read', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [{ codeFixture: dummyProjectRootFilepath }]
-      })
-    );
+      }),
+      expectedError: /ENOENT/
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [
           {
             code: `var eraseMe = 'junk'`,
             outputFixture: dummyProjectRootFilepath
           }
         ]
-      })
-    );
+      }),
+      expectedError: /ENOENT/
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [{ execFixture: dummyProjectRootFilepath }]
-      })
-    );
+      }),
+      expectedError: /ENOENT/
+    });
   });
 
   it('can test that `exec`/`execFixture` babel output executes without errors', async () => {
@@ -5850,19 +6166,21 @@ describe('tests targeting the TestObject interface', () => {
     delete globalThis.expect;
 
     try {
-      await runPluginTesterExpectThrownException(
-        getDummyPluginOptions({
+      await runPluginTesterExpectThrownException({
+        options: getDummyPluginOptions({
           tests: [{ code: simpleTest, snapshot: true }]
         }),
-        { customExpect: oldExpect }
-      );
+        customExpectFn: oldExpect,
+        expectedError: ErrorMessage.TestEnvironmentNoSnapshotSupport()
+      });
 
-      await runPluginTesterExpectThrownException(
-        getDummyPresetOptions({
+      await runPluginTesterExpectThrownException({
+        options: getDummyPresetOptions({
           tests: [{ code: simpleTest, snapshot: true }]
         }),
-        { customExpect: oldExpect }
-      );
+        customExpectFn: oldExpect,
+        expectedError: ErrorMessage.TestEnvironmentNoSnapshotSupport()
+      });
     } finally {
       // @ts-expect-error: It's probably there.
       globalThis.expect = oldExpect;
@@ -5879,25 +6197,27 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         snapshot: false,
         tests: [{ code: simpleTest, output: shouldNotBeSeen, snapshot: true }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasSnapshotAndOutput()
+    });
   });
 
   it('throws if both `snapshot` and `output`/`outputFixture` are provided', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [{ code: simpleTest, output: shouldNotBeSeen, snapshot: true }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasSnapshotAndOutput()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [
           {
             code: simpleTest,
@@ -5905,51 +6225,60 @@ describe('tests targeting the TestObject interface', () => {
             snapshot: true
           }
         ]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasSnapshotAndOutput()
+    });
   });
 
   it('throws if both `snapshot` and `exec`/`execFixture` are provided', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
         tests: [{ exec: shouldNotBeSeen, snapshot: true }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasSnapshotAndExec()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
         tests: [{ execFixture: getFixturePath('execFixture.js'), snapshot: true }]
-      })
-    );
+      }),
+      expectedError: ErrorMessage.InvalidHasSnapshotAndExec()
+    });
   });
 
   it('throws if both `snapshot` and `throws` are provided', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({
-        tests: [{ code: simpleTest, throws: true, snapshot: true }]
-      })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        plugin: identifierReversePlugin,
+        tests: [{ code: simpleTest, throws: false, snapshot: true }]
+      }),
+      expectedError: ErrorMessage.InvalidHasSnapshotAndThrows()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({
-        tests: [{ code: simpleTest, throws: true, snapshot: true }]
-      })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        preset: makePresetFromPlugin(identifierReversePlugin),
+        tests: [{ code: simpleTest, throws: false, snapshot: true }]
+      }),
+      expectedError: ErrorMessage.InvalidHasSnapshotAndThrows()
+    });
   });
 
   it('throws if babel output is unchanged and `snapshot` is enabled', async () => {
     expect.hasAssertions();
 
-    await runPluginTesterExpectThrownException(
-      getDummyPluginOptions({ snapshot: true, tests: [simpleTest] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({ snapshot: true, tests: [simpleTest] }),
+      expectedError: ErrorMessage.AttemptedToSnapshotUnmodifiedBabelOutput()
+    });
 
-    await runPluginTesterExpectThrownException(
-      getDummyPresetOptions({ snapshot: true, tests: [simpleTest] })
-    );
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({ snapshot: true, tests: [simpleTest] }),
+      expectedError: ErrorMessage.AttemptedToSnapshotUnmodifiedBabelOutput()
+    });
   });
 });

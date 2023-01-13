@@ -198,13 +198,18 @@ export async function runPluginTester(options?: PluginTesterOptions) {
 
 /**
  * This function wraps `runPluginTester`, but expects `runPluginTester` to throw
- * an error matching a Jest snapshot.
+ * an error.
  */
-export async function runPluginTesterExpectThrownException(
-  options?: PluginTesterOptions,
-  { customExpect = expect }: { customExpect?: jest.Expect } = {}
-) {
-  await customExpect(runPluginTester(options)).rejects.toThrowErrorMatchingSnapshot();
+export async function runPluginTesterExpectThrownException({
+  options,
+  customExpectFn: customExpect = expect,
+  expectedError
+}: {
+  options?: PluginTesterOptions;
+  customExpectFn?: jest.Expect;
+  expectedError: NonNullable<Parameters<jest.Matchers<Promise<void>>['toThrow']>[0]>;
+}) {
+  await customExpect(runPluginTester(options)).rejects.toThrow(expectedError);
 }
 
 /**
@@ -214,10 +219,13 @@ export async function runPluginTesterExpectThrownException(
  *
  * Tests both `tests` (`simpleTest`) and `fixtures` (standard).
  */
-export async function runPluginTesterExpectCapturedError(
-  throws: ErrorExpectation,
-  overrides?: PluginTesterOptions
-) {
+export async function runPluginTesterExpectCapturedError({
+  throws,
+  overrides
+}: {
+  throws: ErrorExpectation;
+  overrides?: PluginTesterOptions;
+}) {
   const faultyPluginOrPreset = () => {
     throw new SyntaxError('expected this error to be captured');
   };
@@ -248,10 +256,15 @@ export async function runPluginTesterExpectCapturedError(
  * `runPluginTesterExpectCapturedError` and that of
  * `runPluginTesterExpectThrownException` together in a single function.
  */
-export async function runPluginTesterExpectThrownExceptionWhenCapturingError(
-  throws: ErrorExpectation,
-  overrides?: PluginTesterOptions
-) {
+export async function runPluginTesterExpectThrownExceptionWhenCapturingError({
+  throws,
+  overrides,
+  expectedError
+}: {
+  throws: ErrorExpectation;
+  overrides?: PluginTesterOptions;
+  expectedError: NonNullable<Parameters<jest.Matchers<Promise<void>>['toThrow']>[0]>;
+}) {
   const faultyPluginOrPreset = () => {
     throw new SyntaxError('expected this error to be captured');
   };
@@ -265,7 +278,7 @@ export async function runPluginTesterExpectThrownExceptionWhenCapturingError(
       })
     )
   )
-    .rejects.toThrowErrorMatchingSnapshot()
+    .rejects.toThrow(expectedError)
     .then(() => {
       return expect(
         runPluginTester(
@@ -275,7 +288,7 @@ export async function runPluginTesterExpectThrownExceptionWhenCapturingError(
             ...overrides
           })
         )
-      ).rejects.toThrowErrorMatchingSnapshot();
+      ).rejects.toThrow(expectedError);
     });
 }
 
@@ -334,4 +347,34 @@ export function requireFixtureOptions(fixture: string): FixtureOptions {
       }
     }
   }
+}
+
+// * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
+function escapeRegExp(str: string) {
+  // eslint-disable-next-line unicorn/better-regex
+  return str.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+/**
+ * Returns a RegExp object that can be used to test if a string starts with
+ * another string.
+ */
+export function regExpStartsWithString(str: string, { escapeStr = true } = {}) {
+  return new RegExp(`^${escapeStr ? escapeRegExp(str) : str}`);
+}
+
+/**
+ * Returns a RegExp object that can be used to test if a string ends with
+ * another string.
+ */
+export function regExpEndsWithString(str: string, { escapeStr = true } = {}) {
+  return new RegExp(`${escapeStr ? escapeRegExp(str) : str}$`);
+}
+
+/**
+ * Returns a RegExp object that can be used to test if a string contains another
+ * string.
+ */
+export function regExpContainsString(str: string, { escapeStr = true } = {}) {
+  return new RegExp(escapeStr ? escapeRegExp(str) : str);
 }
