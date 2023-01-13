@@ -19,13 +19,3 @@ var hi = 'hey';
 var ih = 'hey';
 
 `;
-
-exports[`tests targeting the TestObject interface throws if both \`snapshot\` and \`throws\` are provided: 1. captains-log (explicit) 1`] = `
-
-var hi = 'hey';
-
-      ↓ ↓ ↓ ↓ ↓ ↓
-
-var ih = 'hey';
-
-`;
