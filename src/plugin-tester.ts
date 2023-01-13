@@ -1350,13 +1350,18 @@ function mergeCustomizer(
  * absolute, `undefined` is returned instead.
  */
 function getAbsolutePathUsingFilepathDirname(filepath?: string, basename?: string) {
-  return !basename
+  const { verbose: verbose2 } = getDebuggers('to-abs-path', debug1);
+
+  const result = !basename
     ? undefined
     : path.isAbsolute(basename)
     ? basename
     : filepath
     ? path.join(path.dirname(filepath), basename)
     : undefined;
+
+  verbose2(`dirname(${filepath}) + ${basename} => ${result}`);
+  return result;
 }
 
 /**
