@@ -94,6 +94,8 @@ export const ErrorMessage = {
     'neither `output` nor `outputFixture` can be provided with `snapshot` enabled',
   InvalidHasSnapshotAndExec: () =>
     'neither `exec` nor `execFixture` can be provided with `snapshot` enabled',
+  InvalidHasSnapshotAndThrows: () =>
+    'neither `throws` nor `error` can be provided with `snapshot` enabled',
   InvalidHasSkipAndOnly: () => 'cannot enable both `skip` and `only` in the same test',
   InvalidHasThrowsAndOutput: (testConfig: MaybeTestConfig) => {
     return testConfig[$type] == 'test-object'

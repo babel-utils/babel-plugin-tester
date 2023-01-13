@@ -1252,6 +1252,10 @@ export function pluginTester(options: PluginTesterOptions = {}) {
       if (exec !== undefined) {
         throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasSnapshotAndExec());
       }
+
+      if (expectedError !== undefined) {
+        throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasSnapshotAndThrows());
+      }
     }
 
     if (skip && only) {
@@ -1275,7 +1279,7 @@ export function pluginTester(options: PluginTesterOptions = {}) {
     }
 
     if (code === undefined && exec === undefined) {
-      throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasCodeAndExec(testConfig));
+      throwTypeErrorWithDebugOutput(ErrorMessage.InvalidMissingCodeOrExec(testConfig));
     }
 
     if ((code !== undefined || output !== undefined) && exec !== undefined) {
