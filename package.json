@@ -59,9 +59,9 @@
     "prepare": "node -e \"execa = require('execa'); if(process.env.CI === undefined && (process.env.NODE_ENV === undefined || process.env.NODE_ENV == 'development')) { execa.sync('npx', ['husky', 'install'], { stdout: 'inherit', stderr: 'inherit' }); } else { console.log('skipped installing husky git hooks'); }\"",
     "test": "npm run test:unit --",
     "test:all": "NODE_ENV=test jest --coverage",
-    "test:integration": "NODE_ENV=test jest --coverage 'integration-.*\\.test\\.ts.*'",
-    "test:unit": "NODE_ENV=test jest",
-    "test:update": "npm test:all -- --updateSnapshot --coverage"
+    "test:integration": "NODE_ENV=test jest 'integration-.*\\.test\\.ts.*'",
+    "test:unit": "NODE_ENV=test jest --testPathIgnorePatterns 'integration-.*\\.test\\.ts.*' dist",
+    "test:update": "npm test:all -- --updateSnapshot"
   },
   "dependencies": {
     "debug": "^4.3.4",
