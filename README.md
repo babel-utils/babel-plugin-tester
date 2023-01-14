@@ -98,8 +98,17 @@ CJS:
 const { pluginTester } = require('babel-plugin-tester');
 ```
 
-> For backwards compatibility reasons, a default export is also available but
-> its use [should be avoided][9].
+For backwards compatibility reasons, a default export is also available, but its
+use [should be avoided][9]:
+
+```javascript
+// Default ESM
+import pluginTester from 'babel-plugin-tester';
+// Default CJS #1
+const pluginTester = require('babel-plugin-tester').default;
+// Default CJS #2
+const { default: pluginTester } = require('babel-plugin-tester');
+```
 
 ### Invoke
 
