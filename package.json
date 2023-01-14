@@ -66,7 +66,7 @@
   "dependencies": {
     "debug": "^4.3.4",
     "lodash.mergewith": "^4.6.2",
-    "prettier": "^2.8.2",
+    "prettier": "^2.8.3",
     "strip-indent": "^3.0.0"
   },
   "devDependencies": {
