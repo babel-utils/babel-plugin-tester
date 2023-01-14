@@ -586,8 +586,8 @@ pluginTester({
 
 > `.babelrc`, `.babelrc.json`, `.babelrc.js`, `.babelrc.cjs`, and `.babelrc.mjs`
 > config files in fixture directories are technically supported out-of-the-box,
-> though `.mjs` config files will cause a segfault until [this issue with
-> V8/Chromium is resolved][55].
+> though `.mjs` config files will cause a segfault in Jest until [this issue
+> with V8/Chromium is resolved][55].
 
 And it would run four tests, one for each directory in `fixtures` containing a
 file starting with "code" or "exec".
