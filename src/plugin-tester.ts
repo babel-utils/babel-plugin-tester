@@ -11,25 +11,24 @@ import debugFactory from 'debug';
 
 import { $type } from './symbols';
 import { ErrorMessage } from './errors';
+import { prettierFormatter } from './formatters/prettier';
+import { unstringSnapshotSerializer } from './serializers/unstring-snapshot';
 
-import {
-  runPluginUnderTestHere,
-  runPresetUnderTestHere,
-  validTitleNumberingValues,
-  type Range,
-  type ResultFormatter,
-  type PluginTesterOptions,
-  type TestObject,
-  type FixtureOptions,
-  type PluginTesterBaseConfig,
-  type PluginTesterTestConfig,
-  type PluginTesterTestDescribeConfig,
-  type PluginTesterTestFixtureConfig,
-  type PluginTesterTestObjectConfig,
-  type MaybePluginTesterTestObjectConfig,
-  type MaybePluginTesterTestFixtureConfig,
-  type PartialPluginTesterBaseConfig
-} from '.';
+import type {
+  Range,
+  ResultFormatter,
+  PluginTesterOptions,
+  TestObject,
+  FixtureOptions,
+  PluginTesterBaseConfig,
+  PluginTesterTestConfig,
+  PluginTesterTestDescribeConfig,
+  PluginTesterTestFixtureConfig,
+  PluginTesterTestObjectConfig,
+  MaybePluginTesterTestObjectConfig,
+  MaybePluginTesterTestFixtureConfig,
+  PartialPluginTesterBaseConfig
+} from './types';
 
 import type { Class } from 'type-fest';
 
@@ -60,7 +59,33 @@ const { debug: debug1, verbose: verbose1 } = getDebuggers(
   debugFactory('babel-plugin-tester')
 );
 
-export default pluginTester;
+/**
+ * A unique symbol that, when included in `babelOptions.plugins`, will be
+ * replaced with the plugin under test. Use this symbol to create a custom
+ * plugin run order.
+ *
+ * @see https://npm.im/babel-plugin-tester#custom-plugin-and-preset-run-order
+ */
+const runPluginUnderTestHere: unique symbol = Symbol('run-plugin-under-test-here');
+
+/**
+ * A unique symbol that, when included in `babelOptions.presets`, will be
+ * replaced with the preset under test. Use this symbol to create a custom
+ * preset run order.
+ *
+ * @see https://npm.im/babel-plugin-tester#custom-plugin-and-preset-run-order
+ */
+const runPresetUnderTestHere: unique symbol = Symbol('run-preset-under-test-here');
+
+/**
+ * Valid choices for the `titleNumbering` babel-plugin-tester option.
+ */
+const validTitleNumberingValues = ['all', 'tests-only', 'fixtures-only', false] as const;
+
+/**
+ * Valid choices for the `endOfLine` babel-plugin-tester option.
+ */
+const validEndOfLineValues = ['lf', 'crlf', 'auto', 'preserve', false] as const;
 
 /**
  * Internal current test counter. Used for automatic title numbering via the
@@ -72,18 +97,16 @@ let currentTestNumber = 1;
  * This function has the same effect as calling `pluginTester` with
  * `restartTitleNumbering: true`.
  */
-export function restartTestTitleNumbering() {
+function restartTestTitleNumbering() {
   debug1('restarted title numbering');
   currentTestNumber = 1;
 }
 
 /**
  * An abstraction around babel to help you write tests for your babel plugin or
- * preset. It was built to work with Jest, but most of the functionality should
- * work with Mocha, Jasmine, and any other framework that defines standard
- * `describe` and `it` globals with async support.
+ * preset.
  */
-export function pluginTester(options: PluginTesterOptions = {}) {
+function pluginTester(options: PluginTesterOptions = {}) {
   debug1('executing main babel-plugin-tester function');
 
   const globalContextHasExpectFn = 'expect' in globalThis && typeof expect == 'function';
@@ -1598,3 +1621,31 @@ function numericPrefixInRanges(
 
   return false;
 }
+
+export {
+  pluginTester as default,
+  pluginTester,
+  restartTestTitleNumbering,
+  prettierFormatter,
+  unstringSnapshotSerializer,
+  runPluginUnderTestHere,
+  runPresetUnderTestHere,
+  validTitleNumberingValues,
+  validEndOfLineValues
+};
+
+export * from './types';
+
+// ? What follows is some not-so-pretty interop for backwards compatible require
+// ? calls using the old CJS default import syntax. In the next major version of
+// ? babel-plugin-tester, all default exports will be removed entirely.
+pluginTester.default = pluginTester;
+pluginTester.pluginTester = pluginTester;
+pluginTester.restartTestTitleNumbering = restartTestTitleNumbering;
+pluginTester.prettierFormatter = prettierFormatter;
+pluginTester.unstringSnapshotSerializer = unstringSnapshotSerializer;
+pluginTester.runPluginUnderTestHere = runPluginUnderTestHere;
+pluginTester.runPresetUnderTestHere = runPresetUnderTestHere;
+pluginTester.validTitleNumberingValues = validTitleNumberingValues;
+pluginTester.validEndOfLineValues = validEndOfLineValues;
+module.exports = pluginTester;
