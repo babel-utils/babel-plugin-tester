@@ -5018,6 +5018,10 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPluginOptions({
+        // ? We have to do this once at the beginning because the signal-exit
+        // ? package dark magic deep in node/npm internals has side-effects on
+        // ? assert.equal
+        setup: () => void equalSpy.mockClear(),
         fixtures: getFixturePath('creates-output-file')
       })
     );
@@ -5035,6 +5039,7 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPresetOptions({
+        setup: () => void equalSpy.mockClear(),
         fixtures: getFixturePath('option-fixtureOutputName')
       })
     );
@@ -5053,6 +5058,7 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPluginOptions({
+        setup: () => void equalSpy.mockClear(),
         fixtures: getFixturePath('option-fixtureOutputExt')
       })
     );
@@ -5073,6 +5079,10 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPluginOptions({
+        // ? We have to do this once at the beginning because the signal-exit
+        // ? package dark magic deep in node/npm internals has side-effects on
+        // ? assert.equal
+        setup: () => void equalSpy.mockClear(),
         fixtures: getFixturePath('option-fixtureOutputExt')
       })
     );
@@ -5091,6 +5101,7 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPresetOptions({
+        setup: () => void equalSpy.mockClear(),
         fixtures: getFixturePath('option-fixtureOutputExt-no-dot')
       })
     );
@@ -5111,13 +5122,32 @@ describe('tests targeting the TestObject interface', () => {
   it('accepts an array value for `tests`', async () => {
     expect.hasAssertions();
 
-    await runPluginTester(getDummyPluginOptions({ tests: [simpleTest] }));
-    await runPluginTester(getDummyPresetOptions({ tests: [simpleTest] }));
+    await runPluginTester(
+      getDummyPluginOptions({
+        // ? We have to do this once at the beginning because the signal-exit
+        // ? package dark magic deep in node/npm internals has side-effects on
+        // ? assert.equal
+        setup: () => void equalSpy.mockClear(),
+        tests: [simpleTest]
+      })
+    );
+
+    expect(itSpy).toHaveBeenCalledTimes(1);
+
+    expect(equalSpy.mock.calls).toMatchObject([
+      [simpleTest, simpleTest, expect.any(String)]
+    ]);
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        setup: () => void equalSpy.mockClear(),
+        tests: [simpleTest]
+      })
+    );
 
     expect(itSpy).toHaveBeenCalledTimes(2);
 
     expect(equalSpy.mock.calls).toMatchObject([
-      [simpleTest, simpleTest, expect.any(String)],
       [simpleTest, simpleTest, expect.any(String)]
     ]);
   });
