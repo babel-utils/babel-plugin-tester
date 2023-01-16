@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-tester",
-  "version": "0.0.0-semantically-released",
+  "version": "11.0.0-canary.1",
   "description": "Utilities for testing babel plugins",
   "keywords": [
     "babel",
