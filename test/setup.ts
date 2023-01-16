@@ -461,7 +461,9 @@ export function npmCopySelfFixture(): MockFixture {
         // TODO: refactor this
         // eslint-disable-next-line unicorn/no-array-reduce
         .reduce<Record<string, string>>((obj, pkgStr) => {
-          const pkg = pkgStr.split('@');
+          const isScoped = pkgStr.startsWith('@');
+          const pkgSplit = (isScoped ? pkgStr.slice(1) : pkgStr).split('@');
+          const pkg = isScoped ? [`@${pkgSplit[0]}`, pkgSplit[1]] : pkgSplit;
           return { ...obj, [pkg[0]]: pkg[1] || 'latest' };
         }, dummyPkgJson.dependencies || {});
 
@@ -470,11 +472,15 @@ export function npmCopySelfFixture(): MockFixture {
         JSON.stringify({ ...dummyPkgJson, dependencies: installTargets })
       );
 
-      await run('npm', ['install', '--no-save', '--production', '--force'], {
-        cwd: dest,
-        reject: true,
-        env: { NODE_ENV: 'production', CI: 'true' }
-      });
+      await run(
+        'npm',
+        ['install', '--no-save', '--ignore-scripts', '--production', '--force'],
+        {
+          cwd: dest,
+          reject: true,
+          env: { NODE_ENV: 'production', CI: 'true' }
+        }
+      );
 
       await run('mv', ['node_modules', 'node_modules_old'], {
         cwd: context.root,
@@ -556,7 +562,10 @@ export function webpackTestFixture(): MockFixture {
 }
 
 async function getTreeOutput(context: FixtureContext) {
-  return (await execa('tree', ['-a', '-L', '2'], { cwd: context.root })).stdout;
+  return (
+    (await execa('tree', ['-a', '-L', '2'], { cwd: context.root, reject: false }))
+      .stdout || '(`tree` command did not return a result. Is it installed?)'
+  );
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)

@@ -9,3 +9,5 @@ package-lock.json
 fixtures
 docs
 CHANGELOG.md
+test/integration/assets/main
+test/integration/assets/pure
