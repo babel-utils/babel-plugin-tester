@@ -5,11 +5,12 @@
 // * environments, (2) using modern vs modern-default vs default vs dot-default
 // * import syntax, (3) using main vs pure import specifiers.
 
+import { existsSync } from 'node:fs';
 import debugFactory from 'debug';
 import mergeWith from 'lodash.mergewith';
 
 import { name as pkgName, exports as pkgExports } from '../../package.json';
-import { run, withMockedFixture } from '../setup';
+import { withMockedFixture } from '../setup';
 import { assets } from './assets';
 
 import {
@@ -32,12 +33,12 @@ debug('IMPORT_SPECIFIERS_UNDER_TEST: %O', IMPORT_SPECIFIERS_UNDER_TEST);
 debug('IMPORT_STYLES_UNDER_TEST: %O', IMPORT_STYLES_UNDER_TEST);
 
 beforeAll(async () => {
-  if ((await run('test', ['-e', pkgMainPath])).code != 0) {
+  if (!existsSync(pkgMainPath)) {
     debug(`unable to find main export: ${pkgMainPath}`);
     throw new Error('must build distributables first (try `npm run build-dist`)');
   }
 
-  if ((await run('test', ['-e', pkgPurePath])).code != 0) {
+  if (!existsSync(pkgPurePath)) {
     debug(`unable to find pure export: ${pkgPurePath}`);
     throw new Error('must build distributables first (try `npm run build-dist`)');
   }

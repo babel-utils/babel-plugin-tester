@@ -6,11 +6,12 @@
 // * (3) with the feature set we claim and interoperability code given in the
 // * documentation.
 
+import { existsSync } from 'node:fs';
 import debugFactory from 'debug';
 import mergeWith from 'lodash.mergewith';
 
 import { name as pkgName, exports as pkgExports } from '../../package.json';
-import { run, withMockedFixture } from '../setup';
+import { withMockedFixture } from '../setup';
 import { assets } from './assets';
 
 import {
@@ -31,12 +32,12 @@ debug('FRAMEWORKS_UNDER_TEST: %O', FRAMEWORKS_UNDER_TEST);
 debug('BABEL_VERSIONS_UNDER_TEST: %O', BABEL_VERSIONS_UNDER_TEST);
 
 beforeAll(async () => {
-  if ((await run('test', ['-e', pkgMainPath])).code != 0) {
+  if (!existsSync(pkgMainPath)) {
     debug(`unable to find main export: ${pkgMainPath}`);
     throw new Error('must build distributables first (try `npm run build-dist`)');
   }
 
-  if ((await run('test', ['-e', pkgPurePath])).code != 0) {
+  if (!existsSync(pkgPurePath)) {
     debug(`unable to find pure export: ${pkgPurePath}`);
     throw new Error('must build distributables first (try `npm run build-dist`)');
   }
