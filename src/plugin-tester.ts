@@ -33,7 +33,7 @@ import type {
 import type { Class } from 'type-fest';
 
 const parseErrorStackRegExp =
-  /at (?<fn>\S+) (?:.*? )?\(?(?<path>(?:\/|file:|\w:\\).*?)(?:\)|$)/i;
+  /at (?:(?<fn>\S+) )?(?:.*? )?\(?(?<path>(?:\/|file:|\w:\\).*?)(?:\)|$)/i;
 
 const parseScriptFilepathRegExp =
   /(\/|\\)babel-plugin-tester(\/|\\)(dist|src)(\/|\\)(index|plugin-tester)\.(j|t)s$/;
@@ -118,8 +118,8 @@ function pluginTester(options: PluginTesterOptions = {}) {
   const globalContextExpectFnHasToMatchSnapshot = (() => {
     try {
       return globalContextHasExpectFn
-    ? typeof expect(undefined)?.toMatchSnapshot == 'function'
-    : false;
+        ? typeof expect(undefined)?.toMatchSnapshot == 'function'
+        : false;
     } catch {
       /* istanbul ignore next */
       return false;
@@ -328,7 +328,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
           process.cwd()
         );
 
-        debug2('plugin name inference succeeded: %O', name);
+        debug2('plugin name inference result: %O', name);
         return name;
       } catch {
         debug2('plugin name inference failed');
@@ -358,11 +358,16 @@ function pluginTester(options: PluginTesterOptions = {}) {
               const { fn: functionName, path: filePath } =
                 line.match(parseErrorStackRegExp)?.groups || {};
 
-              return functionName && filePath
+              return filePath
                 ? {
                     functionName,
                     // ? Paranoid just in case the script name/path has colons
-                    filePath: filePath.split(':').slice(0, -2).join(':')
+                    filePath: filePath
+                      .split('file://')
+                      .at(-1)!
+                      .split(':')
+                      .slice(0, -2)
+                      .join(':')
                   }
                 : undefined;
             })
