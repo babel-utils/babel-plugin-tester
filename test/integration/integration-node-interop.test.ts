@@ -62,7 +62,8 @@ for (const esm of [true, false] as const) {
       debug(`registered test: ${title}`);
 
       // eslint-disable-next-line jest/valid-title
-      it.concurrent(title, async () => {
+      (process.env.NO_CONCURRENT ? it : it.concurrent)(title, async () => {
+        // eslint-disable-next-line jest/no-standalone-expect
         expect.hasAssertions();
 
         debug(`started running test: ${title}`);
