@@ -115,9 +115,16 @@ function pluginTester(options: PluginTesterOptions = {}) {
   const globalContextHasDescribeFn =
     'describe' in globalThis && typeof describe == 'function';
 
-  const globalContextExpectFnHasToMatchSnapshot = globalContextHasExpectFn
+  const globalContextExpectFnHasToMatchSnapshot = (() => {
+    try {
+      return globalContextHasExpectFn
     ? typeof expect(undefined)?.toMatchSnapshot == 'function'
     : false;
+    } catch {
+      /* istanbul ignore next */
+      return false;
+    }
+  })();
 
   const globalContextTestFnHasSkip = globalContextHasTestFn
     ? typeof it.skip == 'function'
