@@ -12,7 +12,7 @@ const { changelogTitle, parserOpts, writerOpts } = require('./conventional.confi
 module.exports = {
   branches: [
     '+([0-9])?(.{+([0-9]),x}).x',
-    'main',
+    'master',
     {
       name: 'canary',
       channel: 'canary',
@@ -49,15 +49,14 @@ module.exports = {
           [
             '@semantic-release/exec',
             {
-              prepareCmd: 'CHANGELOG_SKIP_TITLE=true npm run build-changelog'
+              prepareCmd: 'CHANGELOG_SKIP_TITLE=true npm run build:changelog'
             }
           ],
           ['@semantic-release/changelog', { changelogTitle }],
           [
             '@semantic-release/exec',
             {
-              prepareCmd:
-                'remark -o --use reference-links --use gfm --use frontmatter CHANGELOG.md'
+              prepareCmd: 'NODE_ENV=format npx remark --output --frail CHANGELOG.md'
             }
           ],
           [
