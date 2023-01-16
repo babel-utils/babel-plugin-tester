@@ -21,7 +21,7 @@ import {
   type IMPORT_SPECIFIERS_UNDER_TEST
 } from './test-config';
 
-const TEST_IDENTIFIER = 'integration-node-smoke';
+const TEST_IDENTIFIER = 'node-smoke';
 const TEST_TARGET: (typeof IMPORT_SPECIFIERS_UNDER_TEST)[number] = 'main'; // * Or: 'pure'
 const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 
