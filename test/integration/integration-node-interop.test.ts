@@ -22,8 +22,8 @@ import {
 import { expectSuccessAndOutput } from './test-expectations';
 import { withNodeTestInterop } from './test-interop';
 
-const TEST_IDENTIFIER = 'node-interop';
-const debug = debugFactory(TEST_IDENTIFIER);
+const TEST_IDENTIFIER = 'integration-node-interop';
+const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
 
 const pkgMainPath = `${__dirname}/../../${pkgExports['.'].default}`;
 const pkgPurePath = `${__dirname}/../../${pkgExports['./pure'].default}`;
