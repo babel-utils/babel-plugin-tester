@@ -361,9 +361,9 @@ function pluginTester(options: PluginTesterOptions = {}) {
               return filePath
                 ? {
                     functionName,
-                    // ? Paranoid just in case the script name/path has colons
+                    // ? Just in case the script name/path has colons
                     filePath: filePath
-                      .split('file://')
+                      .split(`file://${process.platform == 'win32' ? '/' : ''}`)
                       .at(-1)!
                       .split(':')
                       .slice(0, -2)
