@@ -32,8 +32,7 @@ import type { Debugger } from 'debug';
 // TODO: ability to copy entire arbitrary directories recursively into fixture
 // TODO: root
 
-// TODO: change namespace to something short and sweet and without pkgName
-const globalDebug = debugFactory(`${pkgName}:jest-setup`);
+const globalDebug = debugFactory('jest-setup');
 
 globalDebug(`pkgName: "${pkgName}"`);
 globalDebug(`pkgVersion: "${pkgVersion}"`);
