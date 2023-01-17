@@ -209,7 +209,7 @@ This is used to provide the babel preset under test. For example:
 
 import path from 'node:path';
 import { pluginTester } from 'babel-plugin-tester';
-import coolNewBabelPreset from 'cool-new-babel-preset.js';
+import coolNewBabelPreset from './cool-new-babel-preset.js';
 
 pluginTester({
   preset: coolNewBabelPreset,
