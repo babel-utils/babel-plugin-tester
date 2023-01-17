@@ -58,6 +58,7 @@ This package is tested on both Windows and nix (Ubuntu) environments.
 - [Examples](#examples)
   - [Simple Example](#simple-example)
   - [Full Example](#full-example)
+  - [Fixtures Examples](#fixtures-examples)
 - [Appendix](#appendix)
   - [Testing Framework Compatibility](#testing-framework-compatibility)
   - [Using Babel for Configuration Loading](#using-babel-for-configuration-loading)
@@ -1130,9 +1131,6 @@ Like [`exec`][87], this property cannot appear in the same test object as the
 
 ## Examples
 
-What follows are several babel-plugin-tester [test object][46] examples. See
-[`fixtures`][39] for an example fixtures directory layout.
-
 ### Simple Example
 
 ```javascript
@@ -1322,12 +1320,25 @@ pluginTester({
 });
 ```
 
+### Fixtures Examples
+
+See [`fixtures`][39] for an example directory layout or check out some of these
+other projects:
+
+<!-- lint disable list-item-style -->
+
+- [babel-plugin-transform-rewrite-imports][93]
+- [babel-plugin-explicit-exports-references][94]
+- [babel-plugin-transform-default-named-imports][95]
+
+<!-- lint enable list-item-style -->
+
 ## Appendix
 
 ### Testing Framework Compatibility
 
 This package was originally tested on and built to work with [Jest][7], but it
-is also [tested][93] against [Vitest][11], [Mocha][8], [Jasmine][9], and
+is also [tested][96] against [Vitest][11], [Mocha][8], [Jasmine][9], and
 [`node:test`][10]. See below for details.
 
 #### Jest
@@ -1340,7 +1351,7 @@ All babel-plugin-tester features work with Jest. No further action is necessary
 All babel-plugin-tester features work with Vitest, though Vitest don't provide
 global APIs by default. You can either supply some interoperability code (see
 Jasmine or `node:test` below for an example) or run Vitest with the [`--globals`
-CLI option][94].
+CLI option][97].
 
 #### Mocha
 
@@ -1394,10 +1405,10 @@ examples.
 [`babelOptions.babelrc`][32] and [`babelOptions.configFile`][33] are set to
 `false` by default. This way, you can [manually import (or provide an object
 literal)][68] the exact configuration you want to apply rather than relying on
-babel's [somewhat complex configuration loading rules][95]. However, if your
+babel's [somewhat complex configuration loading rules][98]. However, if your
 plugin, preset, or project relies on a complicated external setup to do its
-work, and you do not mind the [default run order][96], you can leverage [babel's
-automatic configuration loading][97] via the `babelOptions.babelrc` and/or
+work, and you do not mind the [default run order][99], you can leverage [babel's
+automatic configuration loading][100] via the `babelOptions.babelrc` and/or
 `babelOptions.configFile` options.
 
 > Fixtures provided via the [`fixtures`][39] option **do not** need to provide a
@@ -1405,7 +1416,7 @@ automatic configuration loading][97] via the `babelOptions.babelrc` and/or
 > section only applies to [test objects][46].
 
 When relying on `babelOptions.babelrc`, you must also provide a
-[`babelOptions.filename`][98] for each test object that does not include a
+[`babelOptions.filename`][101] for each test object that does not include a
 [`codeFixture`][40] or [`execFixture`][42] property. For example:
 
 ```javascript
@@ -1443,7 +1454,7 @@ pluginTester({
 ```
 
 This file does not actually have to exist either, so you can use whatever value
-you want for `filename` as long as the `.babelrc` file is [resolved][99]
+you want for `filename` as long as the `.babelrc` file is [resolved][102]
 properly. Hence, the above example could be simplified further:
 
 ```javascript
@@ -1480,7 +1491,7 @@ again when run by babel. This is irrelevant to babel-plugin-tester (even if your
 plugin crashes when run outside of babel) and to the overwhelming majority of
 babel plugins in existence. This only becomes a problem if your plugin is
 _aggressively stateful_, which is against the [babel handbook on plugin
-design][100].
+design][103].
 
 For example, the following plugin which replaces an import specifier using a
 regular expression will exhibit strange behavior due to being invoked twice:
@@ -1626,12 +1637,12 @@ disables formatting of babel output with prettier):
 
 By default, a [formatter][83] is used which formats all babel output with
 [prettier][52]. It will [look for][53] a prettier configuration file relative to
-[the file that's being tested][58] or the [current working directory][101]. If
+[the file that's being tested][58] or the [current working directory][104]. If
 it cannot find one, then it uses the default configuration for prettier.
 
 This makes your snapshots easier to read and your expectations easier to write,
 but if you would like to disable this feature, you can either use the [`pure`
-import][102] to disable automatic formatting (along with snapshot serialization)
+import][105] to disable automatic formatting (along with snapshot serialization)
 or you can override the `formatResult` option manually like so:
 
 ```javascript
@@ -1644,9 +1655,9 @@ pluginTester({
 
 ### Built-In Debugging Support
 
-This package uses [debug][103] under the hood. To view all possible debugging
+This package uses [debug][106] under the hood. To view all possible debugging
 output, including the results of all babel transformations, set the
-`DEBUG='babel-plugin-tester,babel-plugin-tester:*'` [environment variable][104]
+`DEBUG='babel-plugin-tester,babel-plugin-tester:*'` [environment variable][107]
 when running your tests.
 
 For example:
@@ -1658,7 +1669,7 @@ NODE_ENV='test' DEBUG='babel-plugin-tester,babel-plugin-tester:*' DEBUG_DEPTH='1
 
 #### Available Debug Namespaces
 
-The following [debug namespaces][105] are available for activation:
+The following [debug namespaces][108] are available for activation:
 
 <!-- lint disable list-item-style -->
 
@@ -1681,6 +1692,8 @@ The following [debug namespaces][105] are available for activation:
   - `babel-plugin-tester:tester:eol`
   - `babel-plugin-tester:tester:finalize`
 
+<!-- lint enable list-item-style -->
+
 The `babel-plugin-tester:tester` namespace and its sub-namespaces each have an
 additional `verbose` sub-namespace that can be activated or deactivated at will,
 e.g. `babel-plugin-tester:tester:verbose` and
@@ -1692,8 +1705,6 @@ For example, to view all debug output except verbose output:
 # Those using Windows (but not WSL) have to set environment variable differently
 NODE_ENV='test' DEBUG='babel-plugin-tester,babel-plugin-tester:*,-*:verbose' npx jest
 ```
-
-<!-- lint enable list-item-style -->
 
 ### `TEST_ONLY`/`TEST_NUM_ONLY` and `TEST_SKIP`/`TEST_NUM_SKIP` Environment Variables
 
@@ -1716,7 +1727,7 @@ TEST_SKIP='name of a failing' npx jest
 Given both `TEST_ONLY` and `TEST_SKIP`, tests matched by `TEST_SKIP` will
 _always_ be skipped, even if they are also matched by `TEST_ONLY`. These
 environment variables also override both the fixture-specific
-[`skip`][106]/[`only`][107] and test object [`skip`][108]/[`only`][109]
+[`skip`][109]/[`only`][110] and test object [`skip`][111]/[`only`][112]
 properties _if they conflict_.
 
 In addition to `TEST_ONLY` and `TEST_SKIP`, you can also target tests
@@ -1736,7 +1747,7 @@ TEST_NUM_SKIP='5,1, 6-10,,  3,' npx jest
 
 `TEST_NUM_ONLY` and `TEST_NUM_SKIP` are meaningless if [`titleNumbering`][57] is
 `false` or your tests are otherwise unnumbered, and may match multiple tests if
-[automatic numbering is restarted][110].
+[automatic numbering is restarted][113].
 
 ### `setup` and `teardown` Run Order
 
@@ -1756,7 +1767,7 @@ the following order:
 The API was inspired by:
 
 - ESLint's [RuleTester][ruletester].
-- [@thejameskyle][111]'s [tweet][jamestweet].
+- [@thejameskyle][114]'s [tweet][jamestweet].
 - Babel's own
   [`@babel/helper-plugin-test-runner`][@babel/helper-plugin-test-runner].
 
@@ -1963,23 +1974,29 @@ MIT
 [90]: #throws-1
 [91]: https://www.npmjs.com/package/jest-snapshot
 [92]: https://jestjs.io/docs/expect#tomatchsnapshotpropertymatchers-hint
-[93]: ./test/integration/integration-node-smoke.test.ts
-[94]: https://vitest.dev/config#globals
-[95]: https://babeljs.io/docs/en/options#config-loading-options
-[96]: #custom-plugin-and-preset-run-order
-[97]: https://babeljs.io/docs/en/config-files
-[98]: https://babeljs.io/docs/en/options#filename
-[99]: https://babeljs.io/docs/en/config-files#file-relative-configuration
-[100]:
+[93]:
+  https://github.com/Xunnamius/babel-plugin-transform-rewrite-imports/blob/main/test/index.test.ts
+[94]:
+  https://github.com/Xunnamius/babel-plugin-explicit-exports-references/blob/main/test/index.test.ts
+[95]:
+  https://github.com/Xunnamius/babel-plugin-transform-default-named-imports/blob/main/test/index.test.ts
+[96]: ./test/integration/integration-node-smoke.test.ts
+[97]: https://vitest.dev/config#globals
+[98]: https://babeljs.io/docs/en/options#config-loading-options
+[99]: #custom-plugin-and-preset-run-order
+[100]: https://babeljs.io/docs/en/config-files
+[101]: https://babeljs.io/docs/en/options#filename
+[102]: https://babeljs.io/docs/en/config-files#file-relative-configuration
+[103]:
   https://github.com/jamiebuilds/babel-handbook/blob/c6828415127f27fedcc51299e98eaf47b3e26b5f/translations/en/plugin-handbook.md#state
-[101]: https://nodejs.org/api/process.html#processcwd
-[102]: #custom-snapshot-serialization
-[103]: https://npm.im/debug
-[104]: https://www.npmjs.com/package/debug#environment-variables
-[105]: https://www.npmjs.com/package/debug#namespace-colors
-[106]: #skip
-[107]: #only
-[108]: #skip-1
-[109]: #only-1
-[110]: #restarttitlenumbering
-[111]: https://github.com/jamiebuilds
+[104]: https://nodejs.org/api/process.html#processcwd
+[105]: #custom-snapshot-serialization
+[106]: https://npm.im/debug
+[107]: https://www.npmjs.com/package/debug#environment-variables
+[108]: https://www.npmjs.com/package/debug#namespace-colors
+[109]: #skip
+[110]: #only
+[111]: #skip-1
+[112]: #only-1
+[113]: #restarttitlenumbering
+[114]: https://github.com/jamiebuilds
