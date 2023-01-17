@@ -1149,13 +1149,13 @@ pluginTester({
   snapshot: true,
   tests: [
     {
-      code: '"hello";'
+      code: "'hello';"
       // Snapshot should show that code has not changed.
     },
     {
       snapshot: false,
       code: 'var hello = "hi";',
-      output: "var olleh = 'hi';"
+      output: 'var olleh = "hi";'
     },
     `
       function sayHi(person) {
@@ -1295,7 +1295,7 @@ pluginTester({
     },
     {
       title: 'unchanged code',
-      code: "'no change';",
+      code: '"no change";',
       setup() {
         // Runs before this test
         return function teardown() {
