@@ -10,7 +10,7 @@ const combineStdOutAndStdErr = (testResult: FixtureContext['testResult']) => {
 export function expectSuccess(context: FixtureContext) {
   const output = combineStdOutAndStdErr(context.testResult);
 
-  expect(output).toMatch(/\bpass|\bok\b|\b0 failures\b/i);
+  expect(output).toMatch(/\bpass|((?<!not )\bok\b)|\b0 failures\b/i);
 
   // ? Jasmine wants to be special
   if (output.includes('Incomplete: fit() or fdescribe() was found')) {
@@ -22,7 +22,7 @@ export function expectSuccess(context: FixtureContext) {
 
 export function expectSuccessAndOutput(context: FixtureContext) {
   expect(combineStdOutAndStdErr(context.testResult)).toMatch(
-    /\bpass|\bok\b|\b0 failures\b/i
+    /\bpass|((?<!not )\bok\b)|\b0 failures\b/i
   );
   expect(context.testResult?.stdout).toInclude('working');
   expect(context.testResult?.code).toBe(0);
