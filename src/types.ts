@@ -248,7 +248,8 @@ export interface PluginTesterOptions {
    */
   titleNumbering?: (typeof validTitleNumberingValues)[number];
   /**
-   * Setting this option to `true` will restart test title numbering starting at 1.
+   * This is a `pluginTester` option used to restart test title numbering. Set
+   * this value to `true` to restart automatic title numbering at 1.
    *
    * @default false
    * @see https://npm.im/babel-plugin-tester#restartTitleNumbering
