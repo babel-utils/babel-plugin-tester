@@ -1322,8 +1322,8 @@ pluginTester({
 
 ### Fixtures Examples
 
-See [`fixtures`][39] for an example directory layout or check out some of these
-other projects:
+See [`fixtures`][39] for an example directory layout or check out the use of
+babel-plugin-tester fixtures in some of these other projects:
 
 <!-- lint disable list-item-style -->
 

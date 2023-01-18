@@ -8,8 +8,9 @@ series [How to Contribute to an Open Source Project on GitHub][egghead]
 ## Project Setup
 
 1. Fork and clone the repo.
-2. `$ npm install` to install dependencies.
-3. `$ npm run validate` to validate you've got it working.
+2. `$ npm ci` to install dependencies without affecting the `package-lock.json`
+   file.
+3. `$ npm run test` to validate you've got it working.
 4. Create a branch for your PR.
 
 > Tip: Keep your `master` branch pointing at the original repository and make
@@ -29,15 +30,21 @@ series [How to Contribute to an Open Source Project on GitHub][egghead]
 
 ## Committing and Pushing Changes
 
-Please make sure to run the tests before you commit your changes. You can run
-`npm run test:update` which will update any snapshots that need updating. Make
-sure to include those changes (if they exist) in your commit.
+Please make sure to run the unit _and integration_ tests before you send your
+PR. You can do so by running `npm run test:all`, which will run all possible
+tests. On some Windows/WSL systems, the concurrent integration tests can be
+unstable, so set the environment variable `NO_CONCURRENT=true` to run the tests
+serially (which will be slow) if you encounter strange errors.
+
+Also, this project comes with Husky git hooks that run unit tests, linters, and
+formatters on the source before each commit. To prevent your contributions from
+being rejected, avoid circumventing these git hooks.
 
 ## Help Needed
 
-Please checkout the [the open issues][issues]
+Please checkout the [the open issues][issues].
 
-Also, please watch the repo and respond to questions/bug reports/feature
+Also, please watch the repo and respond to questions, bug reports, and feature
 requests! Thanks!
 
 <!-- prettier-ignore-start -->
