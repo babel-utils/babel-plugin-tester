@@ -24,7 +24,7 @@
       ]
     },
     {
-      "login": "thejameskyle",
+      "login": "jamiebuilds",
       "name": "james kyle",
       "avatar_url": "https://avatars3.githubusercontent.com/u/952783?v=3",
       "profile": "http://thejameskyle.com/",
@@ -201,6 +201,99 @@
         "review",
         "maintenance"
       ]
+    },
+    {
+      "login": "layershifter",
+      "name": "Oleksandr Fediashov",
+      "avatar_url": "https://avatars.githubusercontent.com/u/14183168?v=4",
+      "profile": "https://www.linkedin.com/in/layershifter/",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "Andarist",
+      "name": "Mateusz Burzyński",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9800850?v=4",
+      "profile": "https://github.com/Andarist",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "hulkish",
+      "name": "Steven Hargrove",
+      "avatar_url": "https://avatars.githubusercontent.com/u/139332?v=4",
+      "profile": "https://github.com/hulkish",
+      "contributions": [
+        "code",
+        "doc"
+      ]
+    },
+    {
+      "login": "alexrhogue",
+      "name": "Alex R Hogue",
+      "avatar_url": "https://avatars.githubusercontent.com/u/896170?v=4",
+      "profile": "https://github.com/alexrhogue",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "infctr",
+      "name": "Arthur Zahorski",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15550153?v=4",
+      "profile": "https://github.com/infctr",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "egoist",
+      "name": "EGOIST",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8784712?v=4",
+      "profile": "https://egoist.dev/",
+      "contributions": [
+        "infra"
+      ]
+    },
+    {
+      "login": "ifiokjr",
+      "name": "Ifiok Jr.",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1160934?v=4",
+      "profile": "https://ifiokjr.com/",
+      "contributions": [
+        "platform"
+      ]
+    },
+    {
+      "login": "buschtoens",
+      "name": "Jan Buschtöns",
+      "avatar_url": "https://avatars.githubusercontent.com/u/834636?v=4",
+      "profile": "https://jan.buschtoens.me/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "malbernaz",
+      "name": "Miguel Albernaz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10574149?v=4",
+      "profile": "https://github.com/malbernaz",
+      "contributions": [
+        "code",
+        "infra"
+      ]
+    },
+    {
+      "login": "peterlebrun",
+      "name": "peterlebrun",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1267171?v=4",
+      "profile": "https://github.com/peterlebrun",
+      "contributions": [
+        "doc"
+      ]
     }
-  ]
+  ],
+  "commitConvention": "angular"
 }
