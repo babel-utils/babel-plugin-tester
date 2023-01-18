@@ -40,26 +40,40 @@ export type { PrettierOptions };
  * @see https://prettier.io/docs/en/options.html#file-path
  */
 export const prettierFormatter: ResultFormatter<{
+  /**
+   * Options passed directly to prettier, allowing you to override the defaults.
+   */
   prettierOptions: MaybePrettierOptions;
+  /**
+   * If this deprecated parameter is given as an argument, treat it as the value
+   * of `prettierOptions`. Otherwise, it should not be used.
+   *
+   * @deprecated Use `prettierOptions` instead.
+   */
+  config: MaybePrettierOptions;
 }> = (
   code,
   {
     cwd = process.cwd(),
     filename,
     filepath = filename || path.join(cwd, 'dummy.js'),
-    prettierOptions = getCachedConfig(cwd)
+    config,
+    prettierOptions = config || getCachedConfig(cwd)
   } = {}
 ) => {
-  debug('cwd: %O', cwd);
-  debug('filepath: %O', filepath);
-  debug('original  code: %O', code);
-
-  const formattedCode = formatWithPrettier(code, {
+  const finalPrettierOptions = {
     filepath,
     ...prettierOptions
-  });
+  };
 
+  debug('cwd: %O', cwd);
+  debug('filepath: %O', filepath);
+  debug('prettier options: %O', finalPrettierOptions);
+  debug('original code: %O', code);
+
+  const formattedCode = formatWithPrettier(code, finalPrettierOptions);
   debug('formatted code: %O', code);
+
   return formattedCode;
 };
 
