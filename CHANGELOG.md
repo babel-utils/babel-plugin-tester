@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this auto-generated
 file. The format is based on [Conventional Commits][1];
 this project adheres to [Semantic Versioning][2].
 
-## [11.0.0-canary.1][3] (2023-01-16)
+## [11.0.0][3] (2023-01-18)
 
 ### 💥 Breaking Changes 💥
 
@@ -134,7 +134,7 @@ this project adheres to [Semantic Versioning][2].
 - Lodash.mergeWith customizer now allows unsetting options by setting them to `undefined` ([74af680][32])
 - Reorganize source into unified extensible tester pipeline w/ first-class fixtures support ([0c44392][33])
 
-## [0.0.0-semantically-released][34] (2023-01-16)
+## [11.0.0-canary.1][34] (2023-01-18)
 
 ### 💥 Breaking Changes 💥
 
@@ -552,7 +552,7 @@ this project adheres to [Semantic Versioning][2].
 
 [1]: https://conventionalcommits.org
 [2]: https://semver.org
-[3]: https://github.com/babel-utils/babel-plugin-tester/compare/v10.1.0...v11.0.0-canary.1
+[3]: https://github.com/babel-utils/babel-plugin-tester/compare/v10.1.0...v11.0.0
 [4]: https://github.com/babel-utils/babel-plugin-tester#pluginname-inference-caveat
 [5]: https://github.com/babel-utils/babel-plugin-tester/commit/73b90b347051661ccc37d663419c1d89348dedfb
 [6]: https://github.com/babel-utils/babel-plugin-tester/commit/9d1b321e162f337963faf84c2e7a9323c55c5155
@@ -583,7 +583,7 @@ this project adheres to [Semantic Versioning][2].
 [31]: https://github.com/babel-utils/babel-plugin-tester/commit/0b869bb1c7ecfab115293a33233e175cf0738b64
 [32]: https://github.com/babel-utils/babel-plugin-tester/commit/74af680467dbc663cb82a5cd9c6581d1b5216ae5
 [33]: https://github.com/babel-utils/babel-plugin-tester/commit/0c4439292839da87508d027cbfbf2b7a96e7d6e7
-[34]: https://github.com/babel-utils/babel-plugin-tester/compare/v10.1.0...v0.0.0-semantically-released
+[34]: https://github.com/babel-utils/babel-plugin-tester/compare/v10.1.0...v11.0.0-canary.1
 [35]: https://github.com/babel-utils/babel-plugin-tester/compare/v10.0.0...v10.1.0
 [36]: https://github.com/babel-utils/babel-plugin-tester/issues/84
 [37]: https://github.com/babel-utils/babel-plugin-tester/commit/969be117ee279603244d0b413156c7995f403bd1
