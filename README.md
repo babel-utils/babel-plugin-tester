@@ -21,7 +21,7 @@ Utilities for testing babel plugins and presets.
 <!-- remark-ignore-start -->
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-[![All Contributors](https://img.shields.io/badge/all_contributors-29-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-30-orange.svg?style=flat-square)](#contributors-)
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <!-- remark-ignore-end -->
@@ -1838,6 +1838,7 @@ Thanks goes to these people ([emoji key][emojis]):
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/peterlebrun"><img src="https://avatars.githubusercontent.com/u/1267171?v=4?s=100" width="100px;" alt="peterlebrun"/><br /><sub><b>peterlebrun</b></sub></a><br /><a href="https://github.com/babel-utils/babel-plugin-tester/commits?author=peterlebrun" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/SimenB"><img src="https://avatars.githubusercontent.com/u/1404810?v=4?s=100" width="100px;" alt="Simen Bekkhus"/><br /><sub><b>Simen Bekkhus</b></sub></a><br /><a href="https://github.com/babel-utils/babel-plugin-tester/issues?q=author%3ASimenB" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
