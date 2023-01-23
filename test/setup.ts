@@ -463,6 +463,7 @@ export interface DummyDirectoriesFixtureOptions {
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export interface NodeImportTestFixtureOptions {
   npmInstall?: string | string[];
+  runInstallScripts?: boolean;
   runWith?: {
     binary?: string;
     args?: string[];
@@ -645,7 +646,13 @@ export function npmCopySelfFixture(): MockFixture {
 
       await run(
         'npm',
-        ['install', '--no-save', '--ignore-scripts', '--production', '--force'],
+        [
+          'install',
+          '--no-save',
+          ...(context.options.runInstallScripts ? [] : ['--ignore-scripts']),
+          '--production',
+          '--force'
+        ],
         {
           cwd: destinationPath,
           reject: true,
@@ -908,7 +915,7 @@ export async function withMockedFixture<
     CustomContext;
   type CustomizedMockFixture = MockFixture<CustomizedFixtureContext>;
 
-  const testSymbol = Symbol('test');
+  const testSymbol = Symbol.for('@xunnamius/test');
   const finalOptions = {
     performCleanup: true,
     use: [] as MockFixture[],
