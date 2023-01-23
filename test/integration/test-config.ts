@@ -7,6 +7,8 @@
 // * numbers will only change when the configuration below changes. You can also
 // * match against test framework names (like `node:test`) and other settings.
 
+import browserslist from 'browserslist';
+
 import { name as pkgName, version as pkgVersion } from '../../package.json';
 import { withNodeTestInterop, withJasmineInterop } from './test-interop';
 import { assets } from './assets';
@@ -52,6 +54,11 @@ export const BABEL_VERSIONS_UNDER_TEST = ([
   ['@babel/core@7.11.6'], // ? Current minimum version
   ['@babel/core@latest']  // ? Latest version
 ]);
+
+// * [node@version, ...]
+export const NODE_VERSIONS_UNDER_TEST = browserslist('maintained node versions').map(
+  (v) => v.split(' ').join('@')
+);
 
 export const FRAMEWORKS_UNDER_TEST: FrameworksUnderTest = [
   {
