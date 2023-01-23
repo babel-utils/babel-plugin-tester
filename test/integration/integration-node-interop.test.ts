@@ -91,10 +91,11 @@ for (const esm of [true, false] as const) {
               runInstallScripts: true,
               npmInstall: ['@babel/core@latest', 'jest@latest', nodeVersion],
               runWith: {
-                binary: path.join('node_modules', '.bin', 'node'),
+                binary: 'npx',
                 args: [
+                  'node',
                   '--experimental-vm-modules',
-                  path.join('node_modules', '.bin', 'jest')
+                  path.join('node_modules', 'jest', 'bin', 'jest')
                 ]
               }
             },
