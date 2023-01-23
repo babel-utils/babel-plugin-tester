@@ -3,4 +3,4 @@
  *
  * @internal
  */
-export const $type = Symbol('test-object-type');
+export const $type = Symbol.for('@xunnamius/test-object-type');

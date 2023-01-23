@@ -66,7 +66,9 @@ const { debug: debug1, verbose: verbose1 } = getDebuggers(
  *
  * @see https://npm.im/babel-plugin-tester#custom-plugin-and-preset-run-order
  */
-const runPluginUnderTestHere: unique symbol = Symbol('run-plugin-under-test-here');
+const runPluginUnderTestHere: unique symbol = Symbol.for(
+  '@xunnamius/run-plugin-under-test-here'
+);
 
 /**
  * A unique symbol that, when included in `babelOptions.presets`, will be
@@ -75,7 +77,9 @@ const runPluginUnderTestHere: unique symbol = Symbol('run-plugin-under-test-here
  *
  * @see https://npm.im/babel-plugin-tester#custom-plugin-and-preset-run-order
  */
-const runPresetUnderTestHere: unique symbol = Symbol('run-preset-under-test-here');
+const runPresetUnderTestHere: unique symbol = Symbol.for(
+  '@xunnamius/run-preset-under-test-here'
+);
 
 /**
  * Valid choices for the `titleNumbering` babel-plugin-tester option.
