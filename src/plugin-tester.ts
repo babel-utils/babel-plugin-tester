@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import path from 'node:path';
 import fs from 'node:fs';
 import { EOL } from 'node:os';
-import { isNativeError } from 'node:util/types';
+import { types } from 'node:util';
 import mergeWith from 'lodash.mergewith';
 import stripIndent from 'strip-indent';
 import { createContext, Script } from 'node:vm';
@@ -31,6 +31,8 @@ import type {
 } from './types';
 
 import type { Class } from 'type-fest';
+
+const { isNativeError } = types;
 
 const parseErrorStackRegExp =
   /at (?:(?<fn>\S+) )?(?:.*? )?\(?(?<path>(?:\/|file:|\w:\\).*?)(?:\)|$)/i;

@@ -1,4 +1,4 @@
-import { isNativeError } from 'node:util/types';
+import { types } from 'node:util';
 
 import { $type } from './symbols';
 
@@ -8,6 +8,8 @@ import type {
   PluginTesterTestFixtureConfig,
   Range
 } from './index';
+
+const { isNativeError } = types;
 
 /**
  * A collection of possible errors and warnings.

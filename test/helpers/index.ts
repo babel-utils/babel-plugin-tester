@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { type AssertionError } from 'node:assert';
-import { isNativeError } from 'node:util/types';
+import { types } from 'node:util';
 
 import { pluginTester } from '../../src/plugin-tester';
 
@@ -10,6 +10,8 @@ import type {
   FixtureOptions,
   PluginTesterOptions
 } from '../../src/index';
+
+const { isNativeError } = types;
 
 const dummyDoneCallback: jest.DoneCallback = () => {
   throw new Error('unexpected callback invocation');
