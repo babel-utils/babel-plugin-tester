@@ -33,7 +33,10 @@ module.exports = {
           {
             // ? https://babeljs.io/docs/en/babel-preset-env#modules
             modules: 'cjs',
-            targets: NODE_LTS
+            targets: NODE_LTS,
+            useBuiltIns: 'usage',
+            corejs: '3.27',
+            shippedProposals: true
           }
         ],
         ['@babel/preset-typescript', { allowDeclareFields: true }]

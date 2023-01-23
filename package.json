@@ -64,6 +64,7 @@
     "test:update": "npm test:all -- --updateSnapshot"
   },
   "dependencies": {
+    "core-js": "^3.27.2",
     "debug": "^4.3.4",
     "lodash.mergewith": "^4.6.2",
     "prettier": "^2.8.3",
