@@ -79,42 +79,46 @@ semantic-release can be triggered locally by following these steps:
 > next step.
 
 ```bash
-# These command must be run from the project root
+# These command must be run from the project root. It is recommended to clone a
+# fresh version of the repo to a temp directory and run these commands from
+# there.
 
-# 1. Setup the local environment. Add your auth tokens to this file
-# ! DO NOT COMMIT THIS FILE !
+# 1. Install dependencies and add your auth tokens to the .env file.
+# ! DO NOT COMMIT THE .env FILE !
 cp .env.default .env
+npm ci
 
-# 2. Reset the working directory to a clean state (deletes all ignored files)
+# 2. Reset the working directory to a clean state (deletes all ignored files).
 npm run clean
 
-# 3. Lint all files
+# 3. Lint all files.
 npm run lint:all
 
-# 4. Build distributables
+# 4. Build distributables.
 npm run build:dist
 
-# 5. Build auxiliary documentation
+# 5. Build auxiliary documentation.
 npm run build:docs
 
-# 6. Build any external executables (used in GitHub Actions workflows)
+# 6. Build any external executables (used in GitHub Actions workflows).
 npm run build:externals
 
-# 7. Format all files
+# 7. Format all files.
 npm run format
 
-# 8. Run all possible tests and generate coverage information
+# 8. Run all possible tests and generate coverage information.
 npm run test:all
 
-# 9. Upload coverage information to codecov (only if you have the proper token)
+# 9. Upload coverage information to codecov (only if you have the proper token).
 CODECOV_TOKEN=$(npx --yes dotenv-cli -p CODECOV_TOKEN) codecov
 
 # 10. Trigger semantic-release locally and generate a new release. This requires
-# having tokens for NPM and GitHub with the appropriate permissions. This
-# command should be run in a clean environment using a user account without a
-# home directory (so no ~/.npmrc or ~/.gnupg directories). On linux, you can use
-# the "nobody" user (if they have a writable homedir) like below:
-sudo -u nobody NPM_TOKEN=$(npx --yes dotenv-cli -p NPM_TOKEN) GH_TOKEN=$(npx --yes dotenv-cli -p GITHUB_TOKEN) HUSKY=0 UPDATE_CHANGELOG=true GIT_AUTHOR_NAME=$(git config --global --get user.name) GIT_COMMITTER_NAME=$(git config --global --get user.name) GIT_AUTHOR_EMAIL=$(git config --global --get user.email) GIT_COMMITTER_EMAIL=$(git config --global --get user.email) npx --no-install semantic-release --no-ci --extends "$(pwd)/release.config.js"
+# having tokens for NPM and GitHub with the appropriate permissions.
+#
+# Do a dry run first:
+env -i NPM_TOKEN="$(npx --yes dotenv-cli -p NPM_TOKEN)" GH_TOKEN="$(npx --yes dotenv-cli -p GITHUB_TOKEN)" HUSKY=0 UPDATE_CHANGELOG=true GIT_AUTHOR_NAME="$(npx --yes dotenv-cli -p GIT_AUTHOR_NAME)" GIT_COMMITTER_NAME="$(npx --yes dotenv-cli -p GIT_COMMITTER_NAME)" GIT_AUTHOR_EMAIL="$(npx --yes dotenv-cli -p GIT_AUTHOR_EMAIL)" GIT_COMMITTER_EMAIL="$(npx --yes dotenv-cli -p GIT_COMMITTER_EMAIL)" node node_modules/.bin/semantic-release --no-ci --extends "$(pwd)/release.config.js" --dry-run
+# Then do the actual publish:
+env -i NPM_TOKEN="$(npx --yes dotenv-cli -p NPM_TOKEN)" GH_TOKEN="$(npx --yes dotenv-cli -p GITHUB_TOKEN)" HUSKY=0 UPDATE_CHANGELOG=true GIT_AUTHOR_NAME="$(npx --yes dotenv-cli -p GIT_AUTHOR_NAME)" GIT_COMMITTER_NAME="$(npx --yes dotenv-cli -p GIT_COMMITTER_NAME)" GIT_AUTHOR_EMAIL="$(npx --yes dotenv-cli -p GIT_AUTHOR_EMAIL)" GIT_COMMITTER_EMAIL="$(npx --yes dotenv-cli -p GIT_COMMITTER_EMAIL)" node node_modules/.bin/semantic-release --no-ci --extends "$(pwd)/release.config.js"
 ```
 
 <!-- lint ignore -->
