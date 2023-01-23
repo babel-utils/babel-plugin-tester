@@ -112,8 +112,9 @@ CODECOV_TOKEN=$(npx --yes dotenv-cli -p CODECOV_TOKEN) codecov
 # 10. Trigger semantic-release locally and generate a new release. This requires
 # having tokens for NPM and GitHub with the appropriate permissions. This
 # command should be run in a clean environment using a user account without a
-# home directory (so no ~/.npmrc or ~/.gnupg directories)
-NPM_TOKEN=$(npx --yes dotenv-cli -p NPM_TOKEN) GH_TOKEN=$(npx --yes dotenv-cli -p GITHUB_TOKEN) HUSKY=0 UPDATE_CHANGELOG=true GIT_AUTHOR_NAME=$(git config --global --get user.name) GIT_COMMITTER_NAME=$(git config --global --get user.name) GIT_AUTHOR_EMAIL=$(git config --global --get user.email) GIT_COMMITTER_EMAIL=$(git config --global --get user.email) npx --no-install semantic-release --no-ci --extends "$(pwd)/release.config.js"
+# home directory (so no ~/.npmrc or ~/.gnupg directories). On linux, you can use
+# the "nobody" user (if they have a writable homedir) like below:
+sudo -u nobody NPM_TOKEN=$(npx --yes dotenv-cli -p NPM_TOKEN) GH_TOKEN=$(npx --yes dotenv-cli -p GITHUB_TOKEN) HUSKY=0 UPDATE_CHANGELOG=true GIT_AUTHOR_NAME=$(git config --global --get user.name) GIT_COMMITTER_NAME=$(git config --global --get user.name) GIT_AUTHOR_EMAIL=$(git config --global --get user.email) GIT_COMMITTER_EMAIL=$(git config --global --get user.email) npx --no-install semantic-release --no-ci --extends "$(pwd)/release.config.js"
 ```
 
 <!-- lint ignore -->
