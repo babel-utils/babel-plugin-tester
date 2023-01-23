@@ -65,7 +65,7 @@ const formatConfig = {
     'frontmatter',
     'gfm',
     'tight-comments',
-    ['remark-capitalize-headings', { excludeHeadingLevel: { h1: true } }],
+    ['capitalize-headings', { excludeHeadingLevel: { h1: true } }],
     'remove-unused-definitions',
     'remove-url-trailing-slash',
     'renumber-references',
