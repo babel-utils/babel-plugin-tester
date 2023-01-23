@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-tester",
-  "version": "11.0.1",
+  "version": "11.0.2",
   "description": "Utilities for testing babel plugins",
   "keywords": [
     "babel",
