@@ -3633,11 +3633,11 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           tests: {
             'formatted-1': {
               code: `
-            console.log(  "hey"  )
-          `,
+                console.log(  "hey"  )
+              `,
               output: `
-            console.log("hey");
-          `
+                console.log("hey");
+              `
             },
             'formatted-2': {
               codeFixture: codeFileWithPrettierConfig,
@@ -3645,6 +3645,23 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
             },
             'formatted-3': {
               execFixture: codeFileWithPrettierConfig
+            }
+          }
+        })
+      );
+
+      await runPluginTester(
+        getDummyPresetOptions({
+          filepath: getFixturePath('prettier-configured/fixture/code.mts'),
+          formatResult: prettierFormatter,
+          tests: {
+            formatted: {
+              code: `
+                console.log(  "hey"  )
+              `,
+              output: `
+                console.log('hey');
+              `
             }
           }
         })

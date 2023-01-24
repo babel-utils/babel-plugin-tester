@@ -14,18 +14,18 @@ const debug = debugFactory('babel-plugin-tester:formatter');
 type MaybePrettierOptions = PrettierOptions | null;
 const configDirectoryCache: Record<string, MaybePrettierOptions> = Object.create(null);
 
-const getCachedConfig = (directory: string) => {
-  if (!(directory in configDirectoryCache)) {
+const getCachedConfig = (filepath: string) => {
+  if (!(filepath in configDirectoryCache)) {
+    configDirectoryCache[filepath] = resolvePrettierConfig.sync(filepath);
     debug(
-      `caching prettier configuration resolved from ${directory}: %O`,
-      configDirectoryCache[directory]
+      `caching prettier configuration resolved from ${filepath}: %O`,
+      configDirectoryCache[filepath]
     );
-    configDirectoryCache[directory] = resolvePrettierConfig.sync(directory);
   } else {
-    debug(`using cached prettier configuration resolved from ${directory}`);
+    debug(`using cached prettier configuration resolved from ${filepath}`);
   }
 
-  return configDirectoryCache[directory];
+  return configDirectoryCache[filepath];
 };
 
 export type { PrettierOptions };
@@ -58,7 +58,7 @@ export const prettierFormatter: ResultFormatter<{
     filename,
     filepath = filename || path.join(cwd, 'dummy.js'),
     config,
-    prettierOptions = config || getCachedConfig(cwd)
+    prettierOptions = config || getCachedConfig(filepath)
   } = {}
 ) => {
   const finalPrettierOptions = {

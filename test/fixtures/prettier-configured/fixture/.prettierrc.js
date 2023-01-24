@@ -23,4 +23,13 @@ module.exports = {
   endOfLine: "lf",
   embeddedLanguageFormatting: "auto",
   singleAttributePerLine: false,
+  overrides: [
+    {
+      files: "**/*.mts",
+      options: {
+        parser: "babel-ts",
+        singleQuote: true
+      },
+    },
+  ],
 };
