@@ -688,12 +688,20 @@ expect(() => throw new Error('throw expression')).toThrow('throw expression');
 > ).toStrictEqual({ data: 'imported' });
 > ```
 >
-> Or even:
+> Or:
 >
 > ```javascript
 > expect(JSON.stringify(require(`${__dirname}/imported-file.json`))).toBe(
 >   JSON.stringify({ data: 'imported' })
 > );
+> ```
+>
+> Or even:
+>
+> ```javascript
+> expect(require(`${__dirname}/imported-file.json`)).toEqual({
+>   data: 'imported'
+> });
 > ```
 
 After being transformed by babel but before being evaluated, the babel output
@@ -1121,12 +1129,20 @@ following:
 > ).toStrictEqual({ data: 'imported' });
 > ```
 >
-> Or even:
+> Or:
 >
 > ```javascript
 > expect(JSON.stringify(require(`${__dirname}/imported-file.json`))).toBe(
 >   JSON.stringify({ data: 'imported' })
 > );
+> ```
+>
+> Or even:
+>
+> ```javascript
+> expect(require(`${__dirname}/imported-file.json`)).toEqual({
+>   data: 'imported'
+> });
 > ```
 
 After being transformed by babel but before being evaluated, the babel output
