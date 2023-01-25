@@ -4,9 +4,9 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { EOL } from 'node:os';
 import { types } from 'node:util';
+import { createContext, Script } from 'node:vm';
 import mergeWith from 'lodash.mergewith';
 import stripIndent from 'strip-indent';
-import { createContext, Script } from 'node:vm';
 import debugFactory from 'debug';
 
 import { $type } from './symbols';
@@ -946,7 +946,10 @@ function pluginTester(options: PluginTesterOptions = {}) {
               : undefined,
           outputFixture,
           exec,
-          execFixture
+          execFixture:
+            exec !== undefined
+              ? execFixture || filepath || baseBabelOptions.filename || undefined
+              : undefined
         },
         mergeCustomizer
       );
@@ -1214,7 +1217,9 @@ function pluginTester(options: PluginTesterOptions = {}) {
             ...globalThis,
             module: fakeModule,
             exports: fakeModule.exports,
-            require
+            require,
+            __dirname: path.dirname(execFixture),
+            __filename: execFixture
           });
 
           new Script(result, { filename: execFixture }).runInContext(context, {

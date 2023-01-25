@@ -4321,6 +4321,26 @@ describe('tests targeting the FixtureOptions interface', () => {
     // ? expect() call is in the execFixture.js script
   });
 
+  it('runs exec.js files containing require, __filename, and __dirname', async () => {
+    expect.hasAssertions();
+
+    // ? __filename and __dirname must be as expected
+    await runPluginTester(
+      getDummyPluginOptions({
+        fixtures: getFixturePath('exec-supports-features')
+      })
+    );
+
+    // ? __filename and __dirname must be as expected
+    await runPluginTester(
+      getDummyPresetOptions({
+        fixtures: getFixturePath('exec-supports-features')
+      })
+    );
+
+    // ? expect() call is in the execFixture.js script
+  });
+
   it('does not generate output file when using exec.js', async () => {
     expect.hasAssertions();
 
@@ -6068,6 +6088,45 @@ describe('tests targeting the TestObject interface', () => {
       getDummyPresetOptions({
         preset: makePresetFromPlugin(identifierReversePlugin),
         tests: [{ execFixture: getFixturePath('execFixture.js') }]
+      })
+    );
+
+    // ? expect() call is in the execFixture.js script
+  });
+
+  it('can test `exec`/`execFixture` babel output containing require, __filename, and __dirname', async () => {
+    expect.hasAssertions();
+
+    const execFilepath = getFixturePath('exec-supports-features/fixture/exec.js');
+    const execContents = getFixtureContents('exec-supports-features/fixture/exec.js');
+
+    // ? __filename and __dirname must be as expected given execFixture/filepath
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        tests: [{ execFixture: execFilepath }]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        filepath: '/does/not/exist/file.js',
+        tests: [{ execFixture: execFilepath }]
+      })
+    );
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        filepath: '/does/not/exist/file.js',
+        tests: [{ exec: execContents }]
+      }),
+      expectedError: /Cannot find module '\/does\/not\/exist/
+    });
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        filepath: execFilepath,
+        tests: [{ exec: execContents }]
       })
     );
 
