@@ -1226,17 +1226,31 @@ import identifierReversePlugin from '../identifier-reverse-plugin';
 
 pluginTester({
   plugin: identifierReversePlugin,
+  // Defaults to false, but with this line we set the default to true across
+  // *all* tests.
   snapshot: true,
   tests: [
     {
       code: "'hello';"
-      // Snapshot should show that code has not changed.
+      // Snapshot should show that prettier has changed the single quotes to
+      // double quotes (using prettier's default configuration).
     },
     {
-      snapshot: false,
-      code: 'var hello = "hi";',
-      output: 'var olleh = "hi";'
+      // This test will pass if and only if code has not changed.
+      code: '"hello";'
+      // To prevent false negatives (like with reckless use of `npx jest -u`),
+      // snapshots of code that does not change are forbidden. Snapshots
+      // succeed only when babel output !== code input.
+      snapshot: false;
     },
+    {
+      code: 'var hello = "hi";',
+      output: 'var olleh = "hi";',
+      // You can't take a snapshot and also manually specify an output string.
+      // It's either one or the other.
+      snapshot: false
+    },
+    // A valid test can be a test object or a simple string.
     `
       function sayHi(person) {
         return 'Hello ' + person + '!'
@@ -1292,44 +1306,45 @@ pluginTester({
     configFile: false
   },
 
-  // Do not use snapshots across all tests, which is the default anyway. Note
-  // that snapshots are only guaranteed to work with Jest
+  // Defaults to false but we're being explicit here: do not use snapshots
+  // across all tests. Note that snapshots are only guaranteed to work with
+  // Jest.
   snapshot: false,
 
-  // Defaults to a function that formats with prettier
+  // Defaults to a function that formats with prettier.
   formatResult: customFormatFunction,
 
-  // You can provide tests as an object
+  // You can provide tests as an object:
   tests: {
     // The key is the title. The value is the code that is unchanged (because
     // snapshot == false across all tests). Test title will be: "1. does not
-    // change code with no identifiers"
+    // change code with no identifiers".
     'does not change code with no identifiers': '"hello";',
 
-    // Test title will be: "2. changes this code"
+    // Test title will be: "2. changes this code".
     'changes this code': {
-      // Input to the plugin
+      // Input to the plugin.
       code: 'var hello = "hi";',
-      // Expected output
+      // Expected output.
       output: 'var olleh = "hi";'
     }
   },
 
-  // Alternatively, you can provide tests as an array
+  // Alternatively, you can provide tests as an array:
   tests: [
     // Should be unchanged by the plugin (because snapshot == false across all
-    // tests). Test title will be: "1. identifier reverse"
+    // tests). Test title will be: "1. identifier reverse".
     '"hello";',
     {
-      // Test title will be: "2. identifier reverse"
+      // Test title will be: "2. identifier reverse".
       code: 'var hello = "hi";',
       output: 'var olleh = "hi";'
     },
     {
-      // Test title will be: "3. unchanged code"
+      // Test title will be: "3. unchanged code".
       title: 'unchanged code',
       // Because this is an absolute path, the filepath option above will not
-      // be used to resolve this path
+      // be used to resolve this path.
       codeFixture: path.join(
         __dirname,
         '..',
@@ -1337,20 +1352,20 @@ pluginTester({
         'codeFixture-unchanging.js'
       )
       // No output, outputFixture, or snapshot, so the assertion will be that
-      // the plugin does not change this code
+      // the plugin does not change this code.
     },
     {
       // Because these are not absolute paths, they will be joined with the
-      // directory of the filepath option provided above
+      // directory of the filepath option provided above.
       codeFixture: path.join('..', 'fixtures', 'codeFixture.js'),
       // Because outputFixture is provided, the assertion will be that the
-      // plugin will change the contents of "changed.js" to the contents of
-      // "changed-output.js"
+      // plugin will change the contents of "codeFixture.js" to the contents of
+      // "outputFixture.js".
       outputFixture: path.join('..', 'fixtures', 'outputFixture.js')
     },
     {
       // As a convenience, this will have the indentation striped and it will
-      // be trimmed
+      // be trimmed.
       code: `
         function sayHi(person) {
           return 'Hello ' + person + '!';
@@ -1358,17 +1373,17 @@ pluginTester({
       `,
       // This will take a Jest snapshot, overwriting the default/global
       // settings (set above). The snapshot will contain both source code and
-      // the transformed output, making the snapshot file easier to understand
+      // the transformed output, making the snapshot file easier to understand.
       snapshot: true
     },
     {
       code: 'var hello = "hi";',
       output: 'var olleh = "hi";',
-      // This can be used to overwrite pluginOptions (set above)
+      // This can be used to overwrite pluginOptions (set above).
       pluginOptions: {
         optionA: false
       }
-      // This can be used to overwrite presetOptions (set above)
+      // This can be used to overwrite presetOptions (set above).
       //presetOptions: {
       //  optionB: true
       //}
@@ -1377,15 +1392,15 @@ pluginTester({
       title: 'unchanged code',
       code: '"no change";',
       setup() {
-        // Runs before this test
+        // Runs before this test.
         return function teardown() {
-          // Runs after this tests
+          // Runs after this tests.
         };
-        // Can also return a promise
+        // Can also return a promise.
       },
       teardown() {
-        // Runs after this test
-        // Can return a promise
+        // Runs after this test.
+        // Can return a promise.
       }
     },
     {
@@ -1810,7 +1825,7 @@ Given both `TEST_ONLY` and `TEST_SKIP`, tests matched by `TEST_SKIP` will
 _always_ be skipped, even if they are also matched by `TEST_ONLY`. These
 environment variables also override both the fixture-specific
 [`skip`][110]/[`only`][111] and test object [`skip`][112]/[`only`][113]
-properties _if they conflict_.
+properties.
 
 In addition to `TEST_ONLY` and `TEST_SKIP`, you can also target tests
 specifically by their [automatically assigned number][57] using `TEST_NUM_ONLY`
@@ -2075,11 +2090,11 @@ MIT
 [92]: https://www.npmjs.com/package/jest-snapshot
 [93]: https://jestjs.io/docs/expect#tomatchsnapshotpropertymatchers-hint
 [94]:
-  https://github.com/Xunnamius/babel-plugin-transform-rewrite-imports/blob/main/test/index.test.ts
+  https://github.com/Xunnamius/babel-plugin-transform-rewrite-imports/blob/main/test/unit-index.test.ts
 [95]:
-  https://github.com/Xunnamius/babel-plugin-explicit-exports-references/blob/main/test/index.test.ts
+  https://github.com/Xunnamius/babel-plugin-explicit-exports-references/blob/main/test/unit-index.test.ts
 [96]:
-  https://github.com/Xunnamius/babel-plugin-transform-default-named-imports/blob/main/test/index.test.ts
+  https://github.com/Xunnamius/babel-plugin-transform-default-named-imports/blob/main/test/unit-index.test.ts
 [97]: ./test/integration/integration-node-smoke.test.ts
 [98]: https://vitest.dev/config#globals
 [99]: https://babeljs.io/docs/en/options#config-loading-options
