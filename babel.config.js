@@ -3,6 +3,9 @@
 // ? https://nodejs.org/en/about/releases
 const NODE_LTS = 'maintained node versions';
 
+/**
+ * @type {import('@babel/core').TransformOptions}
+ */
 module.exports = {
   comments: false,
   parserOpts: { strictMode: true },
