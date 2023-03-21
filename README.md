@@ -1445,7 +1445,7 @@ All babel-plugin-tester features work with Jest. No further action is necessary
 
 #### Vitest
 
-All babel-plugin-tester features work with Vitest, though Vitest don't provide
+All babel-plugin-tester features work with Vitest, though Vitest does not provide
 global APIs by default. You can either supply some interoperability code (see
 Jasmine or `node:test` below for an example) or run Vitest with the [`--globals`
 CLI option][98].
