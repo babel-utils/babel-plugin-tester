@@ -28,6 +28,22 @@ module.exports = {
         'explicit-exports-references'
       ]
     },
+    // * Used when NODE_ENV == production (usually for generating types w/ tsc)
+    production: {
+      presets: [
+        [
+          '@babel/preset-env',
+          {
+            // ? https://babeljs.io/docs/en/babel-preset-env#modules
+            modules: 'auto',
+            targets: NODE_LTS,
+            exclude: ['proposal-dynamic-import']
+          }
+        ],
+        ['@babel/preset-typescript', { allowDeclareFields: true }]
+        // ? Minification is handled externally (e.g. by webpack)
+      ]
+    },
     // * Used by `npm run build` for compiling CJS to code output in ./dist
     'production-cjs': {
       presets: [
@@ -38,8 +54,9 @@ module.exports = {
             modules: 'cjs',
             targets: NODE_LTS,
             useBuiltIns: 'usage',
-            corejs: '3.27',
-            shippedProposals: true
+            corejs: '3.33',
+            shippedProposals: true,
+            exclude: ['proposal-dynamic-import']
           }
         ],
         ['@babel/preset-typescript', { allowDeclareFields: true }]
