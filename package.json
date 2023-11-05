@@ -17,6 +17,9 @@
   },
   "license": "MIT",
   "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com)",
+  "maintainers": [
+    "Bernard <me@bernarddickens.dev> (https://bernarddickens.dev)"
+  ],
   "sideEffects": false,
   "type": "commonjs",
   "exports": {
