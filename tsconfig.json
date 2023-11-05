@@ -12,8 +12,8 @@
     "inlineSourceMap": true,
     "isolatedModules": true,
     "lib": ["ESNext"],
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -21,7 +21,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "esnext"
+    "target": "ESNext"
   },
   "exclude": ["node_modules"],
   "include": ["types/**/*", "src/**/*", "test/**/*"]
