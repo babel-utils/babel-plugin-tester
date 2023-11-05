@@ -1,21 +1,21 @@
 /* eslint-disable unicorn/no-keyword-prefix */
-import { name as pkgName, version as pkgVersion } from '../package.json';
-import { tmpdir } from 'node:os';
 import { promises as fs } from 'node:fs';
-import { resolve as resolvePath, join as joinPath, basename } from 'node:path';
+import { tmpdir } from 'node:os';
+import { basename, join as joinPath, resolve as resolvePath } from 'node:path';
+import { name as pkgName, version as pkgVersion } from '../package.json';
 
-import glob from 'glob';
-import execa from 'execa';
-import uniqueFilename from 'unique-filename';
 import debugFactory from 'debug';
+import execa from 'execa';
+import glob from 'glob';
+import uniqueFilename from 'unique-filename';
 //import gitFactory from 'simple-git';
 // ? https://github.com/jest-community/jest-extended#typescript
-import 'jest-extended/all';
 import 'jest-extended';
+import 'jest-extended/all';
 
+import type { Debugger } from 'debug';
 import type { ExecaReturnValue } from 'execa';
 import type { Promisable } from 'type-fest';
-import type { Debugger } from 'debug';
 //import type { SimpleGit } from 'simple-git';
 
 // TODO: automated tests against both Windows and Linux (and for all tooling)
@@ -352,7 +352,7 @@ export function protectedImportFactory(path: string) {
     await withMockedExit(async ({ exitSpy }) => {
       pkg = await isolatedImport({ path });
       if (expect && parameters?.expectedExitCode)
-        expect(exitSpy).toBeCalledWith(parameters.expectedExitCode);
+        expect(exitSpy).toHaveBeenCalledWith(parameters.expectedExitCode);
       else if (!expect)
         globalDebug.extend('protected-import-factory')(
           'WARNING: "expect" object not found, so exit check was skipped'
@@ -598,7 +598,7 @@ export function npmCopySelfFixture(): MockFixture {
     setup: async (context) => {
       const root = resolvePath(__dirname, '..');
 
-      const { files: patterns } = await import('../package.json');
+      const { files: patterns } = await (await import('../package.json')).default;
 
       const sourcePaths = patterns.flatMap((p) => glob.sync(p, { cwd: root, root }));
       const destinationPath = resolvePath(

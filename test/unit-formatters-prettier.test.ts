@@ -5,6 +5,8 @@ import prettier from 'prettier';
 
 import { prettierFormatter } from '../src/formatters/prettier';
 
+// TODO: fix this import
+// @ts-expect-error: broken import from node10; needs fixing
 import type { AnyFunction } from '@xunnamius/jest-types';
 
 type SpiedFunction<T extends AnyFunction> = jest.SpyInstance<

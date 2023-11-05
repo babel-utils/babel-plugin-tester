@@ -1,26 +1,28 @@
 /* eslint-disable jest/prefer-lowercase-title */
-import fs from 'node:fs';
-import path from 'node:path';
-import assert, { AssertionError } from 'node:assert';
 import babel from '@babel/core';
-import { EOL } from 'node:os';
-import { toss } from 'toss-expression';
-import stripIndent from 'strip-indent';
 import { declare } from '@babel/helper-plugin-utils';
-import { asMockedFunction } from '@xunnamius/jest-types';
+// TODO: fix this and issues like it elsewhere
+// @ts-expect-error: need to update this package
+import { asMockedFunction, type AnyFunction } from '@xunnamius/jest-types';
+import assert, { AssertionError } from 'node:assert';
+import fs from 'node:fs';
+import { EOL } from 'node:os';
+import path from 'node:path';
+import stripIndent from 'strip-indent';
+import { toss } from 'toss-expression';
 
-import { withMockedEnv, withMockedOutput } from './setup';
-import { prettierFormatter } from '../src/formatters/prettier';
-import { unstringSnapshotSerializer } from '../src/serializers/unstring-snapshot';
-import { restartTestTitleNumbering } from '../src/plugin-tester';
 import { ErrorMessage } from '../src/errors';
+import { prettierFormatter } from '../src/formatters/prettier';
+import { restartTestTitleNumbering } from '../src/plugin-tester';
+import { unstringSnapshotSerializer } from '../src/serializers/unstring-snapshot';
 import { $type } from '../src/symbols';
+import { withMockedEnv, withMockedOutput } from './setup';
 
 import {
-  type PluginTesterOptions,
+  pluginTester,
   runPluginUnderTestHere,
   runPresetUnderTestHere,
-  pluginTester
+  type PluginTesterOptions
 } from '../src/index';
 
 import {
@@ -32,30 +34,28 @@ import {
 } from './helpers/plugins';
 
 import {
-  simpleTest,
-  simpleFixture,
-  shouldNotBeSeen,
-  dummyProjectRootFilepath,
+  addRunnableJestTest,
+  clearRunnableJestTests,
   dummyExplicitPluginName,
   dummyInferredPluginName,
   dummyPresetName,
-  addRunnableJestTest,
+  dummyProjectRootFilepath,
+  escapeRegExp,
   getDummyPluginOptions,
   getDummyPresetOptions,
-  runPluginTester,
-  runPluginTesterExpectThrownException,
-  runPluginTesterExpectCapturedError,
-  runPluginTesterExpectThrownExceptionWhenCapturingError,
-  getFixturePath,
   getFixtureContents,
-  requireFixtureOptions,
+  getFixturePath,
   getRunnableJestTests,
-  clearRunnableJestTests,
   regExpContainsString,
-  escapeRegExp
+  requireFixtureOptions,
+  runPluginTester,
+  runPluginTesterExpectCapturedError,
+  runPluginTesterExpectThrownException,
+  runPluginTesterExpectThrownExceptionWhenCapturingError,
+  shouldNotBeSeen,
+  simpleFixture,
+  simpleTest
 } from './helpers';
-
-import type { AnyFunction } from '@xunnamius/jest-types';
 
 expect.addSnapshotSerializer(unstringSnapshotSerializer);
 
@@ -687,7 +687,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('runs plugins for `fixtures` and `tests` in the same order', async () => {
@@ -856,7 +856,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('throws if `babelOptions.babelrc: true` and `babelOptions.filename` is unset', async () => {
@@ -937,7 +937,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(describeSpy).toBeCalledTimes(0);
+    expect(describeSpy).toHaveBeenCalledTimes(0);
   });
 
   it('setting `title` to an empty string is equivalent to setting `title` to `undefined`', async () => {
@@ -1107,7 +1107,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('converts line endings with respect to `endOfLine: lf`', async () => {
@@ -1139,7 +1139,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('converts line endings with respect to `endOfLine: crlf`', async () => {
@@ -1171,7 +1171,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('converts line endings with respect to `endOfLine: auto`', async () => {
@@ -1203,7 +1203,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('converts line endings with respect to `endOfLine: preserve`', async () => {
@@ -1237,7 +1237,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('handles `endOfLine: preserve` when line does not end with linefeed', async () => {
@@ -1298,7 +1298,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(8);
+    expect(itSpy).toHaveBeenCalledTimes(8);
   });
 
   it('does not convert line endings when `endOfLine: false`', async () => {
@@ -1332,7 +1332,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('throws if `endOfLine` is invalid', async () => {
@@ -1649,7 +1649,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it("supports built-in prettier-based formatter using this project's own prettier configuration", async () => {
@@ -1689,7 +1689,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('applies `snapshot` globally', async () => {
@@ -2255,7 +2255,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(1);
+    expect(itSpy).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -2949,8 +2949,8 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           ['9. test-y', expect.any(Function)]
         ]);
 
-        expect(mockedItSkip).toBeCalledTimes(0);
-        expect(itSpy).toBeCalledTimes(0);
+        expect(mockedItSkip).toHaveBeenCalledTimes(0);
+        expect(itSpy).toHaveBeenCalledTimes(0);
       },
       {
         // ? Should be able to handle multiple random commas and overlapping
@@ -2991,8 +2991,8 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           ['9. test-y', expect.any(Function)]
         ]);
 
-        expect(mockedItOnly).toBeCalledTimes(0);
-        expect(itSpy).toBeCalledTimes(0);
+        expect(mockedItOnly).toHaveBeenCalledTimes(0);
+        expect(itSpy).toHaveBeenCalledTimes(0);
       },
       {
         // ? Should be able to handle multiple random commas, overlapping
@@ -3033,8 +3033,8 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           ['9. test-y', expect.any(Function)]
         ]);
 
-        expect(mockedItOnly).toBeCalledTimes(0);
-        expect(itSpy).toBeCalledTimes(0);
+        expect(mockedItOnly).toHaveBeenCalledTimes(0);
+        expect(itSpy).toHaveBeenCalledTimes(0);
       },
       { TEST_NUM_SKIP: '1-9', TEST_NUM_ONLY: '5, 6, 7' }
     );
@@ -3071,8 +3071,8 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           ['9. test-y', expect.any(Function)]
         ]);
 
-        expect(mockedItSkip).toBeCalledTimes(0);
-        expect(itSpy).toBeCalledTimes(0);
+        expect(mockedItSkip).toHaveBeenCalledTimes(0);
+        expect(itSpy).toHaveBeenCalledTimes(0);
       },
       { TEST_NUM_ONLY: '1-9' }
     );
@@ -3117,7 +3117,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           ['10. test-z', expect.any(Function)]
         ]);
 
-        expect(itSpy).toBeCalledTimes(0);
+        expect(itSpy).toHaveBeenCalledTimes(0);
       },
       {
         TEST_SKIP: 'fixture',
@@ -3693,7 +3693,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       })
     );
 
-    expect(formatResultSpy).toBeCalledTimes(0);
+    expect(formatResultSpy).toHaveBeenCalledTimes(0);
   });
 
   it('supports jsx source using syntax plugin', async () => {
@@ -3723,7 +3723,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('supports ts source using syntax plugin', async () => {
@@ -3755,7 +3755,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('supports tsx source using syntax plugin', async () => {
@@ -3789,7 +3789,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 });
 
@@ -4153,7 +4153,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(formatResult).toBeCalledTimes(2);
+    expect(formatResult).toHaveBeenCalledTimes(2);
   });
 
   it('runs mixed-extension tests with code.js and some with output.js', async () => {
@@ -4171,7 +4171,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(10);
+    expect(itSpy).toHaveBeenCalledTimes(10);
   });
 
   it('handles multiple code.js files in the same directory', async () => {
@@ -4189,7 +4189,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('handles incorrectly-structured fixtures directory', async () => {
@@ -4238,7 +4238,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('handles code.js and output.js files with strange extensions', async () => {
@@ -4256,7 +4256,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('throws with helpful message if there is a problem parsing code.js', async () => {
@@ -4300,7 +4300,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(formatResult).toBeCalledTimes(2);
+    expect(formatResult).toHaveBeenCalledTimes(2);
   });
 
   it('runs exec.js files with various extensions', async () => {
@@ -4356,8 +4356,8 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(10);
-    expect(writeFileSyncSpy).not.toBeCalled();
+    expect(itSpy).toHaveBeenCalledTimes(10);
+    expect(writeFileSyncSpy).not.toHaveBeenCalled();
   });
 
   it('throws if exec.js file is empty', async () => {
@@ -4935,7 +4935,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(8);
+    expect(itSpy).toHaveBeenCalledTimes(8);
   });
 
   it('coexists with .babelrc configurations', async () => {
@@ -4954,7 +4954,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('respects nested .babelrc configurations that extend one-another', async () => {
@@ -4972,7 +4972,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('runs global and test-level setup, teardown, and returned teardown functions/promises in the proper order', async () => {
@@ -5324,7 +5324,7 @@ describe('tests targeting the TestObject interface', () => {
       [getFixtureContents('execFixture.js', { trim: false }), expect.any(Object)]
     ]);
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('resolves absolute `codeFixture`/`outputFixture`/`execFixture` path regardless of `filepath`', async () => {
@@ -5351,7 +5351,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
       [getFixtureContents('execFixture.js', { trim: false }), expect.any(Object)],
@@ -5418,7 +5418,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('can test that `code`/`codeFixture` and `output`/`outputFixture` babel output matches', async () => {
@@ -5510,7 +5510,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('handles empty `output`/`outputFixture`', async () => {
@@ -5552,7 +5552,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('throws if `exec`/`execFixture` is empty', async () => {
@@ -5801,7 +5801,7 @@ describe('tests targeting the TestObject interface', () => {
       [expect.any(String), 'cool']
     ]);
 
-    expect(formatResult).toBeCalledTimes(6);
+    expect(formatResult).toHaveBeenCalledTimes(6);
   });
 
   it('does not strip `codeFixture`/`outputFixture`/`execFixture` of any indentation before transformation', async () => {
@@ -5872,7 +5872,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(formatResult).toBeCalledTimes(4);
+    expect(formatResult).toHaveBeenCalledTimes(4);
   });
 
   it('throws if both `code`/`codeFixture` and `exec`/`execFixture` are provided', async () => {
@@ -6154,7 +6154,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
       [getFixtureContents('codeFixture.js', { trim: false }), expect.any(Object)],
