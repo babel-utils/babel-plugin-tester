@@ -70,7 +70,7 @@
     "core-js": "^3.33.2",
     "debug": "^4.3.4",
     "lodash.mergewith": "^4.6.2",
-    "prettier": "^2.8.3",
+    "prettier": "^3.0.3",
     "strip-indent": "^3.0.0"
   },
   "devDependencies": {
@@ -91,7 +91,7 @@
     "@types/jest": "^29.5.7",
     "@types/lodash.mergewith": "^4.6.8",
     "@types/node": "^20.8.10",
-    "@types/prettier": "^2.0.0",
+    "@types/prettier": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^6.9.1",
     "@typescript-eslint/parser": "^6.9.1",
     "@xunnamius/conventional-changelog-projector": "^1.2.1",
