@@ -1,33 +1,33 @@
 /* eslint-disable unicorn/consistent-destructuring */
+import debugFactory from 'debug';
+import mergeWith from 'lodash.mergewith';
 import assert from 'node:assert';
-import path from 'node:path';
 import fs from 'node:fs';
 import { EOL } from 'node:os';
+import path from 'node:path';
 import { types } from 'node:util';
 import { createContext, Script } from 'node:vm';
-import mergeWith from 'lodash.mergewith';
 import stripIndent from 'strip-indent';
-import debugFactory from 'debug';
 
-import { $type } from './symbols';
 import { ErrorMessage } from './errors';
 import { prettierFormatter } from './formatters/prettier';
 import { unstringSnapshotSerializer } from './serializers/unstring-snapshot';
+import { $type } from './symbols';
 
 import type {
-  Range,
-  ResultFormatter,
-  PluginTesterOptions,
-  TestObject,
   FixtureOptions,
+  MaybePluginTesterTestFixtureConfig,
+  MaybePluginTesterTestObjectConfig,
+  PartialPluginTesterBaseConfig,
   PluginTesterBaseConfig,
+  PluginTesterOptions,
   PluginTesterTestConfig,
   PluginTesterTestDescribeConfig,
   PluginTesterTestFixtureConfig,
   PluginTesterTestObjectConfig,
-  MaybePluginTesterTestObjectConfig,
-  MaybePluginTesterTestFixtureConfig,
-  PartialPluginTesterBaseConfig
+  Range,
+  ResultFormatter,
+  TestObject
 } from './types';
 
 import type { Class } from 'type-fest';
@@ -1225,6 +1225,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
           new Script(result, { filename: execFixture }).runInContext(context, {
             displayErrors: true,
             breakOnSigint: true,
+            // @ts-expect-error: not sure from the docs if this is a type error
             microtaskMode: 'afterEvaluate'
           });
         } else if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
@@ -1648,13 +1649,13 @@ function numericPrefixInRanges(
 export {
   pluginTester as default,
   pluginTester,
-  restartTestTitleNumbering,
   prettierFormatter,
-  unstringSnapshotSerializer,
+  restartTestTitleNumbering,
   runPluginUnderTestHere,
   runPresetUnderTestHere,
-  validTitleNumberingValues,
-  validEndOfLineValues
+  unstringSnapshotSerializer,
+  validEndOfLineValues,
+  validTitleNumberingValues
 };
 
 export * from './types';
