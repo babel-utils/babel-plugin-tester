@@ -6,22 +6,22 @@
 // * import syntax, (3) using main vs pure import specifiers, (4) across all
 // * maintained versions of NodeJS.
 
-import { existsSync } from 'node:fs';
 import debugFactory from 'debug';
 import mergeWith from 'lodash.mergewith';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-import { name as pkgName, exports as pkgExports } from '../../package.json';
+import { exports as pkgExports, name as pkgName } from '../../package.json';
 import { withMockedFixture } from '../setup';
 import { assets } from './assets';
 import { expectSuccessAndOutput } from './test-expectations';
 
 import {
-  defaultFixtureOptions,
   BABEL_VERSIONS_UNDER_TEST,
   IMPORT_SPECIFIERS_UNDER_TEST,
   IMPORT_STYLES_UNDER_TEST,
-  NODE_VERSIONS_UNDER_TEST
+  NODE_VERSIONS_UNDER_TEST,
+  defaultFixtureOptions
 } from './test-config';
 
 const TEST_IDENTIFIER = 'node-interop';
