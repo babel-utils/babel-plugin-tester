@@ -87,7 +87,7 @@ for (const esm of [true, false] as const) {
             {},
             defaultFixtureOptions,
             {
-              performCleanup: false,
+              performCleanup: true,
               runInstallScripts: true,
               npmInstall: ['@babel/core@latest', 'jest@latest', nodeVersion],
               runWith: {
