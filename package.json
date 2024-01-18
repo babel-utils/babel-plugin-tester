@@ -152,7 +152,7 @@
     "remark-lint-strikethrough-marker": "^2.1.2",
     "remark-lint-unordered-list-marker-style": "^3.1.2",
     "remark-reference-links": "^7.0.0",
-    "remark-remove-unused-definitions": "^1.0.4",
+    "remark-remove-unused-definitions": "^2.0.0",
     "remark-remove-url-trailing-slash": "^1.0.2",
     "remark-renumber-references": "^1.0.5",
     "remark-sort-definitions": "^1.0.5",
