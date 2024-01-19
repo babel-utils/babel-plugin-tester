@@ -70,7 +70,7 @@
     "core-js": "^3.33.2",
     "debug": "^4.3.4",
     "lodash.mergewith": "^4.6.2",
-    "prettier": "^2.8.3",
+    "prettier": "^3.2.4",
     "strip-indent": "^3.0.0"
   },
   "devDependencies": {
@@ -113,7 +113,7 @@
     "execa": "^5.1.1",
     "glob-gitignore": "^1.0.14",
     "husky": "^8.0.3",
-    "jest": "^29.7.0",
+    "jest": "^30.0.0-alpha.2",
     "jest-circus": "^29.7.0",
     "jest-extended": "^4.0.2",
     "lint-staged": "^15.0.2",
@@ -169,7 +169,13 @@
     "unique-filename": "^3.0.0"
   },
   "peerDependencies": {
-    "@babel/core": ">=7.11.6"
+    "@babel/core": ">=7.11.6",
+    "jest": ">=30 || >=30.0.0-alpha.2"
+  },
+  "peerDependenciesMeta": {
+    "jest": {
+      "optional": true
+    }
   },
   "engines": {
     "node": "^14.20.0 || ^16.16.0 || >=18.5.0"

@@ -3,10 +3,10 @@ import type { Class, Promisable } from 'type-fest';
 import type { $type } from './symbols';
 
 import type {
-  validEndOfLineValues,
-  validTitleNumberingValues,
   runPluginUnderTestHere,
-  runPresetUnderTestHere
+  runPresetUnderTestHere,
+  validEndOfLineValues,
+  validTitleNumberingValues
 } from './plugin-tester';
 
 /**
@@ -691,7 +691,7 @@ export type ResultFormatter<
      */
     filename?: string;
   } & Partial<AdditionalOptions>
-) => string;
+) => Promise<string> | string;
 
 // * The transitive dependency "pretty-format" is a dependency of Jest
 export type { Plugin as SnapshotSerializer } from 'pretty-format';

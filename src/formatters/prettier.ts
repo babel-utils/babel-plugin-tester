@@ -1,9 +1,9 @@
-import path from 'node:path';
 import debugFactory from 'debug';
+import path from 'node:path';
 
 import {
-  resolveConfig as resolvePrettierConfig,
   format as formatWithPrettier,
+  resolveConfig as resolvePrettierConfig,
   type Options as PrettierOptions
 } from 'prettier';
 
@@ -14,9 +14,9 @@ const debug = debugFactory('babel-plugin-tester:formatter');
 type MaybePrettierOptions = PrettierOptions | null;
 const configDirectoryCache: Record<string, MaybePrettierOptions> = Object.create(null);
 
-const getCachedConfig = (filepath: string) => {
+const getCachedConfig = async (filepath: string) => {
   if (!(filepath in configDirectoryCache)) {
-    configDirectoryCache[filepath] = resolvePrettierConfig.sync(filepath);
+    configDirectoryCache[filepath] = await resolvePrettierConfig(filepath);
     debug(
       `caching prettier configuration resolved from ${filepath}: %O`,
       configDirectoryCache[filepath]
@@ -51,7 +51,7 @@ export const prettierFormatter: ResultFormatter<{
    * @deprecated Use `prettierOptions` instead.
    */
   config: MaybePrettierOptions;
-}> = (
+}> = async (
   code,
   {
     cwd = process.cwd(),
@@ -63,7 +63,7 @@ export const prettierFormatter: ResultFormatter<{
 ) => {
   const finalPrettierOptions = {
     filepath,
-    ...prettierOptions
+    ...(await prettierOptions)
   };
 
   debug('cwd: %O', cwd);
@@ -71,7 +71,7 @@ export const prettierFormatter: ResultFormatter<{
   debug('prettier options: %O', finalPrettierOptions);
   debug('original code: %O', code);
 
-  const formattedCode = formatWithPrettier(code, finalPrettierOptions);
+  const formattedCode = await formatWithPrettier(code, finalPrettierOptions);
   debug('formatted code: %O', code);
 
   return formattedCode;

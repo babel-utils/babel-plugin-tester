@@ -1198,7 +1198,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
         // ? erroneously captured when we only really care about errors thrown by
         // ? babel
         const result = trimAndFixLineEndings(
-          formatResult(rawBabelOutput || '', {
+          await formatResult(rawBabelOutput || '', {
             cwd: formatResultFilepath ? path.dirname(formatResultFilepath) : undefined,
             filepath: formatResultFilepath,
             filename: formatResultFilepath
