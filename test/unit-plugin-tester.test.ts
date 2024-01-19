@@ -3681,7 +3681,9 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       getDummyPluginOptions({
         formatResult: formatResultSpy,
         fixtures: getFixturePath('option-formatResult'),
-        tests: [{ code: simpleTest, output: formatResult!(simpleTest), formatResult }]
+        tests: [
+          { code: simpleTest, output: await formatResult!(simpleTest), formatResult }
+        ]
       })
     );
 
@@ -3689,7 +3691,9 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       getDummyPresetOptions({
         formatResult: formatResultSpy,
         fixtures: getFixturePath('option-formatResult'),
-        tests: [{ code: simpleTest, output: formatResult!(simpleTest), formatResult }]
+        tests: [
+          { code: simpleTest, output: await formatResult!(simpleTest), formatResult }
+        ]
       })
     );
 
@@ -4281,7 +4285,7 @@ describe('tests targeting the FixtureOptions interface', () => {
     expect.hasAssertions();
 
     const formatResult = jest.fn(
-      () => "if(`\r\n`.length == 2) { throw new Error('crlf not replaced with lf'); }"
+      () => "if(`\r\n`.length === 2) { throw new Error('crlf not replaced with lf'); }"
     );
 
     await runPluginTester(

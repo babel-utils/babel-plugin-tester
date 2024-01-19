@@ -13,7 +13,7 @@ import type { PluginTesterOptions } from './types';
 
 const debug = debugFactory('babel-plugin-tester:index');
 
-if ('expect' in globalThis && typeof expect?.addSnapshotSerializer == 'function') {
+if ('expect' in globalThis && typeof expect?.addSnapshotSerializer === 'function') {
   debug(
     'added unstring snapshot serializer globally; all snapshots after this point will be affected'
   );

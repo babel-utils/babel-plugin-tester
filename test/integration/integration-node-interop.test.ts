@@ -57,11 +57,6 @@ for (const esm of [true, false] as const) {
           esm ? 'ESM' : 'CJS'
         } import using ${nodeVersion}`;
 
-        if (esm && importStyleName == 'dot-default') {
-          debug(`skipped test due to incompatible options: ${title}`);
-          continue;
-        }
-
         debug(`registered test: ${title}`);
 
         // eslint-disable-next-line jest/valid-title
@@ -73,7 +68,7 @@ for (const esm of [true, false] as const) {
 
           const indexPath = `src/index.test.${esm ? 'm' : ''}js`;
           const importSpecifier = `${pkgName}${
-            importSpecifierName == 'main' ? '' : '/pure'
+            importSpecifierName === 'main' ? '' : '/pure'
           }`;
 
           const importStyle = {
@@ -94,6 +89,7 @@ for (const esm of [true, false] as const) {
                 binary: 'npx',
                 args: [
                   'node',
+                  '--no-warnings',
                   '--experimental-vm-modules',
                   path.join('node_modules', 'jest', 'bin', 'jest')
                 ]
@@ -115,7 +111,7 @@ for (const esm of [true, false] as const) {
 
           const sourceInput = assets.invocation[importSpecifierName];
           const sourceCode =
-            typeof sourceInput == 'string'
+            typeof sourceInput === 'string'
               ? sourceInput
               : sourceInput[esm ? 'esm' : 'cjs'];
 
@@ -129,9 +125,7 @@ for (const esm of [true, false] as const) {
             ${sourceCode}
           `
             : `
-            const ${importStyle} = require('${importSpecifier}')${
-                importStyleName == 'dot-default' ? '.default' : ''
-              };
+            const ${importStyle} = require('${importSpecifier}');
             const identifierReversePlugin = require('../plugin-identifier-reverse.js');
 
             ${sourceCode}

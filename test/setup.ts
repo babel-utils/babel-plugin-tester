@@ -125,7 +125,7 @@ async function symlink({
   return fs.symlink(
     actualPath,
     linkPath,
-    process.platform == 'win32' ? (isDir ? 'junction' : 'file') : undefined
+    process.platform === 'win32' ? (isDir ? 'junction' : 'file') : undefined
   );
 }
 
@@ -312,7 +312,7 @@ export function isolatedImport<T = unknown>(args: {
 
       return r.default &&
         (args.useDefault === true ||
-          (args.useDefault !== false && r.__esModule && Object.keys(r).length == 1))
+          (args.useDefault !== false && r.__esModule && Object.keys(r).length === 1))
         ? r.default
         : r;
     })(require(args.path));
@@ -650,7 +650,7 @@ export function npmCopySelfFixture(): MockFixture {
           'install',
           '--no-save',
           ...(context.options.runInstallScripts ? [] : ['--ignore-scripts']),
-          '--production',
+          '--omit=dev',
           '--force'
         ],
         {
@@ -737,6 +737,7 @@ export function webpackTestFixture(): MockFixture {
       await run('npx', ['webpack'], { cwd: context.root, reject: true });
 
       const { code, stdout, stderr } = await run('node', [
+        '--no-warnings',
         `${context.root}/dist/index.js`
       ]);
 
@@ -750,7 +751,7 @@ export function webpackTestFixture(): MockFixture {
 }
 
 async function getTreeOutput(context: FixtureContext) {
-  if (process.platform == 'win32') {
+  if (process.platform === 'win32') {
     return '(this platform does not support the `tree` command)';
   } else {
     const { stdout } = await execa('tree', ['-a', '-L', '2'], {
@@ -784,7 +785,10 @@ export function nodeImportTestFixture(): MockFixture {
       // TODO: also test all current/active/maintenance versions of node too
       // TODO: and enable that functionality
       const bin = context.options.runWith?.binary || 'node';
-      const args = context.options.runWith?.args || ['--experimental-json-modules'];
+      const args = context.options.runWith?.args || [
+        '--no-warnings',
+        '--experimental-json-modules'
+      ];
       const options = context.options.runWith?.opts || {};
 
       context.treeOutput = await getTreeOutput(context);
@@ -937,7 +941,7 @@ export async function withMockedFixture<
     context.using = [...context.using, ...finalOptions.use];
     // ? `describe-root` fixture doesn't have to be the last one, but a fixture
     // ? with that name must be included at least once
-    if (!finalOptions.use.some((f) => f.name == 'describe-root'))
+    if (!finalOptions.use.some((f) => f.name === 'describe-root'))
       context.using.push(describeRootFixture());
   } else context.using = [rootFixture(), describeRootFixture()];
 
@@ -955,7 +959,7 @@ export async function withMockedFixture<
       p: CustomizedMockFixture['name'] | CustomizedMockFixture['description']
       // TODO: replace with toss
     ) =>
-      typeof p == 'function' ? p(context) : typeof p == 'string' ? p : ':impossible:';
+      typeof p === 'function' ? p(context) : typeof p === 'string' ? p : ':impossible:';
     const name = await toString(fixture.name.toString());
     const desc = await toString(fixture.description);
     const dbg = globalDebug.extend(error ? `${name}:<error>` : name);
@@ -966,7 +970,7 @@ export async function withMockedFixture<
   /*eslint-disable no-await-in-loop */
   try {
     for (const mockFixture of context.using) {
-      if (mockFixture.name == testSymbol) {
+      if (mockFixture.name === testSymbol) {
         context.debug = globalDebug;
         globalDebug('executing test callback');
       } else {
@@ -978,7 +982,7 @@ export async function withMockedFixture<
         ? await mockFixture.setup(context)
         : context.debug('(warning: mock fixture has no setup function)');
 
-      if (mockFixture.name == 'describe-root') ranDescribe = true;
+      if (mockFixture.name === 'describe-root') ranDescribe = true;
     }
   } catch (error) {
     context.debug.extend('<error>')('exception occurred: %O', error);

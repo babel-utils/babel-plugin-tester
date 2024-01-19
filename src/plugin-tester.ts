@@ -115,16 +115,16 @@ function restartTestTitleNumbering() {
 function pluginTester(options: PluginTesterOptions = {}) {
   debug1('executing main babel-plugin-tester function');
 
-  const globalContextHasExpectFn = 'expect' in globalThis && typeof expect == 'function';
-  const globalContextHasTestFn = 'it' in globalThis && typeof it == 'function';
+  const globalContextHasExpectFn = 'expect' in globalThis && typeof expect === 'function';
+  const globalContextHasTestFn = 'it' in globalThis && typeof it === 'function';
 
   const globalContextHasDescribeFn =
-    'describe' in globalThis && typeof describe == 'function';
+    'describe' in globalThis && typeof describe === 'function';
 
   const globalContextExpectFnHasToMatchSnapshot = (() => {
     try {
       return globalContextHasExpectFn
-        ? typeof expect(undefined)?.toMatchSnapshot == 'function'
+        ? typeof expect(undefined)?.toMatchSnapshot === 'function'
         : false;
     } catch {
       /* istanbul ignore next */
@@ -133,11 +133,11 @@ function pluginTester(options: PluginTesterOptions = {}) {
   })();
 
   const globalContextTestFnHasSkip = globalContextHasTestFn
-    ? typeof it.skip == 'function'
+    ? typeof it.skip === 'function'
     : false;
 
   const globalContextTestFnHasOnly = globalContextHasTestFn
-    ? typeof it.only == 'function'
+    ? typeof it.only === 'function'
     : false;
 
   if (!globalContextHasDescribeFn) {
@@ -253,7 +253,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             throw new TypeError(ErrorMessage.BadConfigInvalidTestsArrayItemType(ndx));
           }
 
-          const result = typeof test == 'string' || Boolean(test);
+          const result = typeof test === 'string' || Boolean(test);
 
           if (!result) {
             debug2(`test item \`%O\` at index ${ndx} was skipped`, test);
@@ -275,7 +275,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
               );
             }
 
-            const result = typeof test == 'string' || Boolean(test);
+            const result = typeof test === 'string' || Boolean(test);
 
             if (!result) {
               debug2(`test property "${title}" with value \`%O\` was skipped`, test);
@@ -369,7 +369,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
                     functionName,
                     // ? Just in case the script name/path has colons
                     filePath: filePath
-                      .split(`file://${process.platform == 'win32' ? '/' : ''}`)
+                      .split(`file://${process.platform === 'win32' ? '/' : ''}`)
                       .at(-1)!
                       .split(':')
                       .slice(0, -2)
@@ -406,19 +406,19 @@ function pluginTester(options: PluginTesterOptions = {}) {
         return [
           reversedCallStack.findIndex(({ functionName, filePath }) => {
             return (
-              functionName == 'defaultPluginTester' &&
+              functionName === 'defaultPluginTester' &&
               parseScriptFilepathRegExp.test(filePath)
             );
           }),
           reversedCallStack.findIndex(({ functionName, filePath }) => {
             return (
-              functionName == 'pluginTester' &&
+              functionName === 'pluginTester' &&
               /* istanbul ignore next */ parseScriptFilepathRegExp.test(filePath)
             );
           }),
           reversedCallStack.findIndex(({ functionName, filePath }) => {
             return (
-              functionName == 'resolveBaseConfig' &&
+              functionName === 'resolveBaseConfig' &&
               parseScriptFilepathRegExp.test(filePath)
             );
           })
@@ -469,7 +469,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
                 throw new TypeError(
                   ErrorMessage.BadEnvironmentVariableRange(name, s, range)
                 );
-              } else if (start == end) {
+              } else if (start === end) {
                 return start;
               }
 
@@ -494,10 +494,11 @@ function pluginTester(options: PluginTesterOptions = {}) {
     const testConfigs: PluginTesterTestConfig[] = [];
 
     const useFixtureTitleNumbering =
-      baseConfig.titleNumbering == 'all' || baseConfig.titleNumbering == 'fixtures-only';
+      baseConfig.titleNumbering === 'all' ||
+      baseConfig.titleNumbering === 'fixtures-only';
 
     const useTestObjectTitleNumbering =
-      baseConfig.titleNumbering == 'all' || baseConfig.titleNumbering == 'tests-only';
+      baseConfig.titleNumbering === 'all' || baseConfig.titleNumbering === 'tests-only';
 
     if (fixturesAbsolutePath) {
       debug2(
@@ -509,7 +510,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
         debug2('generating test objects from fixtures path');
 
         const describeBlock =
-          typeof describeBlockTitle == 'string'
+          typeof describeBlockTitle === 'string'
             ? createAndPushDescribeConfig(`${describeBlockTitle} fixtures`)
             : undefined;
 
@@ -524,7 +525,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
       } else {
         debug2('not generating test objects from fixtures path: path is not a directory');
       }
-    } else if (typeof fixtures == 'string') {
+    } else if (typeof fixtures === 'string') {
       throw new TypeError(
         ErrorMessage.UnableToDeriveAbsolutePath(
           filepath,
@@ -541,7 +542,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
       debug2('generating test objects from tests');
 
       const describeBlock =
-        typeof describeBlockTitle == 'string'
+        typeof describeBlockTitle === 'string'
           ? createAndPushDescribeConfig(describeBlockTitle)
           : undefined;
 
@@ -561,7 +562,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
           ...entries.map(([title, test]) => {
             return createTestConfig({
               title,
-              ...(typeof test == 'string' ? { code: test } : test)
+              ...(typeof test === 'string' ? { code: test } : test)
             });
           })
         );
@@ -988,7 +989,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
     debug2(`registering ${tests.length} blocks with testing framework`);
 
     tests.forEach((testConfig) => {
-      if (testConfig[$type] == 'describe-block') {
+      if (testConfig[$type] === 'describe-block') {
         debug2(
           `registering describe block "${testConfig.describeBlockTitle}" and its sub-blocks`
         );
@@ -1228,7 +1229,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             // @ts-expect-error: not sure from the docs if this is a type error
             microtaskMode: 'afterEvaluate'
           });
-        } else if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
+        } else if (testConfig[$type] === 'test-object' && testConfig.snapshot) {
           debug2('expecting output from babel transform function to match snapshot');
 
           assert(
@@ -1250,7 +1251,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             output,
             ErrorMessage.ExpectedOutputToEqualActual(testConfig)
           );
-        } else if (testConfig[$type] == 'fixture-object' && outputFixture) {
+        } else if (testConfig[$type] === 'fixture-object' && outputFixture) {
           debug2('writing output from babel transform function to new output file');
           fs.writeFileSync(outputFixture, result);
         } else {
@@ -1313,7 +1314,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
       }
     }
 
-    if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
+    if (testConfig[$type] === 'test-object' && testConfig.snapshot) {
       if (!globalContextExpectFnHasToMatchSnapshot) {
         throwTypeErrorWithDebugOutput(ErrorMessage.TestEnvironmentNoSnapshotSupport());
       }
@@ -1422,10 +1423,10 @@ function getAbsolutePathUsingFilepathDirname(filepath?: string, basename?: strin
   const result = !basename
     ? undefined
     : path.isAbsolute(basename)
-    ? basename
-    : filepath
-    ? path.join(path.dirname(filepath), basename)
-    : undefined;
+      ? basename
+      : filepath
+        ? path.join(path.dirname(filepath), basename)
+        : undefined;
 
   verbose2(`dirname(${filepath}) + ${basename} => ${result}`);
   return result;
@@ -1479,7 +1480,7 @@ function readCode(filepath: string | undefined, basename?: string): string | und
   const { verbose: verbose2 } = getDebuggers('read-code', debug1);
 
   const codePath =
-    arguments.length == 1
+    arguments.length === 1
       ? filepath
       : getAbsolutePathUsingFilepathDirname(filepath, basename);
 
@@ -1635,10 +1636,10 @@ function numericPrefixInRanges(
   numericPrefix: number | undefined,
   ranges: (number | Range)[]
 ) {
-  if (typeof numericPrefix == 'number') {
+  if (typeof numericPrefix === 'number') {
     return ranges.some((range) => {
-      return typeof range == 'number'
-        ? numericPrefix == range
+      return typeof range === 'number'
+        ? numericPrefix === range
         : numericPrefix >= range.start && numericPrefix <= range.end;
     });
   }

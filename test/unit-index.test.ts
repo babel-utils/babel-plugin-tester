@@ -1,47 +1,51 @@
-/* eslint jest/require-hook: ["error", { "allowedFunctionCalls": ["pluginTesterAsDefault","pluginTester"] }] */
+/* eslint jest/require-hook: ["error", { "allowedFunctionCalls": ["pluginTester"] }] */
 
-import pluginTesterAsDefault, {
-  prettierFormatter,
-  unstringSnapshotSerializer,
+import {
   pluginTester,
+  prettierFormatter,
   runPluginUnderTestHere,
-  runPresetUnderTestHere
+  runPresetUnderTestHere,
+  unstringSnapshotSerializer
 } from '../src/index';
 
-test('prettierFormatter is exported', () => {
+const uglyTest = `var output = paragraph + "one"+\n\n'paragraph' + \`\\two\``;
+const expectedPrettierFormatterResult =
+  "var output = paragraph + 'one' + 'paragraph' + `\\two`;\n";
+
+test('prettierFormatter(uglyTest) === expectedPrettierFormatterResult', async () => {
+  expect.hasAssertions();
+  await expect(prettierFormatter(uglyTest)).resolves.toBe(
+    expectedPrettierFormatterResult
+  );
+});
+
+test('prettierFormatter is exported', async () => {
   expect.hasAssertions();
   expect(typeof prettierFormatter).toBe('function');
 });
 
-test('unstringSnapshotSerializer is exported', () => {
+test('unstringSnapshotSerializer is exported', async () => {
   expect.hasAssertions();
   expect(unstringSnapshotSerializer).toHaveProperty('test');
   expect(unstringSnapshotSerializer).toHaveProperty('print');
 });
 
-test('the default export and the named export point to the same function', () => {
-  expect.hasAssertions();
-  expect(pluginTester).toBe(pluginTesterAsDefault);
-});
-
-test('runPluginUnderTestHere is exported', () => {
+test('runPluginUnderTestHere is exported', async () => {
   expect.hasAssertions();
   expect(typeof runPluginUnderTestHere).toBe('symbol');
 });
 
-test('runPresetUnderTestHere is exported', () => {
+test('runPresetUnderTestHere is exported', async () => {
   expect.hasAssertions();
   expect(typeof runPresetUnderTestHere).toBe('symbol');
 });
 
-const uglyTest = `var output = paragraph + "one"+\n\n'paragraph' + \`\\two\``;
-
-pluginTesterAsDefault({
+pluginTester({
   pluginName: 'captains-log',
   plugin: () => ({ name: 'captains-log', visitor: {} }),
   tests: [
     // ? Test that prettierFormatter is the default `formatResult` function
-    { code: uglyTest, output: prettierFormatter(uglyTest) },
+    { code: uglyTest, output: expectedPrettierFormatterResult },
     // ? Test that unstringSnapshotSerializer is the active snapshot serializer
     // ! Requires manual inspection of snapshot
     { code: uglyTest, snapshot: true }

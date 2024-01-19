@@ -55,7 +55,7 @@ pluginTester({
 
   // Alternatively, you can provide tests as an array
   tests: [
-    // Should be unchanged by the plugin (because snapshot == false across all
+    // Should be unchanged by the plugin (because snapshot === false across all
     // tests). Test title will be: "1. identifier reverse"
     '"hello";',
     {

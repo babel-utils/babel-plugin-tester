@@ -6,18 +6,18 @@
 // * (3) with the feature set we claim and interoperability code given in the
 // * documentation.
 
-import { existsSync } from 'node:fs';
 import debugFactory from 'debug';
 import mergeWith from 'lodash.mergewith';
+import { existsSync } from 'node:fs';
 
-import { name as pkgName, exports as pkgExports } from '../../package.json';
+import { exports as pkgExports, name as pkgName } from '../../package.json';
 import { withMockedFixture } from '../setup';
 import { assets } from './assets';
 
 import {
-  defaultFixtureOptions,
   BABEL_VERSIONS_UNDER_TEST,
   FRAMEWORKS_UNDER_TEST,
+  defaultFixtureOptions,
   type IMPORT_SPECIFIERS_UNDER_TEST
 } from './test-config';
 
@@ -69,7 +69,7 @@ for (const [babelPkg, ...otherBabelPkgs] of BABEL_VERSIONS_UNDER_TEST) {
         debug(`started running test: ${title}`);
 
         const indexPath = 'src/index.test.js';
-        const importSpecifier = `${pkgName}${TEST_TARGET == 'main' ? '' : '/pure'}`;
+        const importSpecifier = `${pkgName}${TEST_TARGET === 'main' ? '' : '/pure'}`;
 
         const fixtureOptions = mergeWith(
           {},
@@ -80,7 +80,10 @@ for (const [babelPkg, ...otherBabelPkgs] of BABEL_VERSIONS_UNDER_TEST) {
             ),
             runWith: {
               binary: 'npx',
-              args: [...frameworkArgs]
+              args: [...frameworkArgs],
+              options: {
+                env: { NODE_OPTIONS: '--no-warnings --experimental-vm-modules' }
+              }
             }
           },
           {
@@ -97,7 +100,7 @@ for (const [babelPkg, ...otherBabelPkgs] of BABEL_VERSIONS_UNDER_TEST) {
 
         const sourceInput = source[TEST_TARGET];
         const sourceCode =
-          typeof sourceInput == 'string' ? sourceInput : sourceInput['cjs'];
+          typeof sourceInput === 'string' ? sourceInput : sourceInput['cjs'];
 
         fixtureOptions.initialFileContents[indexPath] = `
           const { pluginTester } = require('${importSpecifier}');

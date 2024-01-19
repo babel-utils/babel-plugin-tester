@@ -80,7 +80,7 @@ export const ErrorMessage = {
       | Pick<PluginTesterTestFixtureConfig, typeof $type | 'fixtureOutputBasename'>
   ) => {
     return `actual output does not match ${
-      testConfig[$type] == 'fixture-object'
+      testConfig[$type] === 'fixture-object'
         ? testConfig.fixtureOutputBasename
         : 'expected output'
     }`;
@@ -103,14 +103,14 @@ export const ErrorMessage = {
   InvalidHasThrowsAndOutput: (
     testConfig: Pick<MaybePluginTesterTestConfig, typeof $type>
   ) => {
-    return testConfig[$type] == 'test-object'
+    return testConfig[$type] === 'test-object'
       ? 'neither `output` nor `outputFixture` can be provided with `throws` or `error`'
       : 'a fixture cannot be provided with `throws` or `error` and also contain an output file';
   },
   InvalidHasThrowsAndExec: (
     testConfig: Pick<MaybePluginTesterTestConfig, typeof $type>
   ) => {
-    return testConfig[$type] == 'test-object'
+    return testConfig[$type] === 'test-object'
       ? 'neither `exec` nor `execFixture` can be provided with `throws` or `error`'
       : 'a fixture cannot be provided with `throws` or `error` and also contain an exec file';
   },
@@ -118,14 +118,14 @@ export const ErrorMessage = {
     testConfig: Pick<MaybePluginTesterTestConfig, typeof $type>
   ) => {
     /* istanbul ignore next */
-    return testConfig[$type] == 'test-object'
+    return testConfig[$type] === 'test-object'
       ? 'a string or object with a `code`, `codeFixture`, `fixture`, `exec`, or `execFixture` must be provided'
       : 'a fixture must contain either a code file or an exec file';
   },
   InvalidHasExecAndCodeOrOutput: (
     testConfig: Pick<MaybePluginTesterTestConfig, typeof $type>
   ) => {
-    return testConfig[$type] == 'test-object'
+    return testConfig[$type] === 'test-object'
       ? 'neither `code`, `codeFixture`, `fixture`, `output`, nor `outputFixture` can be provided with `exec` or `execFixture`'
       : 'a fixture cannot contain both an exec file and a code or output file';
   },

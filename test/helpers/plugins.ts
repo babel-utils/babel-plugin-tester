@@ -56,6 +56,6 @@ export function makePresetFromPlugin(
   pluginOrFn: PluginItem | (() => PluginObj<unknown>)
 ): NonNullable<PluginTesterOptions['preset']> {
   return () => ({
-    plugins: [typeof pluginOrFn == 'function' ? pluginOrFn() : pluginOrFn]
+    plugins: [typeof pluginOrFn === 'function' ? pluginOrFn() : pluginOrFn]
   });
 }

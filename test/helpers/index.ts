@@ -1,6 +1,6 @@
+import { type AssertionError } from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import { type AssertionError } from 'node:assert';
 import { types } from 'node:util';
 
 import { pluginTester } from '../../src/plugin-tester';
@@ -105,7 +105,7 @@ export function addRunnableJestTest(
     }
 
     function isAssertionError(error: Error): error is AssertionError {
-      return error.name == 'AssertionError';
+      return error.name === 'AssertionError';
     }
   });
 }
@@ -192,7 +192,7 @@ export async function runPluginTester(options?: PluginTesterOptions) {
       await pendingTests[pendingTests.push(test()) - 1];
     }
 
-    return pendingTests;
+    //return pendingTests;
   } finally {
     runnableJestTests = [];
   }

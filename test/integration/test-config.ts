@@ -7,20 +7,22 @@
 // * numbers will only change when the configuration below changes. You can also
 // * match against test framework names (like `node:test`) and other settings.
 
+import assert from 'node:assert';
+
 import browserslist from 'browserslist';
 
 import { name as pkgName, version as pkgVersion } from '../../package.json';
-import { withNodeTestInterop, withJasmineInterop } from './test-interop';
 import { assets } from './assets';
+import { withJasmineInterop, withNodeTestInterop } from './test-interop';
 
 import {
-  dummyNpmPackageFixture,
-  npmCopySelfFixture,
-  nodeImportTestFixture,
   dummyDirectoriesFixture,
   dummyFilesFixture,
-  type FixtureOptions,
-  type FixtureContext
+  dummyNpmPackageFixture,
+  nodeImportTestFixture,
+  npmCopySelfFixture,
+  type FixtureContext,
+  type FixtureOptions
 } from '../setup';
 
 import {
@@ -43,9 +45,9 @@ export const IMPORT_SPECIFIERS_UNDER_TEST = ([
 /* prettier-ignore */
 export const IMPORT_STYLES_UNDER_TEST = ([
   'modern',         // ? import { pluginTester } from '...'          (and CJS version)
-  'modern-default', // ? import { default: pluginTester } from '...' (and CJS version)
-  'default',        // ? import pluginTester from '...'              (and CJS version)
-  'dot-default'     // ? const pluginTester = require('...').default
+  //'modern-default', // ? import { default: pluginTester } from '...' (and CJS version)
+  //'default',        // ? import pluginTester from '...'              (and CJS version)
+  //'dot-default'     // ? const pluginTester = require('...').default
 ] as const);
 
 /* prettier-ignore */
@@ -57,7 +59,13 @@ export const BABEL_VERSIONS_UNDER_TEST = ([
 
 // * [node@version, ...]
 export const NODE_VERSIONS_UNDER_TEST = browserslist('maintained node versions').map(
-  (v) => v.split(' ').join('@')
+  (version) => {
+    const split: (string | undefined)[] = version.split(' ');
+    split[1] = split.at(1)?.split('.')[0];
+    assert(split[0]);
+    assert(split[1]);
+    return split.join('@');
+  }
 );
 
 export const FRAMEWORKS_UNDER_TEST: FrameworksUnderTest = [

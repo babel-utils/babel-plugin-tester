@@ -54,7 +54,7 @@ pluginTester({
   // You can provide tests as an object
   tests: {
     // The key is the title. The value is the code that is unchanged (because
-    // snapshot == false across all tests). Test title will be: "1. does not
+    // snapshot === false across all tests). Test title will be: "1. does not
     // change code with no identifiers"
     'does not change code with no identifiers': '"hello";',
 

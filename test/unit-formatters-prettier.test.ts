@@ -20,36 +20,36 @@ beforeEach(() => {
   prettierSpy = jest.spyOn(prettier, 'format');
 });
 
-it('uses default prettier options when no user-supplied config is available', () => {
+it('uses default prettier options when no user-supplied config is available', async () => {
   expect.hasAssertions();
 
-  const result = prettierFormatter(`  var a = 'hi'  `, { cwd: os.tmpdir() });
+  const result = await prettierFormatter(`  var a = 'hi'  `, { cwd: os.tmpdir() });
   expect(result).toBe('var a = "hi";\n');
 });
 
-it('uses user-supplied prettier config at project root if available (found starting at cwd)', () => {
+it('uses user-supplied prettier config at project root if available (found starting at cwd)', async () => {
   expect.hasAssertions();
 
-  const result = prettierFormatter(`var a = "hi";`);
+  const result = await prettierFormatter(`var a = "hi";`);
   expect(result).toBe(`var a = 'hi';\n`);
 });
 
-it('treats deprecated `filename` option as if it were `filepath`', () => {
+it('treats deprecated `filename` option as if it were `filepath`', async () => {
   expect.hasAssertions();
 
   const expectedFilename = path.join(__dirname, 'fake.js');
-  prettierFormatter(`  var a = 'hi'  `, { filename: expectedFilename });
+  await prettierFormatter(`  var a = 'hi'  `, { filename: expectedFilename });
 
   expect(prettierSpy.mock.calls).toMatchObject([
     [expect.any(String), expect.objectContaining({ filepath: expectedFilename })]
   ]);
 });
 
-it('treats deprecated `config` option as if it were `prettierOptions`', () => {
+it('treats deprecated `config` option as if it were `prettierOptions`', async () => {
   expect.hasAssertions();
 
   const expectedConfig = { endOfLine: 'crlf' } as const;
-  prettierFormatter(`  var a = 'hi'  `, { config: expectedConfig });
+  await prettierFormatter(`  var a = 'hi'  `, { config: expectedConfig });
 
   expect(prettierSpy.mock.calls).toMatchObject([
     [expect.any(String), expect.objectContaining(expectedConfig)]
