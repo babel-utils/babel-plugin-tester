@@ -61,7 +61,7 @@
     "list-tasks": "node -e 'console.log(Object.keys(require(\"./package.json\").scripts).join(\"\\n\"))' && (npm run -ws list-tasks --if-present 2>/dev/null || true)",
     "prepare": "node -e \"execa = require('execa'); if(process.env.CI === undefined && (process.env.NODE_ENV === undefined || process.env.NODE_ENV == 'development')) { execa.sync('npx', ['husky', 'install'], { stdout: 'inherit', stderr: 'inherit' }); } else { console.log('skipped installing husky git hooks'); }\"",
     "test": "npm run test:unit --",
-    "test:all": "NODE_ENV=test jest --coverage",
+    "test:all": "npx attw --pack . && echo && NODE_OPTIONS='--no-warnings --experimental-vm-modules' NODE_ENV=test jest --coverage",
     "test:integration": "NODE_ENV=test jest 'integration-.*\\.test\\.ts.*'",
     "test:unit": "NODE_ENV=test jest --testPathIgnorePatterns 'integration-.*\\.test\\.ts.*' dist",
     "test:update": "npm test:all -- --updateSnapshot"
@@ -74,6 +74,7 @@
     "strip-indent": "^3.0.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.13.5",
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
     "@babel/eslint-parser": "^7.22.15",
