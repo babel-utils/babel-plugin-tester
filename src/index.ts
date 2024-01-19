@@ -34,23 +34,11 @@ function defaultPluginTester(options?: PluginTesterOptions) {
 }
 
 export {
-  defaultPluginTester as default,
   defaultPluginTester as pluginTester,
   prettierFormatter,
-  unstringSnapshotSerializer,
   runPluginUnderTestHere,
-  runPresetUnderTestHere
+  runPresetUnderTestHere,
+  unstringSnapshotSerializer
 };
 
 export * from './types';
-
-// ? What follows is some not-so-pretty interop for backwards compatible require
-// ? calls using the old CJS default import syntax. In the next major version of
-// ? babel-plugin-tester, all default exports will be removed entirely.
-defaultPluginTester.default = defaultPluginTester;
-defaultPluginTester.pluginTester = defaultPluginTester;
-defaultPluginTester.prettierFormatter = prettierFormatter;
-defaultPluginTester.unstringSnapshotSerializer = unstringSnapshotSerializer;
-defaultPluginTester.runPluginUnderTestHere = runPluginUnderTestHere;
-defaultPluginTester.runPresetUnderTestHere = runPresetUnderTestHere;
-module.exports = defaultPluginTester;

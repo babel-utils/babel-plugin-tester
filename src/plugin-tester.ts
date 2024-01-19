@@ -1,17 +1,17 @@
 /* eslint-disable unicorn/consistent-destructuring */
-import debugFactory from 'debug';
-import mergeWith from 'lodash.mergewith';
+
 import assert from 'node:assert';
 import fs from 'node:fs';
 import { EOL } from 'node:os';
 import path from 'node:path';
 import { types } from 'node:util';
 import { createContext, Script } from 'node:vm';
+
+import debugFactory from 'debug';
+import mergeWith from 'lodash.mergewith';
 import stripIndent from 'strip-indent';
 
 import { ErrorMessage } from './errors';
-import { prettierFormatter } from './formatters/prettier';
-import { unstringSnapshotSerializer } from './serializers/unstring-snapshot';
 import { $type } from './symbols';
 
 import type {
@@ -1646,30 +1646,16 @@ function numericPrefixInRanges(
   return false;
 }
 
+export { prettierFormatter } from './formatters/prettier';
+export { unstringSnapshotSerializer } from './serializers/unstring-snapshot';
+
 export {
-  pluginTester as default,
   pluginTester,
-  prettierFormatter,
   restartTestTitleNumbering,
   runPluginUnderTestHere,
   runPresetUnderTestHere,
-  unstringSnapshotSerializer,
   validEndOfLineValues,
   validTitleNumberingValues
 };
 
 export * from './types';
-
-// ? What follows is some not-so-pretty interop for backwards compatible require
-// ? calls using the old CJS default import syntax. In the next major version of
-// ? babel-plugin-tester, all default exports will be removed entirely.
-pluginTester.default = pluginTester;
-pluginTester.pluginTester = pluginTester;
-pluginTester.restartTestTitleNumbering = restartTestTitleNumbering;
-pluginTester.prettierFormatter = prettierFormatter;
-pluginTester.unstringSnapshotSerializer = unstringSnapshotSerializer;
-pluginTester.runPluginUnderTestHere = runPluginUnderTestHere;
-pluginTester.runPresetUnderTestHere = runPresetUnderTestHere;
-pluginTester.validTitleNumberingValues = validTitleNumberingValues;
-pluginTester.validEndOfLineValues = validEndOfLineValues;
-module.exports = pluginTester;
