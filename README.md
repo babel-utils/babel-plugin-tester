@@ -1952,9 +1952,9 @@ MIT
   https://github.com/babel-utils/babel-plugin-tester/blob/master/.github/CODE_OF_CONDUCT.md
 [coc-badge]:
   https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
-[coverage]: https://codecov.io/github/babel-utils/babel-plugin-tester
+[coverage]: https://codecov.io/github/Xunnamius/babel-plugin-tester
 [coverage-badge]:
-  https://img.shields.io/codecov/c/github/babel-utils/babel-plugin-tester.svg?style=flat-square
+  https://img.shields.io/codecov/c/github/Xunnamius/babel-plugin-tester.svg?style=flat-square
 [downloads-badge]:
   https://img.shields.io/npm/dm/babel-plugin-tester.svg?style=flat-square
 [emojis]: https://github.com/all-contributors/all-contributors#emoji-key
