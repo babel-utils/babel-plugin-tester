@@ -1,5 +1,4 @@
-#!/bin/sh
-. "$(dirname $0)/_/husky.sh"
+#!/usr/bin/env sh
 
 npx commitlint -e
 if [ -z $GAC_VERIFY_SIMPLE ]; then npm run test; fi
