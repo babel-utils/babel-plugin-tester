@@ -62,7 +62,7 @@
     "list-tasks": "node -e 'console.log(Object.keys(require(\"./package.json\").scripts).join(\"\\n\"))' && (npm run -ws list-tasks --if-present 2>/dev/null || true)",
     "prepare": "node -e \"execa = require('execa'); if(process.env.CI === undefined && (process.env.NODE_ENV === undefined || process.env.NODE_ENV === 'development')) { execa.sync('npx', ['husky'], { stdout: 'inherit', stderr: 'inherit' }); } else { console.log('skipped installing husky git hooks'); }\"",
     "test": "npm run test:unit --",
-    "test:all": "JEST_NO_IGNORE_INTEGRATIONS=true npm run test:base -- --coverage",
+    "test:all": "npx attw --pack . && echo && JEST_NO_IGNORE_INTEGRATIONS=true npm run test:base -- --coverage",
     "test:base": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' NODE_ENV=test jest",
     "test:integration": "JEST_NO_IGNORE_INTEGRATIONS=true JEST_IGNORE_UNITS=true npm run test:base -- 'integration-.*\\.test\\.ts.*'",
     "test:transpiled": "JEST_TRANSPILED=true npm run test:base --",
