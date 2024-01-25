@@ -97,7 +97,7 @@
     "@types/jest": "^29.5.11",
     "@types/lodash.mergewith": "^4.6.9",
     "@types/node": "^20.11.6",
-    "@types/prettier": "^2.7.3",
+    "@types/prettier": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
     "@xunnamius/conventional-changelog-projector": "^1.2.1",
