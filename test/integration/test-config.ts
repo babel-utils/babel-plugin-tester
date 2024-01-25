@@ -44,7 +44,7 @@ export const IMPORT_SPECIFIERS_UNDER_TEST = ([
 
 /* prettier-ignore */
 export const IMPORT_STYLES_UNDER_TEST = ([
-  'modern',         // ? import { pluginTester } from '...'          (and CJS version)
+  'modern',           // ? import { pluginTester } from '...'          (and CJS version)
   //'modern-default', // ? import { default: pluginTester } from '...' (and CJS version)
   //'default',        // ? import pluginTester from '...'              (and CJS version)
   //'dot-default'     // ? const pluginTester = require('...').default
@@ -54,7 +54,8 @@ export const IMPORT_STYLES_UNDER_TEST = ([
 export const BABEL_VERSIONS_UNDER_TEST = ([
   // * [babel@version, ...otherPackages]
   ['@babel/core@7.11.6'], // ? Current minimum version
-  ['@babel/core@latest']  // ? Latest version
+  ['@babel/core@latest'], // ? Latest version
+  ['@babel/core@next'],   // ? Next version
 ]);
 
 // * [node@version, ...]
@@ -70,7 +71,7 @@ export const NODE_VERSIONS_UNDER_TEST = browserslist('maintained node versions')
 
 export const FRAMEWORKS_UNDER_TEST: FrameworksUnderTest = [
   {
-    frameworkPkg: 'jest@latest',
+    frameworkPkg: 'jest@>=30 || >=30.0.0-alpha.2',
     frameworkArgs: ['jest'],
     tests: [
       { source: assets.invocation, expectations: expectSuccessAndOutput },

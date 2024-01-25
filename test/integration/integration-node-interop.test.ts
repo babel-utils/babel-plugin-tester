@@ -2,9 +2,8 @@
 /* eslint-disable jest/no-conditional-in-test, jest/no-conditional-expect */
 
 // * These are tests that ensure babel-plugin-tester works (1) in ESM vs CJS
-// * environments, (2) using modern vs modern-default vs default vs dot-default
-// * import syntax, (3) using main vs pure import specifiers, (4) across all
-// * maintained versions of NodeJS.
+// * environments, (2) using modern import syntax, (3) using main vs pure import
+// * specifiers, (4) across all maintained versions of NodeJS.
 
 import debugFactory from 'debug';
 import mergeWith from 'lodash.mergewith';

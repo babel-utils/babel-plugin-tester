@@ -62,12 +62,14 @@
     "list-tasks": "node -e 'console.log(Object.keys(require(\"./package.json\").scripts).join(\"\\n\"))' && (npm run -ws list-tasks --if-present 2>/dev/null || true)",
     "prepare": "node -e \"execa = require('execa'); if(process.env.CI === undefined && (process.env.NODE_ENV === undefined || process.env.NODE_ENV === 'development')) { execa.sync('npx', ['husky', 'install'], { stdout: 'inherit', stderr: 'inherit' }); } else { console.log('skipped installing husky git hooks'); }\"",
     "test": "npm run test:unit --",
-    "test:all": "npx attw --pack . && echo && npm run test:base -- --coverage",
+    "test:all": "JEST_NO_IGNORE_INTEGRATIONS=true npm run test:base -- --coverage",
     "test:base": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' NODE_ENV=test jest",
-    "test:integration": "npm run test:base -- 'integration.*?\\.test\\.tsx?'",
+    "test:integration": "JEST_NO_IGNORE_INTEGRATIONS=true JEST_IGNORE_UNITS=true npm run test:base -- 'integration-.*\\.test\\.ts.*'",
     "test:transpiled": "JEST_TRANSPILED=true npm run test:base --",
     "test:unit": "npm run test:base -- 'unit-.*\\.test\\.tsx?'",
-    "test:update": "npm run test:all -- --updateSnapshot"
+    "test:update": "npm run test:all -- --updateSnapshot",
+    "test:repeat:all": "echo 'Repeating test suite [initializing]...'; (i=0; while [ \"$((( i += 1 ) <= 100 ))\" -ne 0 ]; do sleep 0.1 && echo \"\\r\\033[1A\\033[0KRepeating test suite [run $i/100]...\" && JEST_SILENT_REPORTER_SHOW_WARNINGS=true npx run test:all --reporters=jest-silent-reporter || exit; done) && echo \"All tests passed! Congrats!\"",
+    "test:repeat:unit": "echo 'Repeating test suite [initializing]...'; (i=0; while [ \"$((( i += 1 ) <= 100 ))\" -ne 0 ]; do sleep 0.1 && echo \"\\r\\033[1A\\033[0KRepeating test suite [run $i/100]...\" && JEST_SILENT_REPORTER_SHOW_WARNINGS=true npx run test:unit --reporters=jest-silent-reporter || exit; done) && echo \"All tests passed! Congrats!\""
   },
   "dependencies": {
     "core-js": "^3.35.1",

@@ -17,7 +17,7 @@ module.exports = {
     // * Used by Jest and `npm test`
     test: {
       comments: true,
-      sourceMaps: 'both',
+      sourceMaps: process.env.JEST_TRANSPILED ? false : 'inline',
       presets: [
         ['@babel/preset-env', { targets: { node: true } }],
         ['@babel/preset-typescript', { allowDeclareFields: true }]

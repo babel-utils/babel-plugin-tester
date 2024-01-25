@@ -20,9 +20,23 @@ module.exports = {
   // ? Minimum of 2 concurrent tests executed at once; maximum of cpu cores - 1
   maxConcurrency: Math.max(require('node:os').cpus().length - 1, 2),
   verbose: false,
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  // ! '/.transpiled/' MUST ALWAYS be the last element in this array
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/.transpiled/'],
   setupFilesAfterEnv: ['./test/setup.ts'],
   collectCoverageFrom: ['src/**/*.ts?(x)'],
   // ? Make sure jest-haste-map doesn't try to parse and cache fixtures
-  modulePathIgnorePatterns: ['<rootDir>/test/fixtures']
+  modulePathIgnorePatterns: ['/test/fixtures/', '/.transpiled/test/fixtures/']
 };
+
+if (process.env.JEST_TRANSPILED) {
+  module.exports.testPathIgnorePatterns.pop();
+  module.exports.roots = ['<rootDir>/.transpiled/'];
+}
+
+if (process.env.JEST_IGNORE_UNITS) {
+  module.exports.testPathIgnorePatterns.push('unit-.*\\.test\\.ts.*');
+}
+
+if (!process.env.JEST_NO_IGNORE_INTEGRATIONS) {
+  module.exports.testPathIgnorePatterns.push('integration-.*\\.test\\.ts.*');
+}
