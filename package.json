@@ -88,7 +88,7 @@
     "@babel/plugin-syntax-jsx": "^7.23.3",
     "@babel/preset-env": "^7.23.8",
     "@babel/preset-typescript": "^7.23.3",
-    "@commitlint/cli": "^18.5.0",
+    "@commitlint/cli": "^19.0.0",
     "@commitlint/config-conventional": "^18.5.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^6.0.3",
