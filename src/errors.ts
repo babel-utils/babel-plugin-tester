@@ -67,7 +67,7 @@ export const ErrorMessage = {
   ExpectedErrorToMatchRegExp: (resultString: string, expectedError: RegExp) =>
     `expected "${resultString}" to match ${expectedError}`,
   BabelOutputTypeIsNotString: (rawBabelOutput: unknown) =>
-    `unexpected babel output type "${typeof rawBabelOutput}" (expected string)`,
+    `unexpected babel output of type "${typeof rawBabelOutput}" (expected 'code' property to be of type "string")`,
   BabelOutputUnexpectedlyEmpty: () =>
     'attempted to execute babel output but it was empty. An empty string cannot be evaluated',
   AttemptedToSnapshotUnmodifiedBabelOutput: () =>
@@ -107,6 +107,8 @@ export const ErrorMessage = {
       ? 'neither `output` nor `outputFixture` can be provided with `throws` or `error`'
       : 'a fixture cannot be provided with `throws` or `error` and also contain an output file';
   },
+  InvalidHasThrowsAndOutputRaw: () =>
+    '`outputRaw` cannot be provided with `throws` or `error`',
   InvalidHasThrowsAndExec: (
     testConfig: Pick<MaybePluginTesterTestConfig, typeof $type>
   ) => {

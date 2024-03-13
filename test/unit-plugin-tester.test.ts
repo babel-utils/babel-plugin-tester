@@ -1,5 +1,5 @@
 /* eslint-disable jest/prefer-lowercase-title */
-import babel from '@babel/core';
+import babel, { type BabelFileResult } from '@babel/core';
 import { declare } from '@babel/helper-plugin-utils';
 // TODO: fix this and issues like it elsewhere
 // @ts-expect-error: need to update this package
@@ -30,7 +30,8 @@ import {
   identifierReversePlugin,
   makePluginThatAppendsToIdentifier,
   makePluginWithOrderTracking,
-  makePresetFromPlugin
+  makePresetFromPlugin,
+  metadataMutationPlugin
 } from './helpers/plugins';
 
 import {
@@ -64,6 +65,19 @@ type SpiedFunction<T extends AnyFunction> = jest.SpyInstance<
   ReturnType<T>,
   Parameters<T>
 >;
+
+const isBabelFileResult = function (obj: unknown) {
+  const isNotBabelFileResult =
+    !obj ||
+    typeof obj !== 'object' ||
+    !('ast' in obj) ||
+    !('code' in obj) ||
+    !('ignored' in obj) ||
+    !('map' in obj) ||
+    !('metadata' in obj);
+
+  return isNotBabelFileResult;
+};
 
 const dummyTestObject = { [$type]: 'test-object' } as const;
 const dummyFixtureObject = {
@@ -3555,7 +3569,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
     });
   });
 
-  it('throws if both `throws` and `output`/`outputFixture`/output.js are provided', async () => {
+  it('throws if both `throws` and `output`/`outputFixture`/`outputRaw`/output.js are provided', async () => {
     expect.hasAssertions();
 
     await runPluginTesterExpectThrownExceptionWhenCapturingError({
@@ -3564,6 +3578,14 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
         fixtures: getFixturePath('option-throws-and-output-file')
       },
       expectedError: ErrorMessage.InvalidHasThrowsAndOutput(dummyFixtureObject)
+    });
+
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        fixtures: getFixturePath('option-throws-and-outputRaw')
+      },
+      expectedError: ErrorMessage.InvalidHasThrowsAndOutputRaw()
     });
 
     await runPluginTesterExpectThrownExceptionWhenCapturingError({
@@ -3586,6 +3608,20 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
         ]
       },
       expectedError: ErrorMessage.InvalidHasThrowsAndOutput(dummyTestObject)
+    });
+
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        tests: [
+          {
+            code: simpleTest,
+            throws: true,
+            outputRaw: () => undefined
+          }
+        ]
+      },
+      expectedError: ErrorMessage.InvalidHasThrowsAndOutputRaw()
     });
   });
 
@@ -4121,6 +4157,38 @@ describe('tests targeting the FixtureOptions interface', () => {
     });
   });
 
+  it('can test "raw" babel output via `outputRaw`', async () => {
+    expect.hasAssertions();
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        plugin: metadataMutationPlugin,
+        fixtures: getFixturePath('simple-outputRaw')
+      })
+    );
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        fixtures: getFixturePath('simple-outputRaw')
+      }),
+      expectedError: regExpContainsString('"seen": true')
+    });
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        preset: makePresetFromPlugin(metadataMutationPlugin),
+        fixtures: getFixturePath('simple-outputRaw')
+      })
+    );
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        fixtures: getFixturePath('simple-outputRaw')
+      }),
+      expectedError: regExpContainsString('"seen": true')
+    });
+  });
+
   it('formats, trims, and fixes line endings of code.js babel output; trims and fixes line endings of output.js contents', async () => {
     expect.hasAssertions();
 
@@ -4243,6 +4311,24 @@ describe('tests targeting the FixtureOptions interface', () => {
     );
 
     expect(itSpy).toHaveBeenCalledTimes(6);
+  });
+
+  it('handles empty `outputRaw` and missing output.js file', async () => {
+    expect.hasAssertions();
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        fixtures: getFixturePath('creates-output-file-outputRaw')
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        fixtures: getFixturePath('creates-output-file-outputRaw')
+      })
+    );
+
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('handles code.js and output.js files with strange extensions', async () => {
@@ -5476,6 +5562,160 @@ describe('tests targeting the TestObject interface', () => {
     });
   });
 
+  it('can test "raw" babel output via `outputRaw` with and without `output`/`outputFixture`', async () => {
+    expect.hasAssertions();
+
+    const codeFixturePath = getFixturePath('codeFixture.js');
+    const outputFixturePath = getFixturePath('outputFixture.js');
+    const codeFixtureContents = getFixtureContents('codeFixture.js');
+    const outputFixtureContents = getFixtureContents('outputFixture.js');
+
+    let expected = 0;
+
+    const outputRaw = (output: BabelFileResult) => {
+      expect(isBabelFileResult(output)).toBeTrue();
+      expected += 1;
+    };
+
+    const outputRawContainsMetadata = (output: BabelFileResult) => {
+      expect(output?.metadata).toStrictEqual({ seen: true });
+    };
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        plugin: identifierReversePlugin,
+        tests: [
+          {
+            code: codeFixtureContents,
+            output: outputFixtureContents,
+            outputRaw
+          },
+          { code: codeFixtureContents, outputFixture: outputFixturePath, outputRaw },
+          { codeFixture: codeFixturePath, output: outputFixtureContents, outputRaw },
+          { codeFixture: codeFixturePath, outputFixture: outputFixturePath, outputRaw }
+        ]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        preset: makePresetFromPlugin(identifierReversePlugin),
+        tests: [
+          { code: codeFixtureContents, output: outputFixtureContents, outputRaw },
+          { code: codeFixtureContents, outputFixture: outputFixturePath, outputRaw },
+          { codeFixture: codeFixturePath, output: outputFixtureContents, outputRaw },
+          { codeFixture: codeFixturePath, outputFixture: outputFixturePath, outputRaw }
+        ]
+      })
+    );
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        tests: [
+          { code: codeFixtureContents, outputFixture: outputFixturePath, outputRaw }
+        ]
+      }),
+      expectedError: regExpContainsString(
+        ErrorMessage.ExpectedOutputToEqualActual(dummyTestObject)
+      )
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        tests: [
+          { codeFixture: codeFixturePath, output: outputFixtureContents, outputRaw }
+        ]
+      }),
+      expectedError: regExpContainsString(
+        ErrorMessage.ExpectedOutputToEqualActual(dummyTestObject)
+      )
+    });
+
+    expect(expected).toBe(10);
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        plugin: metadataMutationPlugin,
+        tests: [
+          {
+            code: codeFixtureContents,
+            output: codeFixtureContents,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            code: codeFixtureContents,
+            outputFixture: codeFixturePath,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            codeFixture: codeFixturePath,
+            output: codeFixtureContents,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            codeFixture: codeFixturePath,
+            outputFixture: codeFixturePath,
+            outputRaw: outputRawContainsMetadata
+          }
+        ]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        preset: makePresetFromPlugin(metadataMutationPlugin),
+        tests: [
+          {
+            code: codeFixtureContents,
+            output: codeFixtureContents,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            code: codeFixtureContents,
+            outputFixture: codeFixturePath,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            codeFixture: codeFixturePath,
+            output: codeFixtureContents,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            codeFixture: codeFixturePath,
+            outputFixture: codeFixturePath,
+            outputRaw: outputRawContainsMetadata
+          }
+        ]
+      })
+    );
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        tests: [
+          {
+            codeFixture: codeFixturePath,
+            outputFixture: codeFixturePath,
+            outputRaw: outputRawContainsMetadata
+          }
+        ]
+      }),
+      expectedError: regExpContainsString('"seen": true')
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        tests: [
+          {
+            code: codeFixtureContents,
+            output: codeFixtureContents,
+            outputRaw: outputRawContainsMetadata
+          }
+        ]
+      }),
+      expectedError: regExpContainsString('"seen": true')
+    });
+  });
+
   it('handles empty `code`/`codeFixture`', async () => {
     expect.hasAssertions();
 
@@ -5557,6 +5797,40 @@ describe('tests targeting the TestObject interface', () => {
     );
 
     expect(itSpy).toHaveBeenCalledTimes(4);
+  });
+
+  it('handles empty `output` and `outputRaw`', async () => {
+    expect.hasAssertions();
+
+    const codeFixturePath = getFixturePath('codeFixture.js');
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        plugin: deleteVariablesPlugin,
+        tests: [
+          {
+            codeFixture: codeFixturePath,
+            output: '',
+            outputRaw: () => undefined
+          }
+        ]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        preset: makePresetFromPlugin(deleteVariablesPlugin),
+        tests: [
+          {
+            codeFixture: codeFixturePath,
+            output: '',
+            outputRaw: () => undefined
+          }
+        ]
+      })
+    );
+
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('throws if `exec`/`execFixture` is empty', async () => {

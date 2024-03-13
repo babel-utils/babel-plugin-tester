@@ -44,6 +44,13 @@ export type SetupFunction = () => Promisable<void | TeardownFunction>;
 export type TeardownFunction = () => Promisable<void>;
 
 /**
+ * The shape of an `outputRaw` test object or fixture option.
+ *
+ * @see https://npm.im/babel-plugin-tester#outputraw
+ */
+export type OutputTesterFunction = (output: Babel.BabelFileResult) => Promisable<void>;
+
+/**
  * Options passed as parameters to the `pluginTester` function.
  *
  * @see https://npm.im/babel-plugin-tester#options
@@ -419,6 +426,18 @@ export interface FixtureOptions {
    */
   formatResult?: ResultFormatter;
   /**
+   * This is a `fixtures` option similar in intent to `output.js` except it
+   * tests against the entire `BabelFileResult` object returned by babel's
+   * `transform` function instead of only the `code` property of
+   * `BabelFileResult`.
+   *
+   * As it requires a function value, this option must be used in `options.js`
+   * instead of `options.json`.
+   *
+   * @see https://npm.im/babel-plugin-tester#outputRaw
+   */
+  outputRaw?: OutputTesterFunction;
+  /**
    * This is a `fixtures` option used to provide your own fixture output file
    * name. Defaults to `"output"`.
    *
@@ -600,6 +619,15 @@ export interface TestObject {
    */
   output?: string;
   /**
+   * This is a `tests` object option similar in intent to the `output` option
+   * except it tests against the entire `BabelFileResult` object returned by
+   * babel's `transform` function instead of only the `code` property of
+   * `BabelFileResult`.
+   *
+   * @see https://npm.im/babel-plugin-tester#outputRaw-1
+   */
+  outputRaw?: OutputTesterFunction;
+  /**
    * This is a `tests` object option that will be transformed just like the
    * `code` property, except the output will be _evaluated_ in the same context
    * as the the test runner itself, meaning it has access to `expect`,
@@ -768,6 +796,7 @@ type PluginTesterSharedTestConfigProperties = {
   only?: TestObject['only'] | FixtureOptions['only'];
   skip?: TestObject['skip'] | FixtureOptions['skip'];
   expectedError?: TestObject['throws'] | FixtureOptions['throws'];
+  outputRaw?: TestObject['outputRaw'] | FixtureOptions['outputRaw'];
   testSetup: NonNullable<PluginTesterOptions['setup']>;
   testTeardown: NonNullable<PluginTesterOptions['teardown']>;
   formatResult: NonNullable<PluginTesterOptions['formatResult']>;

@@ -54,7 +54,7 @@ module.exports = {
             modules: 'cjs',
             targets: NODE_LTS,
             useBuiltIns: 'usage',
-            corejs: '3.35',
+            corejs: '3.36',
             shippedProposals: true,
             exclude: ['proposal-dynamic-import']
           }

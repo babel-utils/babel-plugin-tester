@@ -18,6 +18,20 @@ export const deleteVariablesPlugin: () => PluginObj<State> = require('./plugin-d
 export const addLinePlugin: () => PluginObj<State> = require('./plugin-add-line');
 
 /**
+ * Dummy plugin that mutates global metadata.
+ */
+export const metadataMutationPlugin: () => PluginObj<State> = () => {
+  return {
+    visitor: {
+      Identifier(_, state) {
+        // @ts-expect-error: we don't care
+        state.file.metadata.seen = true;
+      }
+    }
+  };
+};
+
+/**
  * When called, returns a no-op babel plugin that tracks invocation order.
  */
 export function makePluginWithOrderTracking(orderArray: number[], orderInt: number) {

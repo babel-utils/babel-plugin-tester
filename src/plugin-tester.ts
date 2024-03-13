@@ -726,6 +726,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             setup,
             teardown,
             formatResult,
+            outputRaw,
             fixtureOutputName,
             fixtureOutputExt
           } = localOptions;
@@ -799,6 +800,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
               code,
               codeFixture: codePath,
               output,
+              outputRaw,
               outputFixture: outputPath,
               exec,
               execFixture: execPath
@@ -868,13 +870,14 @@ function pluginTester(options: PluginTesterOptions = {}) {
         teardown,
         formatResult,
         snapshot,
-        code: rawCode,
-        output: rawOutput,
-        exec: rawExec,
+        code: originalCode,
+        output: originalOutput,
+        outputRaw,
+        exec: originalExec,
         fixture,
-        codeFixture: rawCodeFixture,
+        codeFixture: originalCodeFixture,
         outputFixture,
-        execFixture: rawExecFixture
+        execFixture: originalExecFixture
       } = mergeWith(
         {
           setup: noop,
@@ -886,19 +889,23 @@ function pluginTester(options: PluginTesterOptions = {}) {
 
       const codeFixture = getAbsolutePathUsingFilepathDirname(
         filepath,
-        rawCodeFixture ?? fixture
+        originalCodeFixture ?? fixture
       );
 
-      const execFixture = getAbsolutePathUsingFilepathDirname(filepath, rawExecFixture);
+      const execFixture = getAbsolutePathUsingFilepathDirname(
+        filepath,
+        originalExecFixture
+      );
 
-      const code = rawCode !== undefined ? stripIndent(rawCode) : readCode(codeFixture);
+      const code =
+        originalCode !== undefined ? stripIndent(originalCode) : readCode(codeFixture);
 
       const output =
-        rawOutput !== undefined
-          ? stripIndent(rawOutput)
+        originalOutput !== undefined
+          ? stripIndent(originalOutput)
           : readCode(filepath, outputFixture);
 
-      const exec = rawExec ?? readCode(execFixture);
+      const exec = originalExec ?? readCode(execFixture);
 
       const testConfig: MaybePluginTesterTestObjectConfig = mergeWith(
         { [$type]: 'test-object' } as const,
@@ -945,6 +952,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             output !== undefined
               ? trimAndFixLineEndings(output, endOfLine, code)
               : undefined,
+          outputRaw,
           outputFixture,
           exec,
           execFixture:
@@ -973,9 +981,9 @@ function pluginTester(options: PluginTesterOptions = {}) {
       verbose3('finalized test object: %O', testConfig);
 
       validateTestConfig(testConfig, {
-        hasCodeAndCodeFixture: !!(rawCode && codeFixture),
-        hasOutputAndOutputFixture: !!(rawOutput && outputFixture),
-        hasExecAndExecFixture: !!(rawExec && execFixture)
+        hasCodeAndCodeFixture: !!(originalCode && codeFixture),
+        hasOutputAndOutputFixture: !!(originalOutput && outputFixture),
+        hasExecAndExecFixture: !!(originalExec && execFixture)
       });
 
       hasTests = true;
@@ -1124,6 +1132,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
       code,
       codeFixture,
       output,
+      outputRaw,
       outputFixture,
       exec,
       execFixture
@@ -1141,7 +1150,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
           `calling babel transform function (${transformer.name}) with parameters: %O`,
           parameters
         );
-        return (await transformer(...parameters))?.code;
+        return await transformer(...parameters);
       } catch (error) {
         verbose2(`babel transformation failed with error: ${error}`);
         if (expectedError) {
@@ -1188,10 +1197,29 @@ function pluginTester(options: PluginTesterOptions = {}) {
             );
           } // ? Else condition is handled by the typeof === 'function' branch
         }
-      } else if (typeof rawBabelOutput !== 'string') {
-        throw new TypeError(ErrorMessage.BabelOutputTypeIsNotString(rawBabelOutput));
       } else {
         debug2('expecting babel transform function to succeed');
+
+        // ? Since expectedError is not truthy, we know that rawBabelOutput must
+        // ? be the return type of the babel transformer function
+        const isRawBabelOutput = !!rawBabelOutput && typeof rawBabelOutput === 'object';
+        const hasRawBabelOutputCode = isRawBabelOutput && 'code' in rawBabelOutput;
+
+        if (isRawBabelOutput && outputRaw) {
+          debug2('executing provided outputRaw function before final comparison');
+          await outputRaw(rawBabelOutput);
+        }
+
+        if (!hasRawBabelOutputCode || typeof rawBabelOutput.code !== 'string') {
+          throw new TypeError(
+            ErrorMessage.BabelOutputTypeIsNotString(
+              hasRawBabelOutputCode ? rawBabelOutput.code : rawBabelOutput
+            )
+          );
+        }
+
+        debug2('performing final comparison');
+
         const formatResultFilepath = codeFixture || execFixture || filepath;
 
         // ? We split rawBabelOutput and result into two steps to ensure
@@ -1199,7 +1227,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
         // ? erroneously captured when we only really care about errors thrown by
         // ? babel
         const result = trimAndFixLineEndings(
-          await formatResult(rawBabelOutput || '', {
+          await formatResult(rawBabelOutput.code || '', {
             cwd: formatResultFilepath ? path.dirname(formatResultFilepath) : undefined,
             filepath: formatResultFilepath,
             filename: formatResultFilepath
@@ -1294,7 +1322,8 @@ function pluginTester(options: PluginTesterOptions = {}) {
       exec,
       output,
       babelOptions,
-      expectedError
+      expectedError,
+      outputRaw
     } = testConfig;
 
     if (knownViolations) {
@@ -1346,6 +1375,10 @@ function pluginTester(options: PluginTesterOptions = {}) {
 
     if (output !== undefined && expectedError !== undefined) {
       throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasThrowsAndOutput(testConfig));
+    }
+
+    if (outputRaw !== undefined && expectedError !== undefined) {
+      throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasThrowsAndOutputRaw());
     }
 
     if (exec !== undefined && expectedError !== undefined) {
