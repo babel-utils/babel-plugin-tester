@@ -72,11 +72,10 @@ const isBabelFileResult = function (obj: unknown) {
     typeof obj !== 'object' ||
     !('ast' in obj) ||
     !('code' in obj) ||
-    !('ignored' in obj) ||
     !('map' in obj) ||
     !('metadata' in obj);
 
-  return isNotBabelFileResult;
+  return !isNotBabelFileResult;
 };
 
 const dummyTestObject = { [$type]: 'test-object' } as const;
