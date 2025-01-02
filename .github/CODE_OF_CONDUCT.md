@@ -5,9 +5,9 @@
 In the interest of fostering an open and welcoming environment, we as
 contributors and maintainers pledge to making participation in our project and
 our community a harassment-free experience for everyone, regardless of age, body
-size, disability, ethnicity, gender identity and expression, level of
-experience, nationality, personal appearance, race, religion, or sexual identity
-and orientation.
+size, disability, ethnicity, sex characteristics, gender identity and
+expression, level of experience, education, socioeconomic status, nationality,
+personal appearance, race, religion, or sexual identity and orientation.
 
 ## Our Standards
 
@@ -22,6 +22,7 @@ include:
 
 Examples of unacceptable behavior by participants include:
 
+- Racism or sexism in any shape or form.
 - The use of sexualized language or imagery and unwelcome sexual attention or
   advances.
 - Trolling, insulting/derogatory comments, and personal or political attacks.
@@ -55,12 +56,12 @@ further defined and clarified by project maintainers.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project team at [kent+coc@doddsfamily.us][1]. All
-complaints will be reviewed and investigated and will result in a response that
-is deemed necessary and appropriate to the circumstances. The project team is
-obligated to maintain confidentiality with regard to the reporter of an
-incident. Further details of specific enforcement policies may be posted
-separately.
+reported by contacting the project team at
+[Xunnamius@users.noreply.github.com][1]. All complaints will be reviewed and
+investigated and will result in a response that is deemed necessary and
+appropriate to the circumstances. The project team is obligated to maintain
+confidentiality with regard to the reporter of an incident. Further details of
+specific enforcement policies may be posted separately.
 
 Project maintainers who do not follow or enforce the Code of Conduct in good
 faith may face temporary or permanent repercussions as determined by other
@@ -69,8 +70,13 @@ members of the project's leadership.
 ## Attribution
 
 This Code of Conduct is adapted from the [Contributor Covenant][homepage],
-version 1.4, available at [http://contributor-covenant.org/version/1/4][version]
+version 1.4, available at
+[https://www.contributor-covenant.org/version/1/4/code-of-conduct.html][2]
 
-[homepage]: http://contributor-covenant.org
-[version]: http://contributor-covenant.org/version/1/4
-[1]: mailto:kent+coc@doddsfamily.us
+For answers to common questions about this code of conduct, see
+[https://www.contributor-covenant.org/faq][3]
+
+[homepage]: https://www.contributor-covenant.org
+[1]: mailto:Xunnamius@users.noreply.github.com
+[2]: https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
+[3]: https://www.contributor-covenant.org/faq

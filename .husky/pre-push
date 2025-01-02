@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# TODO: make this work natively on Windows
+
+beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
+
+if beginswith 'rebase' "$GIT_REFLOG_ACTION"; then
+  echo 'husky-hook::pre-push: pushing commits in the middle of a rebase is not allowed!'
+  exit 1
+fi
+
+echo 'husky-hook::pre-push: checking for commits that should not be pushed...'
+log=$(git log HEAD --oneline --not --remotes)
+
+# ? Make sure no commits to be pushed contain "mergeme" in their headers
+if echo "$log" | grep -q -i -e 'mergeme' -e '\[WIP\]' -e '\[NOPUSH\]'; then
+  echo 'husky-hook::pre-push: BAD COMMIT(S) DETECTED!'
+  echo 'husky-hook::pre-push: merge, delete, reword, or otherwise rectify the following commits before trying again:'
+  echo
+  echo "$log" | grep -i -e 'mergeme' -e '\[WIP\]' -e '\[NOPUSH\]'
+  echo
+  exit 2;
+else
+  echo 'husky-hook::pre-push: ✅'
+  exit 0;
+fi

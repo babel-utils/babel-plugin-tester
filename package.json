@@ -13,34 +13,37 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/babel-utils/babel-plugin-tester"
+    "url": "git+https://github.com/babel-utils/babel-plugin-tester.git"
   },
   "license": "MIT",
-  "author": "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com)",
   "maintainers": [
-    "Bernard <me@bernarddickens.dev> (https://bernarddickens.dev)"
+    "Bernard <me@bernarddickens.dev> (https://bernarddickens.dev)",
+    "Kent C. Dodds <me@kentcdodds.com> (https://kentcdodds.com)"
   ],
   "sideEffects": false,
   "type": "commonjs",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     },
     "./pure": {
-      "types": "./dist/plugin-tester.d.ts",
-      "default": "./dist/plugin-tester.js"
+      "types": "./dist/src/plugin-tester.d.ts",
+      "default": "./dist/src/plugin-tester.js"
     },
     "./package": "./package.json",
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
-      "pure": [
-        "./dist/plugin-tester.d.ts"
+      "index": [
+        "dist/src/index.d.ts"
       ],
-      "*": [
-        "./dist/index.d.ts"
+      "pure": [
+        "dist/src/plugin-tester.d.ts"
+      ],
+      "package": [
+        "package.json"
       ]
     }
   },
@@ -52,129 +55,54 @@
   ],
   "scripts": {
     "build": "npm run build:dist --",
-    "build:changelog": "conventional-changelog --outfile CHANGELOG.md --config ./conventional.config.js --release-count 0 --skip-unstable && (if [ \"$CHANGELOG_SKIP_TITLE\" != 'true' ]; then { node -e 'console.log(require(\"./conventional.config.js\").changelogTitle)'; cat CHANGELOG.md; } > CHANGELOG.md.ignore && mv CHANGELOG.md.ignore CHANGELOG.md; fi) && NODE_ENV=format remark --output --frail CHANGELOG.md && prettier --write CHANGELOG.md",
-    "build:dist": "NODE_ENV=production tsc --project tsconfig.types.json --incremental false && tsconfig-replace-paths --project tsconfig.types.json && NODE_ENV=production-cjs babel src --extensions .ts --out-dir dist",
-    "build:transpiled": "mkdir -p .transpiled && JEST_TRANSPILED=true NODE_ENV=test babel src --extensions .ts --out-dir .transpiled/src && JEST_TRANSPILED=true NODE_ENV=test babel test --extensions .ts --out-dir .transpiled/test",
-    "clean": "git ls-files --exclude-standard --ignored --others --directory | grep -vE '^((\\.(env|vscode|husky))|next-env\\.d\\.ts|node_modules)($|\\/)' | grep -vE '\\.local$' | xargs -p rm -rf",
-    "format": "MD_FILES=$(node -e 'console.log(require(`glob-gitignore`).sync(`**/*.md`, { ignore: require(`fs`).readFileSync(`.prettierignore`, `utf8`).split(`\n`).filter(Boolean), dot: true }).join(`\n`))') && (echo $MD_FILES | xargs remark --no-config --no-stdout --quiet --frail --use gfm --use lint-no-undefined-references || (echo -n '\u001b' && echo '[37;41;1m FAIL \u001b[0m cannot continue with undefined references present' && false)) && sort-package-json './package.json' './packages/*/package.json' && echo $MD_FILES | NODE_ENV=format xargs remark --output --frail && echo $MD_FILES | xargs doctoc --no-title --maxlevel 3 --update-only && prettier --write .",
-    "lint": "stdbuf -i0 -o0 -e0 tsc --project tsconfig.lint.json; X=$?; stdbuf -i0 -o0 -e0 eslint --parser-options=project:tsconfig.lint.json --no-error-on-unmatched-pattern packages src; Y=$?; MD_FILES=$(node -e 'console.log(require(`glob-gitignore`).sync(`**/*.md`, { ignore: require(`fs`).readFileSync(`.prettierignore`, `utf8`).split(`\n`).filter(Boolean), dot: true }).join(`\n`))') && echo $MD_FILES | NODE_ENV=lint xargs remark --quiet --frail --no-stdout; Z=$?; [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
-    "lint:all": "stdbuf -i0 -o0 -e0 tsc --project tsconfig.eslint.json; X=$?; stdbuf -i0 -o0 -e0 eslint --parser-options=project:tsconfig.eslint.json .; Y=$?; MD_FILES=$(node -e 'console.log(require(`glob-gitignore`).sync(`**/*.md`, { ignore: require(`fs`).readFileSync(`.prettierignore`, `utf8`).split(`\n`).filter(Boolean), dot: true }).join(`\n`))') && echo $MD_FILES | NODE_ENV=lint xargs remark --quiet --frail --no-stdout; Z=$?; [ $X -eq 0 ] && [ $Y -eq 0 ] && [ $Z -eq 0 ]",
-    "list-tasks": "node -e 'console.log(Object.keys(require(\"./package.json\").scripts).join(\"\\n\"))' && (npm run -ws list-tasks --if-present 2>/dev/null || true)",
-    "prepare": "node -e \"execa = require('execa'); if(process.env.CI === undefined && (process.env.NODE_ENV === undefined || process.env.NODE_ENV === 'development')) { execa.sync('npx', ['husky'], { stdout: 'inherit', stderr: 'inherit' }); } else { console.log('skipped installing husky git hooks'); }\"",
-    "test": "npm run test:unit --",
-    "test:all": "npx attw --pack . && echo && JEST_NO_IGNORE_INTEGRATIONS=true npm run test:base -- --coverage",
-    "test:base": "NODE_OPTIONS='--no-warnings --experimental-vm-modules' NODE_ENV=test jest",
-    "test:integration": "JEST_NO_IGNORE_INTEGRATIONS=true JEST_IGNORE_UNITS=true npm run test:base -- 'integration-.*\\.test\\.ts.*'",
-    "test:repeat:all": "echo 'Repeating test suite [initializing]...'; (i=0; while [ \"$((( i += 1 ) <= 100 ))\" -ne 0 ]; do sleep 0.1 && echo \"\\r\\033[1A\\033[0KRepeating test suite [run $i/100]...\" && JEST_SILENT_REPORTER_SHOW_WARNINGS=true npx run test:all --reporters=jest-silent-reporter || exit; done) && echo \"All tests passed! Congrats!\"",
-    "test:repeat:unit": "echo 'Repeating test suite [initializing]...'; (i=0; while [ \"$((( i += 1 ) <= 100 ))\" -ne 0 ]; do sleep 0.1 && echo \"\\r\\033[1A\\033[0KRepeating test suite [run $i/100]...\" && JEST_SILENT_REPORTER_SHOW_WARNINGS=true npx run test:unit --reporters=jest-silent-reporter || exit; done) && echo \"All tests passed! Congrats!\"",
-    "test:transpiled": "JEST_TRANSPILED=true npm run test:base --",
-    "test:unit": "npm run test:base -- 'unit-.*\\.test\\.tsx?'",
-    "test:update": "npm run test:all -- --updateSnapshot"
+    "build:changelog": "NODE_NO_WARNINGS=1 symbiote build changelog",
+    "build:dist": "NODE_NO_WARNINGS=1 symbiote build distributables --skip-bijective 'test/fixtures/.+$'",
+    "build:docs": "NODE_NO_WARNINGS=1 symbiote build docs",
+    "clean": "NODE_NO_WARNINGS=1 symbiote clean",
+    "format": "NODE_NO_WARNINGS=1 symbiote format --hush",
+    "info": "NODE_NO_WARNINGS=1 symbiote project info",
+    "lint": "npm run lint:package --",
+    "lint:package": "NODE_NO_WARNINGS=1 symbiote lint",
+    "lint:packages": "NODE_NO_WARNINGS=1 symbiote lint --scope unlimited",
+    "lint:project": "NODE_NO_WARNINGS=1 symbiote project lint",
+    "list-tasks": "NODE_NO_WARNINGS=1 symbiote list-tasks --scope this-package",
+    "prepare": "NODE_NO_WARNINGS=1 symbiote project prepare",
+    "release": "NODE_NO_WARNINGS=1 symbiote release",
+    "renovate": "NODE_NO_WARNINGS=1 symbiote project renovate --hush --github-reconfigure-repo --regenerate-assets --assets-preset lib",
+    "start": "NODE_NO_WARNINGS=1 symbiote start --",
+    "test": "npm run test:package:unit --",
+    "test:package:all": "NODE_NO_WARNINGS=1 symbiote test --coverage",
+    "test:package:e2e": "NODE_NO_WARNINGS=1 symbiote test --tests end-to-end",
+    "test:package:integration": "NODE_NO_WARNINGS=1 symbiote test --tests integration",
+    "test:package:unit": "NODE_NO_WARNINGS=1 symbiote test --tests unit",
+    "test:packages:all": "NODE_NO_WARNINGS=1 symbiote test --scope unlimited --coverage"
   },
   "dependencies": {
-    "core-js": "^3.36.0",
-    "debug": "^4.3.4",
+    "core-js": "^3.39.0",
+    "debug": "^4.4.0",
     "lodash.mergewith": "^4.6.2",
-    "prettier": "^3.2.5",
-    "strip-indent": "^3.0.0"
+    "prettier": "^3.4.2",
+    "pretty-format": "^29.7.0",
+    "strip-indent~3": "npm:strip-indent@^3.0.0",
+    "type-fest": "^4.31.0"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.15.1",
-    "@babel/cli": "^7.23.9",
-    "@babel/core": "^7.24.0",
-    "@babel/eslint-parser": "^7.23.10",
-    "@babel/helper-plugin-utils": "^7.24.0",
-    "@babel/plugin-proposal-export-default-from": "^7.23.3",
-    "@babel/plugin-syntax-jsx": "^7.23.3",
-    "@babel/preset-env": "^7.24.0",
-    "@babel/preset-typescript": "^7.23.3",
-    "@commitlint/cli": "^19.1.0",
-    "@commitlint/config-conventional": "^19.1.0",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/exec": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
+    "@-xun/symbiote": "^2.3.4",
+    "@babel/helper-plugin-utils": "^7.25.9",
+    "@babel/plugin-syntax-typescript": "^7.25.9",
     "@types/babel__helper-plugin-utils": "^7.10.3",
-    "@types/jest": "^29.5.12",
     "@types/lodash.mergewith": "^4.6.9",
-    "@types/node": "^20.11.27",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
-    "@typescript-eslint/parser": "^7.2.0",
-    "@xunnamius/conventional-changelog-projector": "^1.2.1",
     "@xunnamius/jest-types": "^1.1.3",
-    "@xunnamius/types": "^1.3.0",
-    "all-contributors-cli": "^6.26.1",
-    "babel-jest": "^29.7.0",
-    "babel-loader": "^9.1.3",
-    "babel-plugin-explicit-exports-references": "^1.0.2",
-    "browserslist": "^4.23.0",
-    "conventional-changelog-cli": "https://xunn.at/conventional-changelog-cli",
-    "doctoc": "^2.2.1",
-    "dotenv": "^16.4.5",
-    "eslint": "^8.57.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-jest": "^27.9.0",
-    "eslint-plugin-unicorn": "^51.0.1",
-    "execa": "^5.1.1",
-    "glob-gitignore": "^1.0.14",
-    "husky": "^9.0.11",
-    "jest": "^30.0.0-alpha.3",
-    "jest-circus": "^29.7.0",
+    "execa~5": "npm:execa@^5.1.1",
+    "glob": "^11.0.0",
     "jest-extended": "^4.0.2",
-    "lint-staged": "^15.2.2",
-    "remark-capitalize-headings": "^2.0.1",
-    "remark-cli": "^12.0.0",
-    "remark-comment-config": "^8.0.0",
-    "remark-frontmatter": "^5.0.0",
-    "remark-gfm": "^4.0.0",
-    "remark-ignore": "^2.0.0",
-    "remark-lint": "^9.1.2",
-    "remark-lint-definition-case": "^3.1.2",
-    "remark-lint-fenced-code-flag": "^3.1.2",
-    "remark-lint-fenced-code-flag-case": "^2.0.0",
-    "remark-lint-file-extension": "^2.1.2",
-    "remark-lint-first-heading-level": "^3.1.2",
-    "remark-lint-heading-increment": "^3.1.2",
-    "remark-lint-heading-whitespace": "^1.0.0",
-    "remark-lint-heading-word-length": "^2.0.0",
-    "remark-lint-list-item-style": "^2.0.0",
-    "remark-lint-no-duplicate-defined-urls": "^2.1.2",
-    "remark-lint-no-duplicate-headings-in-section": "^3.1.2",
-    "remark-lint-no-empty-sections": "^4.0.0",
-    "remark-lint-no-empty-url": "^3.1.2",
-    "remark-lint-no-heading-like-paragraph": "^3.1.2",
-    "remark-lint-no-heading-punctuation": "^3.1.2",
-    "remark-lint-no-inline-padding": "^4.1.2",
-    "remark-lint-no-literal-urls": "^3.1.2",
-    "remark-lint-no-multiple-toplevel-headings": "^3.1.2",
-    "remark-lint-no-reference-like-url": "^3.1.2",
-    "remark-lint-no-shell-dollars": "^3.1.2",
-    "remark-lint-no-shortcut-reference-image": "^3.1.2",
-    "remark-lint-no-shortcut-reference-link": "^3.1.2",
-    "remark-lint-no-tabs": "^3.1.2",
-    "remark-lint-no-undefined-references": "^4.2.1",
-    "remark-lint-ordered-list-marker-value": "^3.1.2",
-    "remark-lint-strikethrough-marker": "^2.1.2",
-    "remark-lint-unordered-list-marker-style": "^3.1.2",
-    "remark-reference-links": "^7.0.0",
-    "remark-remove-unused-definitions": "^2.0.0",
-    "remark-remove-url-trailing-slash": "^2.0.0",
-    "remark-renumber-references": "^2.0.0",
-    "remark-sort-definitions": "^2.0.0",
-    "remark-tight-comments": "^2.0.0",
-    "remark-validate-links": "^13.0.0",
-    "semantic-release": "https://xunn.at/semantic-release-atam@22.0.7",
-    "sort-package-json": "https://xunn.at/sort-package-json@2.3.0",
-    "source-map-support": "^0.5.21",
-    "spellchecker": "^3.7.1",
+    "semver": "^7.6.3",
+    "strip-ansi~6": "npm:strip-ansi@^6.0.1",
     "toss-expression": "^0.1.2",
-    "tsconfig-replace-paths": "^0.0.14",
-    "type-fest": "^4.12.0",
-    "typescript": "^5.4.2",
-    "unique-filename": "^3.0.0"
+    "unique-filename": "^4.0.0"
   },
   "peerDependencies": {
-    "@babel/core": ">=7.11.6",
+    "@babel/core": ">=7.22.0",
     "jest": ">=30 || >=30.0.0-alpha.2"
   },
   "peerDependenciesMeta": {
@@ -186,6 +114,7 @@
     "node": "^20.18.0 || ^22.12.0 || >=23.3.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   }
 }

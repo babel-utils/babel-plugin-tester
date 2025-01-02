@@ -1,7 +1,16 @@
-#!/usr/bin/env sh
-. "$(dirname $0)/_/husky.sh"
+#!/bin/sh
 
-npx commitlint -e
-if [ -z $GAC_VERIFY_SIMPLE ]; then npm run test; fi
-echo
-node spellcheck-commit.js
+# TODO: make this work natively on Windows
+
+beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
+
+if beginswith 'rebase' "$GIT_REFLOG_ACTION"; then
+  echo 'husky-hook::commit-msg: skipped commit-msg hook due to rebase'
+  exit 0
+fi
+
+NODE_NO_WARNINGS=1 commitlint -e
+if [ -z "$GAC_VERIFY_SIMPLE" ]; then npm run test; fi
+# TODO: bring back spellchecker:
+#echo
+#NODE_NO_WARNINGS=1 node spellcheck-commit.cjs

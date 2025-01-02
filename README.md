@@ -1,39 +1,35 @@
+<!-- symbiote-template-region-start 1 -->
+
+<p align="center" width="100%">
+  <img width="300" src="./logo.png">
+</p>
+
+<p align="center" width="100%">
+<!-- symbiote-template-region-end -->
+Utilities for testing babel plugins 🧪
+<!-- symbiote-template-region-start 2 -->
+</p>
+
+<hr />
+
+<div align="center">
+
+[![Black Lives Matter!][x-badge-blm-image]][x-badge-blm-link]
+[![Last commit timestamp][x-badge-lastcommit-image]][x-badge-repo-link]
+[![Codecov][x-badge-codecov-image]][x-badge-codecov-link]
+[![Source license][x-badge-license-image]][x-badge-license-link]
+[![Uses Semantic Release!][x-badge-semanticrelease-image]][x-badge-semanticrelease-link]
+
+[![NPM version][x-badge-npm-image]][x-badge-npm-link]
+[![Monthly Downloads][x-badge-downloads-image]][x-badge-npm-link]
+
+</div>
+
+<br />
+
 # babel-plugin-tester
 
-> **Note**\
-> This documentation is for `babel-plugin-tester@≥11`. Documentation for earlier
-> versions can be found [here][1].
-
-Utilities for testing babel plugins and presets.
-
----
-
-<!-- prettier-ignore-start -->
-
-[![Code Coverage][coverage-badge]][coverage]
-[![Version][version-badge]][package]
-[![Downloads][downloads-badge]][npmtrends]
-[![MIT License][license-badge]][license]
-
-<!-- remark-ignore-start -->
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
-[![All Contributors](https://img.shields.io/badge/all_contributors-31-orange.svg?style=flat-square)](#contributors-)
-
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-<!-- remark-ignore-end -->
-
-[![PRs Welcome][prs-badge]][prs]
-[![Code of Conduct][coc-badge]][coc]
-
-<!-- prettier-ignore-end -->
-
-## The Problem
-
-You are writing a babel [plugin][2] or [preset][3] and want to write tests for
-it too.
-
-## This Solution
+<!-- symbiote-template-region-end -->
 
 This is a fairly simple abstraction to help you write tests for your babel
 plugin or preset. It was built to work with [Jest][4], but most of the
@@ -43,11 +39,16 @@ globals with async support (see [appendix][9]).
 
 This package is tested on both Windows and nix (Ubuntu) environments.
 
+<!-- symbiote-template-region-start 3 -->
+
+---
+
 <!-- remark-ignore-start -->
+<!-- symbiote-template-region-end -->
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Installation](#installation)
+- [Install](#install)
 - [Usage](#usage)
   - [Import](#import)
   - [Invoke](#invoke)
@@ -58,6 +59,10 @@ This package is tested on both Windows and nix (Ubuntu) environments.
   - [Full Example](#full-example)
   - [Fixtures Examples](#fixtures-examples)
 - [Appendix](#appendix)
+  - [Published Package Details](#published-package-details)
+  - [License](#license)
+- [Contributing and Support](#contributing-and-support)
+  - [Contributors](#contributors)
   - [Testing Framework Compatibility](#testing-framework-compatibility)
   - [Using Babel for Configuration Loading](#using-babel-for-configuration-loading)
   - [`pluginName` Inference Caveat](#pluginname-inference-caveat)
@@ -71,12 +76,16 @@ This package is tested on both Windows and nix (Ubuntu) environments.
   - [🐛 Bugs](#-bugs)
   - [💡 Feature Requests](#-feature-requests)
 - [Contributors ✨](#contributors-)
-- [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<!-- symbiote-template-region-start 4 -->
 <!-- remark-ignore-end -->
 
-## Installation
+<br />
+
+## Install
+
+<!-- symbiote-template-region-end -->
 
 This module is distributed via [npm][npm] which is bundled with [node][node] and
 should be installed as one of your project's `devDependencies`:
@@ -107,7 +116,7 @@ const { pluginTester } = require('babel-plugin-tester');
 /* file: test/unit.test.js */
 
 import { pluginTester } from 'babel-plugin-tester';
-import yourPlugin from '../src/your-plugin';
+import yourPlugin from 'universe:your-plugin';
 
 pluginTester({
   plugin: yourPlugin,
@@ -150,7 +159,7 @@ This is used to provide the babel plugin under test. For example:
 /* file: test/unit.test.js */
 
 import { pluginTester } from 'babel-plugin-tester';
-import identifierReversePlugin from '../src/identifier-reverse-plugin';
+import identifierReversePlugin from 'universe:identifier-reverse-plugin';
 
 pluginTester({
   plugin: identifierReversePlugin,
@@ -486,7 +495,7 @@ file will share the same [test title numbering][53]. For example:
 /* file: test/unit.test.js */
 
 import { pluginTester } from 'babel-plugin-tester';
-import yourPlugin from '../src/your-plugin';
+import yourPlugin from 'universe:your-plugin';
 
 pluginTester({
   plugin: yourPlugin,
@@ -520,7 +529,7 @@ However, setting this option to `true` will restart the numbering:
 /* file: test/unit.test.js */
 
 import { pluginTester } from 'babel-plugin-tester';
-import yourPlugin from '../src/your-plugin';
+import yourPlugin from 'universe:your-plugin';
 
 pluginTester({
   plugin: yourPlugin,
@@ -1496,8 +1505,130 @@ babel-plugin-tester fixtures in some of these other projects:
 - [babel-plugin-transform-default-named-imports][96]
 
 <!-- lint enable list-item-style -->
+<!-- symbiote-template-region-start 5 -->
 
 ## Appendix
+
+<!-- symbiote-template-region-end -->
+
+Further documentation can be found under [`docs/`][x-repo-docs].
+
+<!-- symbiote-template-region-start 6 -->
+
+### Published Package Details
+
+<!-- TODO: choose one of the following and --✄--delete--✄-- the others: -->
+
+This is a [CJS2 package][x-pkg-cjs-mojito] with statically-analyzable exports
+built by Babel for use in Node.js versions that are not end-of-life. For
+TypeScript users, this package supports both `"Node10"` and `"Node16"` module
+resolution strategies.
+
+✄------------✄-----------⏶-⏷-----------✄------------✄
+
+This is an [ESM-only package][x-pkg-esm-wine] built by Babel for use in Node.js
+versions that are not end-of-life. For TypeScript users, this package supports
+both `"Node10"` and `"Node16"` module resolution strategies.
+
+✄------------✄-----------⏶-⏷-----------✄------------✄
+
+This is an [ESM-only package][x-pkg-esm-wine] built by Babel for use in
+browser-like environments. For TypeScript users, this package supports both
+`"Node10"` and `"Node16"` module resolution strategies.
+
+<!-- TODO: choose one of the above and --✄--delete--✄-- the others! -->
+<!-- symbiote-template-region-end -->
+<!-- TODO: optional additional details here -->
+<!-- symbiote-template-region-start 7 -->
+
+<details><summary>Expand details</summary>
+
+<!-- TODO: choose one of the following and --✄--delete--✄-- the others: -->
+
+That means both CJS2 (via `require(...)`) and ESM (via `import { ... } from ...`
+or `await import(...)`) source will load this package from the same entry points
+when using Node. This has several benefits, the foremost being: less code
+shipped/smaller package size, avoiding [dual package
+hazard][x-pkg-dual-package-hazard] entirely, distributables are not
+packed/bundled/uglified, a drastically less complex build process, and CJS
+consumers aren't shafted.
+
+✄------------✄-----------⏶-⏷-----------✄------------✄
+
+That means ESM source will load this package via `import { ... } from ...` or
+`await import(...)` and CJS source will load this package via dynamic
+`import()`. This has several benefits, the foremost being: less code
+shipped/smaller package size, avoiding [dual package
+hazard][x-pkg-dual-package-hazard] entirely, distributables are not
+packed/bundled/uglified, and a drastically less complex build process.
+
+The glaring downside, which may or may not be relevant, is that CJS consumers
+cannot `require()` this package and can only use `import()` in an asynchronous
+context. This means, in effect, CJS consumers may not be able to use this
+package at all.
+
+<!-- TODO: choose one of the above and --✄--delete--✄-- the others! -->
+
+Each entry point (i.e. `ENTRY`) in [`package.json`'s
+`exports[ENTRY]`][x-repo-package-json] object includes one or more [export
+conditions][x-pkg-exports-conditions]. These entries may or may not include: an
+[`exports[ENTRY].types`][x-pkg-exports-types-key] condition pointing to a type
+declaration file for TypeScript and IDEs, a
+[`exports[ENTRY].module`][x-pkg-exports-module-key] condition pointing to
+(usually ESM) source for Webpack/Rollup, a `exports[ENTRY].node` and/or
+`exports[ENTRY].default` condition pointing to (usually CJS2) source for Node.js
+`require`/`import` and for browsers and other environments, and [other
+conditions][x-pkg-exports-conditions] not enumerated here. Check the
+[package.json][x-repo-package-json] file to see which export conditions are
+supported.
+
+Note that, regardless of the [`{ "type": "..." }`][x-pkg-type] specified in
+[`package.json`][x-repo-package-json], any JavaScript files written in ESM
+syntax (including distributables) will always have the `.mjs` extension. Note
+also that [`package.json`][x-repo-package-json] may include the
+[`sideEffects`][x-pkg-side-effects-key] key, which is almost always `false` for
+optimal [tree shaking][x-pkg-tree-shaking] where appropriate.
+
+<!-- symbiote-template-region-end -->
+<!-- TODO: optional additional details here -->
+<!-- symbiote-template-region-start 8 -->
+
+</details>
+
+### License
+
+<!-- symbiote-template-region-end -->
+
+See [LICENSE][x-repo-license].
+
+<!-- TODO: optional additional details here -->
+<!-- symbiote-template-region-start 9 -->
+
+## Contributing and Support
+
+**[New issues][x-repo-choose-new-issue] and [pull requests][x-repo-pr-compare]
+are always welcome and greatly appreciated! 🤩** Just as well, you can [star 🌟
+this project][x-badge-repo-link] to let me know you found it useful! ✊🏿 Or [buy
+me a beer][x-repo-sponsor], I'd appreciate it. Thank you!
+
+See [CONTRIBUTING.md][x-repo-contributing] and [SUPPORT.md][x-repo-support] for
+more information.
+
+<!-- symbiote-template-region-end -->
+<!-- TODO: optional additional sections here -->
+<!-- symbiote-template-region-start 10 -->
+
+### Contributors
+
+<!-- symbiote-template-region-end -->
+<!-- symbiote-template-region-start root-package-only -->
+<!-- remark-ignore-start -->
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
+[![All Contributors](https://img.shields.io/badge/all_contributors-31-orange.svg?style=flat-square)](#contributors-)
+
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+<!-- remark-ignore-end -->
 
 ### Testing Framework Compatibility
 
@@ -1955,7 +2086,8 @@ a 👍. This helps maintainers prioritize what to work on.
 
 ## Contributors ✨
 
-Thanks goes to these people ([emoji key][emojis]):
+Thanks goes to these wonderful people ([emoji
+key][x-repo-all-contributors-emojis]):
 
 <!-- remark-ignore-start -->
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
@@ -2013,51 +2145,83 @@ Thanks goes to these people ([emoji key][emojis]):
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 <!-- remark-ignore-end -->
 
-This project follows the [all-contributors][all-contributors] specification.
-Contributions of any kind welcome!
+This project follows the [all-contributors][x-repo-all-contributors]
+specification. Contributions of any kind welcome!
 
-## License
-
-MIT
+<!-- symbiote-template-region-end -->
+<!-- symbiote-template-region-start workspace-package-only -->
+<!-- (section elided by symbiote) -->
+<!-- symbiote-template-region-end -->
 
 [@babel/helper-plugin-test-runner]:
   https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner
-[all-contributors]: https://github.com/all-contributors/all-contributors
 [bugs]:
   https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22bug%22
-[coc]:
-  https://github.com/babel-utils/babel-plugin-tester/blob/master/.github/CODE_OF_CONDUCT.md
-[coc-badge]:
-  https://img.shields.io/badge/code%20of-conduct-ff69b4.svg?style=flat-square
-[coverage]: https://codecov.io/github/Xunnamius/babel-plugin-tester
-[coverage-badge]:
-  https://img.shields.io/codecov/c/github/Xunnamius/babel-plugin-tester.svg?style=flat-square
-[downloads-badge]:
-  https://img.shields.io/npm/dm/babel-plugin-tester.svg?style=flat-square
-[emojis]: https://github.com/all-contributors/all-contributors#emoji-key
 [good-first-issue]:
   https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 [jamestweet]: https://twitter.com/thejameskyle/status/864359438819262465
-[license]:
-  https://github.com/babel-utils/babel-plugin-tester/blob/master/LICENSE
-[license-badge]:
-  https://img.shields.io/npm/l/babel-plugin-tester.svg?style=flat-square
 [lodash.mergewith]: https://lodash.com/docs/4.17.4#mergeWith
 [node]: https://nodejs.org
 [npm]: https://www.npmjs.com
-[npmtrends]: https://www.npmtrends.com/babel-plugin-tester
-[package]: https://www.npmjs.com/package/babel-plugin-tester
-[prs]: http://makeapullrequest.com
-[prs-badge]:
-  https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
 [requests]:
   https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22enhancement%22
 [ruletester]:
   http://eslint.org/docs/developer-guide/working-with-rules#rule-unit-tests
-[version-badge]:
-  https://img.shields.io/npm/v/babel-plugin-tester.svg?style=flat-square
-[1]: https://www.npmjs.com/package/babel-plugin-tester?activeTab=versions
-[2]: https://babeljs.io/docs/en/plugins
+[x-badge-blm-image]: https://xunn.at/badge-blm 'Join the movement!'
+[x-badge-blm-link]: https://xunn.at/donate-blm
+[x-badge-codecov-image]:
+  https://img.shields.io/codecov/c/github/babel-utils/babel-plugin-tester/main?style=flat-square&token=HWRIOBAAPW&flag=package.main_root
+  'Is this package well-tested?'
+[x-badge-codecov-link]: https://codecov.io/gh/babel-utils/babel-plugin-tester
+[x-badge-downloads-image]:
+  https://img.shields.io/npm/dm/babel-plugin-tester?style=flat-square
+  'Number of times this package has been downloaded per month'
+[x-badge-lastcommit-image]:
+  https://img.shields.io/github/last-commit/babel-utils/babel-plugin-tester?style=flat-square
+  'Latest commit timestamp'
+[x-badge-license-image]:
+  https://img.shields.io/npm/l/babel-plugin-tester?style=flat-square
+  "This package's source license"
+[x-badge-license-link]:
+  https://github.com/babel-utils/babel-plugin-tester/blob/main/LICENSE
+[x-badge-npm-image]:
+  https://xunn.at/npm-pkg-version/babel-plugin-tester
+  'Install this package using npm or yarn!'
+[x-badge-npm-link]: https://npmtrends.com/babel-plugin-tester
+[x-badge-repo-link]: https://github.com/babel-utils/babel-plugin-tester
+[x-badge-semanticrelease-image]:
+  https://xunn.at/badge-semantic-release
+  'This repo practices continuous integration and deployment!'
+[x-badge-semanticrelease-link]:
+  https://github.com/semantic-release/semantic-release
+[x-pkg-cjs-mojito]:
+  https://dev.to/jakobjingleheimer/configuring-commonjs-es-modules-for-nodejs-12ed#publish-only-a-cjs-distribution-with-property-exports
+[x-pkg-dual-package-hazard]:
+  https://nodejs.org/api/packages.html#dual-package-hazard
+[x-pkg-esm-wine]:
+  https://dev.to/jakobjingleheimer/configuring-commonjs-es-modules-for-nodejs-12ed#esm-source-and-distribution
+[x-pkg-exports-conditions]:
+  https://webpack.js.org/guides/package-exports#reference-syntax
+[x-pkg-exports-module-key]:
+  https://webpack.js.org/guides/package-exports#providing-commonjs-and-esm-version-stateless
+[x-pkg-exports-types-key]:
+  https://devblogs.microsoft.com/typescript/announcing-typescript-4-5-beta#packagejson-exports-imports-and-self-referencing
+[x-pkg-side-effects-key]:
+  https://webpack.js.org/guides/tree-shaking#mark-the-file-as-side-effect-free
+[x-pkg-tree-shaking]: https://webpack.js.org/guides/tree-shaking
+[x-pkg-type]:
+  https://github.com/nodejs/node/blob/8d8e06a345043bec787e904edc9a2f5c5e9c275f/doc/api/packages.md#type
+[x-repo-all-contributors]: https://github.com/all-contributors/all-contributors
+[x-repo-all-contributors-emojis]: https://allcontributors.org/docs/en/emoji-key
+[x-repo-choose-new-issue]:
+  https://github.com/babel-utils/babel-plugin-tester/issues/new/choose
+[x-repo-contributing]: /CONTRIBUTING.md
+[x-repo-docs]: docs
+[x-repo-license]: ./LICENSE
+[x-repo-package-json]: package.json
+[x-repo-pr-compare]: https://github.com/babel-utils/babel-plugin-tester/compare
+[x-repo-sponsor]: https://github.com/sponsors/Xunnamius
+[x-repo-support]: /.github/SUPPORT.md
 [3]: https://babeljs.io/docs/en/presets
 [4]: https://jestjs.io
 [5]: https://mochajs.org

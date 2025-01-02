@@ -1,5 +1,13 @@
-#!/usr/bin/env sh
-. "$(dirname $0)/_/husky.sh"
+#!/bin/sh
 
-if [ -z $GAC_VERIFY_SIMPLE ]; then npm run lint; fi
-NODE_ENV=format npx lint-staged --concurrent false
+# TODO: make this work natively on Windows
+
+beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
+
+if beginswith 'rebase' "$GIT_REFLOG_ACTION"; then
+  echo 'husky-hook::commit-msg: skipped pre-commit hook due to rebase'
+  exit 0
+fi
+
+if [ -z "$GAC_VERIFY_SIMPLE" ]; then npm run lint:package; fi
+NODE_NO_WARNINGS=1 lint-staged --concurrent false
