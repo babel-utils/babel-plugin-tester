@@ -1,5 +1,5 @@
 import type { Writable } from 'type-fest';
-import type { FrameworksUnderTest } from './test-config';
+import type { FrameworksUnderTest } from 'testverse:integration/.config.ts';
 
 export function withNodeTestInterop(
   sourceObj: FrameworksUnderTest[number]['tests'][number]['source']
@@ -7,7 +7,7 @@ export function withNodeTestInterop(
   const sourceObjWithInterop = {} as Writable<typeof sourceObj>;
 
   for (const [key, sourceCode] of Object.entries(sourceObj)) {
-    if (typeof sourceCode != 'string') {
+    if (typeof sourceCode !== 'string') {
       throw new TypeError('sanity check failed: expected string');
     }
 
@@ -42,7 +42,7 @@ export function withJasmineInterop(
   const sourceObjWithInterop = {} as Writable<typeof sourceObj>;
 
   for (const [key, sourceCode] of Object.entries(sourceObj)) {
-    if (typeof sourceCode != 'string') {
+    if (typeof sourceCode !== 'string') {
       throw new TypeError('sanity check failed: expected string');
     }
 

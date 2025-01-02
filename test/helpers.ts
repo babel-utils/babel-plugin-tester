@@ -3,13 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { types } from 'node:util';
 
-import { pluginTester } from '../../src/plugin-tester';
+import { pluginTester } from 'universe:plugin-tester.ts';
 
-import type {
-  ErrorExpectation,
-  FixtureOptions,
-  PluginTesterOptions
-} from '../../src/index';
+import type { ErrorExpectation, FixtureOptions, PluginTesterOptions } from 'universe';
 
 const { isNativeError } = types;
 
@@ -42,7 +38,7 @@ export const shouldNotBeSeen = 'if you see this text, the test is failing';
  * Dummy `filepath` value pointing to a non-existent `fake-file.js` file at the
  * project root.
  */
-export const dummyProjectRootFilepath = path.join(__dirname, './../../fake-file.js');
+export const dummyProjectRootFilepath = path.join(__dirname, '..', 'fake-file.js');
 
 /**
  * Dummy `pluginName` value used by `getDummyPluginOptions`.
@@ -97,7 +93,7 @@ export function addRunnableJestTest(
           isAssertionError(error) &&
           (error.actual !== undefined || error.actual !== error.expected)
         ) {
-          error.message += `\n\nactual:\n${error.actual}\n\nexpected:\n${error.expected}`;
+          error.message += `\n\nactual:\n${String(error.actual)}\n\nexpected:\n${String(error.expected)}`;
         }
       }
 
@@ -300,8 +296,8 @@ export async function runPluginTesterExpectThrownExceptionWhenCapturingError({
  *
  * @example getFixturePath('fixtures');
  */
-export function getFixturePath(fixture = '') {
-  return path.join(__dirname, '..', 'fixtures', ...fixture.split('/'));
+export function getFixturePath(fixture: string) {
+  return path.join(__dirname, 'fixtures', ...fixture.split('/'));
 }
 
 /**
@@ -344,7 +340,7 @@ export function requireFixtureOptions(fixture: string): FixtureOptions {
       } catch (jsonError) {
         throw new Error(
           'failed to require fixture options: failed to require either options.js or options.json',
-          { cause: new Error(`${jsError}\n\n${jsonError}`) }
+          { cause: new Error(`${String(jsError)}\n\n${String(jsonError)}`) }
         );
       }
     }
@@ -353,8 +349,7 @@ export function requireFixtureOptions(fixture: string): FixtureOptions {
 
 // * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#escaping
 export function escapeRegExp(str: string) {
-  // eslint-disable-next-line unicorn/better-regex
-  return str.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+  return str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`); // $& means the whole matched string
 }
 
 /**

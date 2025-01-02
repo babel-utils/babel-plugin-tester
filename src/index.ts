@@ -1,19 +1,32 @@
 import debugFactory from 'debug';
 
-import { prettierFormatter } from './formatters/prettier';
-import { unstringSnapshotSerializer } from './serializers/unstring-snapshot';
+import { prettierFormatter } from 'universe:formatters/prettier.ts';
 
 import {
   pluginTester,
   runPluginUnderTestHere,
   runPresetUnderTestHere
-} from './plugin-tester';
+} from 'universe:plugin-tester.ts';
 
-import type { PluginTesterOptions } from './types';
+import { unstringSnapshotSerializer } from 'universe:serializers/unstring-snapshot.ts';
+
+import type { PluginTesterOptions } from 'typeverse:global.ts';
+
+// {@symbiote/notExtraneous jest}
+
+export type * from 'typeverse:global.ts';
+
+export {
+  defaultPluginTester as pluginTester,
+  prettierFormatter,
+  runPluginUnderTestHere,
+  runPresetUnderTestHere,
+  unstringSnapshotSerializer
+};
 
 const debug = debugFactory('babel-plugin-tester:index');
 
-if ('expect' in globalThis && typeof expect?.addSnapshotSerializer === 'function') {
+if ('expect' in globalThis && typeof expect.addSnapshotSerializer === 'function') {
   debug(
     'added unstring snapshot serializer globally; all snapshots after this point will be affected'
   );
@@ -30,15 +43,5 @@ if ('expect' in globalThis && typeof expect?.addSnapshotSerializer === 'function
  * preset.
  */
 function defaultPluginTester(options?: PluginTesterOptions) {
-  return pluginTester({ formatResult: prettierFormatter, ...options });
+  pluginTester({ formatResult: prettierFormatter, ...options });
 }
-
-export {
-  defaultPluginTester as pluginTester,
-  prettierFormatter,
-  runPluginUnderTestHere,
-  runPresetUnderTestHere,
-  unstringSnapshotSerializer
-};
-
-export * from './types';

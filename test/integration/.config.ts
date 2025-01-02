@@ -1,19 +1,39 @@
 // * Comment out elements of the below X_UNDER_TEST arrays to limit the tests
 // * that get run. Use test titles to determine how to manipulate these knobs.
 // *
-// * You can also use https://jestjs.io/docs/cli#--testnamepatternregex to match
-// * against test titles via the number prefixed to each title. Numeric prefixes
-// * are stable with respect to the settings configured below. That is: the
-// * numbers will only change when the configuration below changes. You can also
-// * match against test framework names (like `node:test`) and other settings.
+// * You can also use something like
+// * https://jestjs.io/docs/cli#--testnamepatternregex to match against test
+// * titles via the number prefixed to each title. Numeric prefixes are stable
+// * with respect to the settings configured below. That is: the numbers will
+// * only change when the configuration below changes. You can also match
+// * against test framework names (like `node:test`) and other settings.
 
 import assert from 'node:assert';
 
-import browserslist from 'browserslist';
+import { coerce } from 'semver';
 
-import { name as pkgName, version as pkgVersion } from '../../package.json';
-import { assets } from './assets';
-import { withJasmineInterop, withNodeTestInterop } from './test-interop';
+import {
+  engines as packageEngines,
+  name as packageName,
+  peerDependencies as packagePeerDependencies,
+  version as packageVersion
+} from 'rootverse:package.json';
+
+import { assets } from 'testverse:integration/assets.ts';
+
+import {
+  expectErrorNoDescribe,
+  expectErrorNoOnly,
+  expectErrorNoSkip,
+  expectErrorNoSnapshot,
+  expectSuccess,
+  expectSuccessAndOutput
+} from 'testverse:integration/test-expectations.ts';
+
+import {
+  withJasmineInterop,
+  withNodeTestInterop
+} from 'testverse:integration/test-interop.ts';
 
 import {
   dummyDirectoriesFixture,
@@ -23,18 +43,27 @@ import {
   npmCopySelfFixture,
   type FixtureContext,
   type FixtureOptions
-} from '../setup';
-
-import {
-  expectErrorNoDescribe,
-  expectErrorNoOnly,
-  expectErrorNoSkip,
-  expectErrorNoSnapshot,
-  expectSuccess,
-  expectSuccessAndOutput
-} from './test-expectations';
+} from 'testverse:setup.ts';
 
 import type { ReadonlyDeep } from 'type-fest';
+
+export const defaultFixtureOptions = {
+  performCleanup: true,
+  initialFileContents: {
+    'package.json': `{"name":"dummy-pkg","dependencies":{"${packageName}":"${packageVersion}"}}`,
+    'plugin-identifier-reverse.js': assets.pluginIdentifierReverse
+  },
+  directoryPaths: ['fixtures/dummy-fixture-asset'],
+  use: [
+    dummyNpmPackageFixture(),
+    npmCopySelfFixture(),
+    dummyDirectoriesFixture(),
+    dummyFilesFixture(),
+    nodeImportTestFixture()
+  ]
+} as Partial<FixtureOptions> & {
+  initialFileContents: FixtureOptions['initialFileContents'];
+};
 
 /* prettier-ignore */
 export const IMPORT_SPECIFIERS_UNDER_TEST = ([
@@ -50,24 +79,28 @@ export const IMPORT_STYLES_UNDER_TEST = ([
   //'dot-default'     // ? const pluginTester = require('...').default
 ] as const);
 
+const babelCoreMinimumVersion = coerce(packagePeerDependencies['@babel/core']);
+assert(babelCoreMinimumVersion);
+
 /* prettier-ignore */
 export const BABEL_VERSIONS_UNDER_TEST = ([
   // * [babel@version, ...otherPackages]
-  ['@babel/core@7.11.6'], // ? Current minimum version
+  [`@babel/core@${babelCoreMinimumVersion.version}`], // ? Current minimum version
   ['@babel/core@latest'], // ? Latest version
   ['@babel/core@next'],   // ? Next version
 ]);
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+assert(packageEngines?.node);
+
 // * [node@version, ...]
-export const NODE_VERSIONS_UNDER_TEST = browserslist('maintained node versions').map(
-  (version) => {
-    const split: (string | undefined)[] = version.split(' ');
-    split[1] = split.at(1)?.split('.')[0];
-    assert(split[0]);
-    assert(split[1]);
-    return split.join('@');
-  }
-);
+export const NODE_VERSIONS_UNDER_TEST = packageEngines.node
+  .split('||')
+  .map((version) => {
+    const semverVersion = coerce(version);
+    assert(semverVersion);
+    return `node@${semverVersion.version}`;
+  });
 
 export const FRAMEWORKS_UNDER_TEST: FrameworksUnderTest = [
   {
@@ -142,9 +175,15 @@ export const FRAMEWORKS_UNDER_TEST: FrameworksUnderTest = [
         expectations: expectSuccessAndOutput
       },
       { source: assets.invocationOnly, expectations: expectErrorNoDescribe },
-      { source: withNodeTestInterop(assets.invocationOnly), expectations: expectSuccess },
+      {
+        source: withNodeTestInterop(assets.invocationOnly),
+        expectations: expectSuccess
+      },
       { source: assets.invocationSkip, expectations: expectErrorNoDescribe },
-      { source: withNodeTestInterop(assets.invocationSkip), expectations: expectSuccess },
+      {
+        source: withNodeTestInterop(assets.invocationSkip),
+        expectations: expectSuccess
+      },
       { source: assets.invocationSnapshot, expectations: expectErrorNoDescribe },
       {
         source: withNodeTestInterop(assets.invocationSnapshot),
@@ -153,24 +192,6 @@ export const FRAMEWORKS_UNDER_TEST: FrameworksUnderTest = [
     ]
   }
 ];
-
-export const defaultFixtureOptions = {
-  performCleanup: true,
-  initialFileContents: {
-    'package.json': `{"name":"dummy-pkg","dependencies":{"${pkgName}":"${pkgVersion}"}}`,
-    'plugin-identifier-reverse.js': assets.pluginIdentifierReverse
-  },
-  directoryPaths: ['fixtures/dummy-fixture-asset'],
-  use: [
-    dummyNpmPackageFixture(),
-    npmCopySelfFixture(),
-    dummyDirectoriesFixture(),
-    dummyFilesFixture(),
-    nodeImportTestFixture()
-  ]
-} as Partial<FixtureOptions> & {
-  initialFileContents: FixtureOptions['initialFileContents'];
-};
 
 export type FrameworksUnderTest = ReadonlyDeep<
   {

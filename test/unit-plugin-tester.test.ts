@@ -1,29 +1,28 @@
-/* eslint-disable jest/prefer-lowercase-title */
-import babel, { type BabelFileResult } from '@babel/core';
-import { declare } from '@babel/helper-plugin-utils';
-// TODO: fix this and issues like it elsewhere
-// @ts-expect-error: need to update this package
-import { asMockedFunction, type AnyFunction } from '@xunnamius/jest-types';
 import assert, { AssertionError } from 'node:assert';
 import fs from 'node:fs';
 import { EOL } from 'node:os';
 import path from 'node:path';
-import stripIndent from 'strip-indent';
-import { toss } from 'toss-expression';
 
-import { ErrorMessage } from '../src/errors';
-import { prettierFormatter } from '../src/formatters/prettier';
-import { restartTestTitleNumbering } from '../src/plugin-tester';
-import { unstringSnapshotSerializer } from '../src/serializers/unstring-snapshot';
-import { $type } from '../src/symbols';
-import { withMockedEnv, withMockedOutput } from './setup';
+import babel, { type BabelFileResult } from '@babel/core';
+import { declare } from '@babel/helper-plugin-utils';
+// TODO: replace this with @-xun/types
+// @ts-expect-error: need to update this package
+import { asMockedFunction, type AnyFunction } from '@xunnamius/jest-types';
+import stripIndent from 'strip-indent~3';
+import { toss } from 'toss-expression';
 
 import {
   pluginTester,
   runPluginUnderTestHere,
   runPresetUnderTestHere,
   type PluginTesterOptions
-} from '../src/index';
+} from 'universe';
+
+import { ErrorMessage } from 'universe:errors.ts';
+import { prettierFormatter } from 'universe:formatters/prettier.ts';
+import { restartTestTitleNumbering } from 'universe:plugin-tester.ts';
+import { unstringSnapshotSerializer } from 'universe:serializers/unstring-snapshot.ts';
+import { $type } from 'universe:symbols.ts';
 
 import {
   deleteVariablesPlugin,
@@ -32,7 +31,7 @@ import {
   makePluginWithOrderTracking,
   makePresetFromPlugin,
   metadataMutationPlugin
-} from './helpers/plugins';
+} from 'testverse:helpers/plugins.ts';
 
 import {
   addRunnableJestTest,
@@ -56,7 +55,11 @@ import {
   shouldNotBeSeen,
   simpleFixture,
   simpleTest
-} from './helpers';
+} from 'testverse:helpers.ts';
+
+import { withMockedEnv, withMockedOutput } from 'testverse:setup.ts';
+
+// {@symbiote/notExtraneous @babel/plugin-syntax-typescript}
 
 expect.addSnapshotSerializer(unstringSnapshotSerializer);
 
@@ -86,24 +89,24 @@ const dummyFixtureObject = {
 
 let equalSpy: SpiedFunction<typeof assert.equal>;
 let errorSpy: SpiedFunction<typeof console.error>;
-let describeSpy: SpiedFunction<typeof global.describe>;
+let describeSpy: SpiedFunction<typeof globalThis.describe>;
 let writeFileSyncSpy: SpiedFunction<typeof fs.writeFileSync>;
 let transformAsyncSpy: SpiedFunction<typeof babel.transformAsync>;
-let itSpy: SpiedFunction<typeof global.it>;
+let itSpy: SpiedFunction<typeof globalThis.it>;
 
-let mockedItOnly: MockedFunction<typeof global.it.only>;
-let mockedItSkip: MockedFunction<typeof global.it.skip>;
+let mockedItOnly: MockedFunction<typeof globalThis.it.only>;
+let mockedItSkip: MockedFunction<typeof globalThis.it.skip>;
 
 beforeEach(() => {
   equalSpy = jest.spyOn(assert, 'equal');
   errorSpy = jest.spyOn(console, 'error');
-  describeSpy = jest.spyOn(global, 'describe');
+  describeSpy = jest.spyOn(globalThis, 'describe');
   writeFileSyncSpy = jest.spyOn(fs, 'writeFileSync');
   transformAsyncSpy = jest.spyOn(babel, 'transformAsync');
-  itSpy = jest.spyOn(global, 'it');
+  itSpy = jest.spyOn(globalThis, 'it');
 
-  mockedItOnly = global.it.only = asMockedFunction<typeof it.only>();
-  mockedItSkip = global.it.skip = asMockedFunction<typeof it.skip>();
+  mockedItOnly = globalThis.it.only = asMockedFunction<typeof it.only>();
+  mockedItSkip = globalThis.it.skip = asMockedFunction<typeof it.skip>();
 
   describeSpy.mockImplementation((_title, body) => {
     // * https://github.com/facebook/jest/issues/10271
@@ -517,7 +520,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     await runPluginTester(
       getDummyPluginOptions({
         babel: { transform: transformFn } as NonNullable<PluginTesterOptions['babel']>,
-        fixtures: path.join('..', 'fixtures', 'simple'),
+        fixtures: getFixturePath('simple'),
         tests: [simpleTest]
       })
     );
@@ -988,19 +991,19 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     await runPluginTester(
       getDummyPluginOptions({
         tests: [simpleTest],
-        fixtures: '../fixtures/simple'
+        fixtures: getFixturePath('simple')
       })
     );
 
     await runPluginTester(
       getDummyPresetOptions({
         tests: [simpleTest],
-        fixtures: '../fixtures/simple'
+        fixtures: getFixturePath('simple')
       })
     );
 
     const fixtureFilename = getFixturePath('simple/fixture/code.js');
-    const testObjectFilename = path.resolve(__dirname, './helpers/index.ts');
+    const testObjectFilename = path.resolve(__dirname, './helpers.ts');
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
       [expect.any(String), expect.objectContaining({ filename: fixtureFilename })],
@@ -1835,7 +1838,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [`1. ${requireFixtureOptions('option-title').title}`, expect.any(Function)],
+      [`1. ${requireFixtureOptions('option-title').title!}`, expect.any(Function)],
       ['2. a-custom-title', expect.any(Function)],
       ['3. another one', expect.any(Function)],
       ['4. fixture', expect.any(Function)],
@@ -1879,7 +1882,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [`1. ${requireFixtureOptions('option-title').title}`, expect.any(Function)],
+      [`1. ${requireFixtureOptions('option-title').title!}`, expect.any(Function)],
       ['2. a-custom-title', expect.any(Function)],
       ['3. another one', expect.any(Function)],
       ['4. fixture', expect.any(Function)],
@@ -1923,7 +1926,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [requireFixtureOptions('option-title').title, expect.any(Function)],
+      [requireFixtureOptions('option-title').title!, expect.any(Function)],
       ['1. a-custom-title', expect.any(Function)],
       ['2. another one', expect.any(Function)],
       ['fixture', expect.any(Function)],
@@ -1967,7 +1970,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [`1. ${requireFixtureOptions('option-title').title}`, expect.any(Function)],
+      [`1. ${requireFixtureOptions('option-title').title!}`, expect.any(Function)],
       ['a-custom-title', expect.any(Function)],
       ['another one', expect.any(Function)],
       ['2. fixture', expect.any(Function)],
@@ -2011,7 +2014,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [requireFixtureOptions('option-title').title, expect.any(Function)],
+      [requireFixtureOptions('option-title').title!, expect.any(Function)],
       ['a-custom-title', expect.any(Function)],
       ['another one', expect.any(Function)],
       ['fixture', expect.any(Function)],
@@ -2024,7 +2027,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('uses correct numbering when multiple different `titleNumbering`s are provided', async () => {
     expect.hasAssertions();
 
-    const fixtureTitle = requireFixtureOptions('option-title').title;
+    const fixtureTitle = requireFixtureOptions('option-title').title!;
 
     await runPluginTester(
       getDummyPluginOptions({
@@ -2139,7 +2142,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [`1. ${requireFixtureOptions('option-title').title}`, expect.any(Function)],
+      [`1. ${requireFixtureOptions('option-title').title!}`, expect.any(Function)],
       ['2. a-custom-title', expect.any(Function)],
       ['1. another one', expect.any(Function)],
       ['2. fixture', expect.any(Function)],
@@ -2152,7 +2155,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('handles `titleNumbering` and `restartTitleNumbering` together', async () => {
     expect.hasAssertions();
 
-    const fixtureTitle = requireFixtureOptions('option-title').title;
+    const fixtureTitle = requireFixtureOptions('option-title').title!;
 
     await runPluginTester(
       getDummyPluginOptions({
@@ -2332,7 +2335,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [`1. ${requireFixtureOptions('option-title').title}`, expect.any(Function)],
+      [`1. ${requireFixtureOptions('option-title').title!}`, expect.any(Function)],
       ['2. test-x', expect.any(Function)],
       ['3. test 2', expect.any(Function)],
       [`4. ${dummyExplicitPluginName}`, expect.any(Function)],
@@ -2881,7 +2884,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       },
       {
         //? Should be able to handle unicode-enabled regular expressions
-        TEST_SKIP: 'fixture 1|fixture 2|5|6|test-\\p{Emoji_Presentation}',
+        TEST_SKIP: String.raw`fixture 1|fixture 2|5|6|test-\p{Emoji_Presentation}`,
         TEST_ONLY: 'fixture 1|6|test-🚀|3'
       }
     );
@@ -2926,7 +2929,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       },
       {
         //? Should be able to handle unicode-enabled regular expressions
-        TEST_ONLY: 'fixture 1|fixture 2|5|6|test-\\p{Emoji_Presentation}'
+        TEST_ONLY: String.raw`fixture 1|fixture 2|5|6|test-\p{Emoji_Presentation}`
       }
     );
   });
@@ -3480,7 +3483,10 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
     await runPluginTesterExpectThrownExceptionWhenCapturingError({
       throws: /not-captured/,
       overrides: { babel: { transform: () => toss('bad plugin') } },
-      expectedError: ErrorMessage.ExpectedErrorToMatchRegExp('bad plugin', /not-captured/)
+      expectedError: ErrorMessage.ExpectedErrorToMatchRegExp(
+        'bad plugin',
+        /not-captured/
+      )
     });
   });
 
@@ -3515,7 +3521,10 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
     expect.hasAssertions();
 
     await runPluginTesterExpectCapturedError({
-      throws: (error) => error instanceof SyntaxError && /captured/.test(error.message),
+      throws: function (error) {
+        // eslint-disable-next-line no-restricted-syntax
+        return error instanceof SyntaxError && error.message.includes('captured');
+      },
       overrides: {
         fixtures: getFixturePath('option-throws-function')
       }
@@ -5577,7 +5586,7 @@ describe('tests targeting the TestObject interface', () => {
     };
 
     const outputRawContainsMetadata = (output: BabelFileResult) => {
-      expect(output?.metadata).toStrictEqual({ seen: true });
+      expect(output.metadata).toStrictEqual({ seen: true });
     };
 
     await runPluginTester(
@@ -6158,7 +6167,9 @@ describe('tests targeting the TestObject interface', () => {
     const path = getFixturePath('simple/fixture/code.js');
 
     await runPluginTesterExpectThrownException({
-      options: getDummyPluginOptions({ tests: [{ code: simpleTest, exec: simpleTest }] }),
+      options: getDummyPluginOptions({
+        tests: [{ code: simpleTest, exec: simpleTest }]
+      }),
       expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyTestObject)
     });
 
@@ -6526,11 +6537,15 @@ describe('tests targeting the TestObject interface', () => {
     const filename = getFixturePath('outputFixture.js');
 
     await runPluginTester(
-      getDummyPluginOptions({ tests: [{ babelOptions: { filename }, code: simpleTest }] })
+      getDummyPluginOptions({
+        tests: [{ babelOptions: { filename }, code: simpleTest }]
+      })
     );
 
     await runPluginTester(
-      getDummyPresetOptions({ tests: [{ babelOptions: { filename }, code: simpleTest }] })
+      getDummyPresetOptions({
+        tests: [{ babelOptions: { filename }, code: simpleTest }]
+      })
     );
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([

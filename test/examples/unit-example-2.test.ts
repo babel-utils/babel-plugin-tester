@@ -1,7 +1,8 @@
 /* eslint jest/require-hook: ["error", { "allowedFunctionCalls": ["pluginTester"] }] */
 
-import { pluginTester } from '../../src/index';
-import { identifierReversePlugin } from '../helpers/plugins';
+import { pluginTester } from 'universe';
+
+import { identifierReversePlugin } from 'testverse:helpers/plugins.ts';
 
 // * Simple example from README.md
 pluginTester({

@@ -1,5 +1,6 @@
-import debugFactory from 'debug';
 import path from 'node:path';
+
+import debugFactory from 'debug';
 
 import {
   format as formatWithPrettier,
@@ -7,26 +8,7 @@ import {
   type Options as PrettierOptions
 } from 'prettier';
 
-import type { ResultFormatter } from '..';
-
-const debug = debugFactory('babel-plugin-tester:formatter');
-
-type MaybePrettierOptions = PrettierOptions | null;
-const configDirectoryCache: Record<string, MaybePrettierOptions> = Object.create(null);
-
-const getCachedConfig = async (filepath: string) => {
-  if (!(filepath in configDirectoryCache)) {
-    configDirectoryCache[filepath] = await resolvePrettierConfig(filepath);
-    debug(
-      `caching prettier configuration resolved from ${filepath}: %O`,
-      configDirectoryCache[filepath]
-    );
-  } else {
-    debug(`using cached prettier configuration resolved from ${filepath}`);
-  }
-
-  return configDirectoryCache[filepath];
-};
+import type { ResultFormatter } from 'universe';
 
 export type { PrettierOptions };
 
@@ -54,6 +36,7 @@ export const prettierFormatter: ResultFormatter<{
 }> = async (
   code,
   {
+    // eslint-disable-next-line no-restricted-syntax
     cwd = process.cwd(),
     filename,
     filepath = filename || path.join(cwd, 'dummy.js'),
@@ -78,3 +61,22 @@ export const prettierFormatter: ResultFormatter<{
 };
 
 export default prettierFormatter;
+
+const debug = debugFactory('babel-plugin-tester:formatter');
+
+type MaybePrettierOptions = PrettierOptions | null;
+const configDirectoryCache: Record<string, MaybePrettierOptions> = Object.create(null);
+
+const getCachedConfig = async (filepath: string) => {
+  if (!(filepath in configDirectoryCache)) {
+    configDirectoryCache[filepath] = await resolvePrettierConfig(filepath);
+    debug(
+      `caching prettier configuration resolved from ${filepath}: %O`,
+      configDirectoryCache[filepath]
+    );
+  } else {
+    debug(`using cached prettier configuration resolved from ${filepath}`);
+  }
+
+  return configDirectoryCache[filepath];
+};

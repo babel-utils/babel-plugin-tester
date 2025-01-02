@@ -6,7 +6,7 @@ import {
   runPluginUnderTestHere,
   runPresetUnderTestHere,
   unstringSnapshotSerializer
-} from '../src/index';
+} from 'universe';
 
 const uglyTest = `var output = paragraph + "one"+\n\n'paragraph' + \`\\two\``;
 const expectedPrettierFormatterResult =

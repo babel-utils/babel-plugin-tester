@@ -1,41 +1,29 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable unicorn/no-keyword-prefix */
 import { promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join as joinPath, resolve as resolvePath } from 'node:path';
-import { name as pkgName, version as pkgVersion } from '../package.json';
 
-import debugFactory from 'debug';
-import execa from 'execa';
-import glob from 'glob';
+import debugFactory, { type Debugger } from 'debug';
+import execa, { type ExecaReturnValue } from 'execa~5';
+import * as glob from 'glob';
 import uniqueFilename from 'unique-filename';
+
+import { name as packageName, version as packageVersion } from 'rootverse:package.json';
 //import gitFactory from 'simple-git';
 // ? https://github.com/jest-community/jest-extended#typescript
 import 'jest-extended';
 import 'jest-extended/all';
 
-import type { Debugger } from 'debug';
-import type { ExecaReturnValue } from 'execa';
 import type { Promisable } from 'type-fest';
 //import type { SimpleGit } from 'simple-git';
 
-// TODO: automated tests against both Windows and Linux (and for all tooling)
+// TODO: this whole file has been superseded by @-xun/test. Use that instead!
 
-// TODO: consider stripping indents from all writeFiles (perhaps add option)
+const globalDebug = debugFactory(`${packageName}:jest-setup`);
 
-// TODO: add "all" interleaved output to testResult
-
-// TODO: ensure post-test cleanup ALWAYS happens and dirs/files are NEVER left around
-
-// TODO: combine the files and dir fixtures into one; dirs should be
-// TODO: automatically created from file paths and from explicit dir paths too
-
-// TODO: ability to copy entire arbitrary directories recursively into fixture
-// TODO: root
-
-const globalDebug = debugFactory(`${pkgName}:jest-setup`);
-
-globalDebug(`pkgName: "${pkgName}"`);
-globalDebug(`pkgVersion: "${pkgVersion}"`);
+globalDebug(`pkgName: "${packageName}"`);
+globalDebug(`pkgVersion: "${packageVersion}"`);
 
 // TODO: XXX: make this into a separate (mock-argv) package (along w/ the below)
 export type MockArgvOptions = {
@@ -207,12 +195,12 @@ export async function withMockedArgv(
   options: MockArgvOptions = { replace: false }
 ) {
   // ? Take care to preserve the original argv array reference in memory
-  const previousArgv = process.argv.splice(options?.replace ? 0 : 2, process.argv.length);
+  const previousArgv = process.argv.splice(options.replace ? 0 : 2, process.argv.length);
   process.argv.push(...simulatedArgv);
 
   await fn();
 
-  process.argv.splice(options?.replace ? 0 : 2, process.argv.length);
+  process.argv.splice(options.replace ? 0 : 2, process.argv.length);
   process.argv.push(...previousArgv);
 }
 
@@ -245,6 +233,7 @@ export async function withMockedEnv(
   const previousEnv = { ...process.env };
   const clearEnv = () =>
     Object.getOwnPropertyNames(process.env).forEach(
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       (property) => delete process.env[property]
     );
 
@@ -287,7 +276,7 @@ export function mockEnvFactory(
  * "app-wide" connection that would not actually be closed and could cause your
  * test to hang unexpectedly, even when all tests pass.
  */
-export function isolatedImport<T = unknown>(args: {
+export function isolatedImport(args: {
   /**
    * Path to the module to import. Module resolution is handled by `require`.
    */
@@ -299,11 +288,11 @@ export function isolatedImport<T = unknown>(args: {
    */
   useDefault?: boolean;
 }) {
-  let pkg: T | undefined;
+  let package_: unknown;
 
   // ? Cache-busting
   jest.isolateModules(() => {
-    pkg = ((r) => {
+    package_ = ((r) => {
       globalDebug.extend('isolated-import')(
         `performing isolated import of ${args.path}${
           args.useDefault ? ' (returning default by force)' : ''
@@ -318,15 +307,12 @@ export function isolatedImport<T = unknown>(args: {
     })(require(args.path));
   });
 
-  return pkg as T;
+  return package_;
 }
 
 // TODO: XXX: make this into a separate package (along with the above)
-export function isolatedImportFactory<T = unknown>(args: {
-  path: string;
-  useDefault?: boolean;
-}) {
-  return () => isolatedImport<T>({ path: args.path, useDefault: args.useDefault });
+export function isolatedImportFactory(args: { path: string; useDefault?: boolean }) {
+  return () => isolatedImport({ path: args.path, useDefault: args.useDefault });
 }
 
 // TODO: XXX: make this into a separate (mock-exit) package
@@ -347,19 +333,21 @@ export async function withMockedExit(
 // TODO: XXX: make this into a separate package (along with the above)
 export function protectedImportFactory(path: string) {
   return async (parameters?: { expectedExitCode?: number }) => {
-    let pkg: unknown = undefined;
+    let package_: unknown = undefined;
 
     await withMockedExit(async ({ exitSpy }) => {
-      pkg = await isolatedImport({ path });
+      package_ = await isolatedImport({ path });
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (expect && parameters?.expectedExitCode)
         expect(exitSpy).toHaveBeenCalledWith(parameters.expectedExitCode);
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       else if (!expect)
         globalDebug.extend('protected-import-factory')(
           'WARNING: "expect" object not found, so exit check was skipped'
         );
     });
 
-    return pkg;
+    return package_;
   };
 }
 
@@ -472,9 +460,9 @@ export interface NodeImportTestFixtureOptions {
 }
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
-// eslint-disable-next-line @typescript-eslint/ban-types
-export interface FixtureContext<CustomOptions extends Record<string, unknown> = {}>
-  extends Partial<TestResultProvider>,
+export interface FixtureContext<
+  CustomOptions extends Record<string, unknown> = Record<string, unknown>
+> extends Partial<TestResultProvider>,
     Partial<TreeOutputProvider> /*,
     Partial<GitProvider>*/ {
   root: string;
@@ -501,7 +489,6 @@ export interface TreeOutputProvider {
 } */
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
-// eslint-disable-next-line @typescript-eslint/ban-types
 export type FixtureAction<Context = FixtureContext> = (
   context: Context
 ) => Promise<unknown>;
@@ -513,6 +500,8 @@ export type ReturnsString<Context = FixtureContext> = (
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ below)
 export interface MockFixture<Context = FixtureContext> {
+  // TODO: use type-fest
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   name: 'root' | 'describe-root' | string | ReturnsString<Context> | symbol;
   description: string | ReturnsString<Context>;
   setup?: FixtureAction<Context>;
@@ -560,10 +549,13 @@ export function dummyNpmPackageFixture(): MockFixture {
         })
       ]);
 
-      if (pkgName.includes('/')) {
+      if (packageName.includes('/')) {
         await mkdir({
           paths: [
-            resolvePath(context.root, joinPath('node_modules', pkgName.split('/')[0]))
+            resolvePath(
+              context.root,
+              joinPath('node_modules', packageName.split('/')[0])
+            )
           ],
           context
         });
@@ -581,7 +573,7 @@ export function npmLinkSelfFixture(): MockFixture {
     setup: async (context) => {
       await symlink({
         actualPath: resolvePath(__dirname, '..'),
-        linkPath: resolvePath(context.root, joinPath('node_modules', pkgName)),
+        linkPath: resolvePath(context.root, joinPath('node_modules', packageName)),
         isDir: true,
         context
       });
@@ -598,20 +590,23 @@ export function npmCopySelfFixture(): MockFixture {
     setup: async (context) => {
       const root = resolvePath(__dirname, '..');
 
-      const { files: patterns } = await (await import('../package.json')).default;
+      // eslint-disable-next-line @typescript-eslint/await-thenable
+      const { files: patterns } = await (await import('rootverse:package.json')).default;
 
       const sourcePaths = patterns.flatMap((p) => glob.sync(p, { cwd: root, root }));
+
       const destinationPath = resolvePath(
         context.root,
-        joinPath('node_modules', pkgName)
+        joinPath('node_modules', packageName)
       );
-      const destPkgJson = resolvePath(destinationPath, 'package.json');
+
+      const destPackageJson = resolvePath(destinationPath, 'package.json');
 
       await mkdir({ paths: [destinationPath], context });
       await copy({ sourcePaths, destinationPath, context });
 
-      if (!destPkgJson) {
-        throw new Error(`expected "${destPkgJson}" to exist`);
+      if (!destPackageJson) {
+        throw new Error(`expected "${destPackageJson}" to exist`);
       }
 
       // TODO: only optionally remove peer dependencies from the install loop
@@ -620,27 +615,31 @@ export function npmCopySelfFixture(): MockFixture {
       const {
         peerDependencies: _,
         devDependencies: __,
-        ...dummyPkgJson
-      } = JSON.parse(await readFile({ path: destPkgJson, context }));
+        ...dummyPackageJson
+      } = JSON.parse(await readFile({ path: destPackageJson, context }));
 
       const installTargets = {
-        ...dummyPkgJson.dependencies,
+        ...dummyPackageJson.dependencies,
         ...Object.fromEntries(
           [context.options.npmInstall]
             .flat()
             .filter((r): r is string => Boolean(r))
-            .map((pkgStr) => {
-              const isScoped = pkgStr.startsWith('@');
-              const pkgSplit = (isScoped ? pkgStr.slice(1) : pkgStr).split('@');
-              const pkg = isScoped ? [`@${pkgSplit[0]}`, pkgSplit[1]] : pkgSplit;
-              return [pkg[0], pkg[1] || 'latest'];
+            .map((packageStr) => {
+              const isScoped = packageStr.startsWith('@');
+              const packageSplit = (isScoped ? packageStr.slice(1) : packageStr).split(
+                '@'
+              );
+              const package_ = isScoped
+                ? [`@${packageSplit[0]}`, packageSplit[1]]
+                : packageSplit;
+              return [package_[0], package_[1] || 'latest'];
             })
         )
       };
 
       await writeFile({
-        path: destPkgJson,
-        data: JSON.stringify({ ...dummyPkgJson, dependencies: installTargets }),
+        path: destPackageJson,
+        data: JSON.stringify({ ...dummyPackageJson, dependencies: installTargets }),
         context
       });
 
@@ -667,14 +666,14 @@ export function npmCopySelfFixture(): MockFixture {
       });
 
       await rename({
-        oldPath: `${context.root}/node_modules_old/${pkgName}/node_modules`,
+        oldPath: `${context.root}/node_modules_old/${packageName}/node_modules`,
         newPath: `${context.root}/node_modules`,
         context
       });
 
       await rename({
-        oldPath: `${context.root}/node_modules_old/${pkgName}`,
-        newPath: `${context.root}/node_modules/${pkgName}`,
+        oldPath: `${context.root}/node_modules_old/${packageName}`,
+        newPath: `${context.root}/node_modules/${packageName}`,
         context
       });
 
@@ -689,8 +688,10 @@ export function webpackTestFixture(): MockFixture {
     name: 'webpack-test',
     description: 'setting up webpack jest integration test',
     setup: async (context) => {
-      if (typeof context.options.webpackVersion != 'string') {
-        throw new TypeError('invalid or missing options.webpackVersion, expected string');
+      if (typeof context.options.webpackVersion !== 'string') {
+        throw new TypeError(
+          'invalid or missing options.webpackVersion, expected string'
+        );
       }
 
       const indexPath = Object.keys(context.fileContents).find((path) => {
@@ -897,10 +898,8 @@ export function describeRootFixture(): MockFixture {
 
 // TODO: XXX: make this into a separate (mock-fixture) package
 export async function withMockedFixture<
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  CustomOptions extends Record<string, unknown> = {},
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  CustomContext extends Record<string, unknown> = {}
+  CustomOptions extends Record<string, unknown> = Record<string, unknown>,
+  CustomContext extends Record<string, unknown> = Record<string, unknown>
 >({
   fn,
   testIdentifier,
@@ -936,8 +935,9 @@ export async function withMockedFixture<
     fileContents: { ...finalOptions.initialFileContents }
   } as CustomizedFixtureContext & { using: CustomizedMockFixture[] };
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (finalOptions.use) {
-    if (finalOptions.use?.[0]?.name != 'root') context.using.push(rootFixture());
+    if (finalOptions.use[0].name !== 'root') context.using.push(rootFixture());
     context.using = [...context.using, ...finalOptions.use];
     // ? `describe-root` fixture doesn't have to be the last one, but a fixture
     // ? with that name must be included at least once
@@ -997,11 +997,13 @@ export async function withMockedFixture<
     context.debug = globalDebug.extend('<cleanup>');
 
     for (const cfn of cleanupFunctions.reverse()) {
-      await cfn(context).catch((error) =>
+      await cfn(context).catch((error: unknown) =>
         context.debug(
-          `ignored exception in teardown function: ${
-            error?.message || error.toString() || '<no error message>'
-          }`
+          `ignored exception in teardown function: ${String(
+            error && typeof error === 'object' && 'message' in error
+              ? error.message
+              : error || '<no error message>'
+          )}`
         )
       );
     }
@@ -1011,10 +1013,8 @@ export async function withMockedFixture<
 
 // TODO: XXX: make this into a separate (mock-fixture) package (along w/ above)
 export function mockFixtureFactory<
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  CustomOptions extends Record<string, unknown> = {},
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  CustomContext extends Record<string, unknown> = {}
+  CustomOptions extends Record<string, unknown> = Record<string, unknown>,
+  CustomContext extends Record<string, unknown> = Record<string, unknown>
 >(testIdentifier: string, options?: Partial<FixtureOptions & CustomOptions>) {
   return (
     fn: FixtureAction<

@@ -1,7 +1,8 @@
-import stripAnsi from 'strip-ansi';
-import { ErrorMessage } from '../../src/errors';
+import stripAnsi from 'strip-ansi~6';
 
-import type { FixtureContext } from '../setup';
+import { ErrorMessage } from 'universe:errors.ts';
+
+import type { FixtureContext } from 'testverse:setup.ts';
 
 const combineStdOutAndStdErr = (testResult: FixtureContext['testResult']) => {
   return stripAnsi(testResult?.stdout || '') + stripAnsi(testResult?.stderr || '');

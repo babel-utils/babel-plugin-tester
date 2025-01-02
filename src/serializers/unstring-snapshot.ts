@@ -1,5 +1,6 @@
 import debugFactory from 'debug';
-import type { SnapshotSerializer } from '..';
+
+import type { SnapshotSerializer } from 'universe';
 
 const debug = debugFactory('babel-plugin-tester:serializer');
 

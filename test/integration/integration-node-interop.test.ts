@@ -1,46 +1,47 @@
 /* eslint-disable jest/require-hook */
-/* eslint-disable jest/no-conditional-in-test, jest/no-conditional-expect */
 
 // * These are tests that ensure babel-plugin-tester works (1) in ESM vs CJS
 // * environments, (2) using modern import syntax, (3) using main vs pure import
 // * specifiers, (4) across all maintained versions of NodeJS.
 
-import debugFactory from 'debug';
-import mergeWith from 'lodash.mergewith';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-import { exports as pkgExports, name as pkgName } from '../../package.json';
-import { withMockedFixture } from '../setup';
-import { assets } from './assets';
-import { expectSuccessAndOutput } from './test-expectations';
+import debugFactory from 'debug';
+import mergeWith from 'lodash.mergewith';
+
+import { exports as packageExports, name as packageName } from 'rootverse:package.json';
+
+import { assets } from 'testverse:integration/assets.ts';
+import { expectSuccessAndOutput } from 'testverse:integration/test-expectations.ts';
+import { withMockedFixture } from 'testverse:setup.ts';
 
 import {
   BABEL_VERSIONS_UNDER_TEST,
+  defaultFixtureOptions,
   IMPORT_SPECIFIERS_UNDER_TEST,
   IMPORT_STYLES_UNDER_TEST,
-  NODE_VERSIONS_UNDER_TEST,
-  defaultFixtureOptions
-} from './test-config';
+  NODE_VERSIONS_UNDER_TEST
+} from 'testverse:integration/.config.ts';
 
 const TEST_IDENTIFIER = 'node-interop';
-const debug = debugFactory(`${pkgName}:${TEST_IDENTIFIER}`);
+const debug = debugFactory(`${packageName}:${TEST_IDENTIFIER}`);
 
-const pkgMainPath = `${__dirname}/../../${pkgExports['.'].default}`;
-const pkgPurePath = `${__dirname}/../../${pkgExports['./pure'].default}`;
+const packageMainPath = `${__dirname}/../../${packageExports['.'].default}`;
+const packagePurePath = `${__dirname}/../../${packageExports['./pure'].default}`;
 
 debug('BABEL_VERSIONS_UNDER_TEST: %O', BABEL_VERSIONS_UNDER_TEST);
 debug('IMPORT_SPECIFIERS_UNDER_TEST: %O', IMPORT_SPECIFIERS_UNDER_TEST);
 debug('IMPORT_STYLES_UNDER_TEST: %O', IMPORT_STYLES_UNDER_TEST);
 
 beforeAll(async () => {
-  if (!existsSync(pkgMainPath)) {
-    debug(`unable to find main export: ${pkgMainPath}`);
+  if (!existsSync(packageMainPath)) {
+    debug(`unable to find main export: ${packageMainPath}`);
     throw new Error('must build distributables first (try `npm run build-dist`)');
   }
 
-  if (!existsSync(pkgPurePath)) {
-    debug(`unable to find pure export: ${pkgPurePath}`);
+  if (!existsSync(packagePurePath)) {
+    debug(`unable to find pure export: ${packagePurePath}`);
     throw new Error('must build distributables first (try `npm run build-dist`)');
   }
 });
@@ -52,21 +53,20 @@ for (const esm of [true, false] as const) {
     for (const importStyleName of IMPORT_STYLES_UNDER_TEST) {
       for (const nodeVersion of NODE_VERSIONS_UNDER_TEST) {
         const count = counter++;
-        const title = `${count}. works as a ${importStyleName} ${importSpecifierName} ${
+        const title = `${count}. Works as a ${importStyleName} ${importSpecifierName} ${
           esm ? 'ESM' : 'CJS'
         } import using ${nodeVersion}`;
 
         debug(`registered test: ${title}`);
 
         // eslint-disable-next-line jest/valid-title
-        (process.env.NO_CONCURRENT ? it : it.concurrent)(title, async () => {
-          // eslint-disable-next-line jest/no-standalone-expect
+        it(title, async () => {
           expect.hasAssertions();
 
           debug(`started running test: ${title}`);
 
           const indexPath = `src/index.test.${esm ? 'm' : ''}js`;
-          const importSpecifier = `${pkgName}${
+          const importSpecifier = `${packageName}${
             importSpecifierName === 'main' ? '' : '/pure'
           }`;
 
@@ -81,7 +81,6 @@ for (const esm of [true, false] as const) {
             {},
             defaultFixtureOptions,
             {
-              performCleanup: true,
               runInstallScripts: true,
               npmInstall: ['@babel/core@latest', 'jest@latest', nodeVersion],
               runWith: {
@@ -117,6 +116,7 @@ for (const esm of [true, false] as const) {
           fixtureOptions.initialFileContents[indexPath] = esm
             ? `
             import ${
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               esm ? importStyle.replaceAll(':', ' as') : importStyle
             } from '${importSpecifier}';
             import identifierReversePlugin from '../plugin-identifier-reverse.js';

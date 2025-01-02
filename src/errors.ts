@@ -1,13 +1,13 @@
 import { types } from 'node:util';
 
-import { $type } from './symbols';
+import { $type } from 'universe:symbols.ts';
 
 import type {
   MaybePluginTesterTestConfig,
   PluginTesterTestConfig,
   PluginTesterTestFixtureConfig,
   Range
-} from './index';
+} from 'universe';
 
 const { isNativeError } = types;
 
@@ -40,24 +40,25 @@ export const ErrorMessage = {
   BadConfigInvalidTestsObjectProperty: (title: string) =>
     `failed to validate configuration: \`tests\` object property "${title}" must have a value of type string, TestObject, or nullish`,
   BadConfigInvalidEndOfLine: (endOfLine: unknown) =>
-    `failed to validate configuration: invalid \`endOfLine\` option "${endOfLine}"`,
+    `failed to validate configuration: invalid \`endOfLine\` option "${String(endOfLine)}"`,
   BadEnvironmentVariableRange: (name: string, rangeStr: string, range?: Range) =>
     `invalid environment variable "${name}": invalid range ${rangeStr}` +
     (range ? `: ${range.start} is greater than ${range.end}` : ''),
   SetupFunctionFailed: (error: unknown) =>
-    `setup function failed: ${isNativeError(error) ? error.message : error}`,
+    `setup function failed: ${String(isNativeError(error) ? error.message : error)}`,
   TeardownFunctionFailed: (functionError: unknown, frameworkError?: unknown) => {
     const frameworkErrorMessage = frameworkError
       ? `\n\nAdditionally, the testing framework reported the following error: ${
-          isNativeError(frameworkError) ? frameworkError.message : frameworkError
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
+          String(isNativeError(frameworkError) ? frameworkError.message : frameworkError)
         }`
       : '';
-    return `teardown function failed: ${
+    return `teardown function failed: ${String(
       isNativeError(functionError) ? functionError.message : functionError
-    }${frameworkErrorMessage}`;
+    )}${frameworkErrorMessage}`;
   },
   ExpectedBabelToThrow: () => 'expected babel to throw an error, but it did not',
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   ExpectedErrorToBeInstanceOf: (expectedError: Function | { name?: string }) =>
     `expected error to be an instance of ${expectedError.name || 'the expected error'}`,
   ExpectedThrowsFunctionToReturnTrue: () =>
@@ -65,7 +66,7 @@ export const ErrorMessage = {
   ExpectedErrorToIncludeString: (resultString: string, expectedError: string) =>
     `expected "${resultString}" to include "${expectedError}"`,
   ExpectedErrorToMatchRegExp: (resultString: string, expectedError: RegExp) =>
-    `expected "${resultString}" to match ${expectedError}`,
+    `expected "${resultString}" to match ${String(expectedError)}`,
   BabelOutputTypeIsNotString: (rawBabelOutput: unknown) =>
     `unexpected babel output of type "${typeof rawBabelOutput}" (expected 'code' property to be of type "string")`,
   BabelOutputUnexpectedlyEmpty: () =>
@@ -79,11 +80,11 @@ export const ErrorMessage = {
         }
       | Pick<PluginTesterTestFixtureConfig, typeof $type | 'fixtureOutputBasename'>
   ) => {
-    return `actual output does not match ${
+    return `actual output does not match ${String(
       testConfig[$type] === 'fixture-object'
         ? testConfig.fixtureOutputBasename
         : 'expected output'
-    }`;
+    )}`;
   },
   ExpectedOutputNotToChange: () => 'expected output not to change, but it did',
   ValidationFailed: (title: string, message: string) =>
@@ -136,7 +137,7 @@ export const ErrorMessage = {
   InvalidThrowsType: () =>
     '`throws`/`error` must be a function, string, boolean, RegExp, or Error subtype',
   GenericErrorWithPath: (error: unknown, path: string | undefined) => {
-    const message = `${isNativeError(error) ? error.message : error}`;
+    const message = String(isNativeError(error) ? error.message : error);
     // ? Some realms/runtimes don't include the failing path, so we make sure
     return !path || message.includes(path) ? message : `${path}: ${message}`;
   },
@@ -148,5 +149,5 @@ export const ErrorMessage = {
     basename: unknown,
     basenameName: string
   ) =>
-    `unable to derive an absolute path from the provided ${filepathName} and ${basenameName}:\n\n${filepathName}: ${filepath}\n${basenameName}: ${basename}`
+    `unable to derive an absolute path from the provided ${filepathName} and ${basenameName}:\n\n${filepathName}: ${String(filepath)}\n${basenameName}: ${String(basename)}`
 };

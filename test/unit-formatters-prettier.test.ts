@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import prettier from 'prettier';
 
-import { prettierFormatter } from '../src/formatters/prettier';
+import { prettierFormatter } from 'universe:formatters/prettier.ts';
 
 // TODO: fix this import
 // @ts-expect-error: broken import from node10; needs fixing

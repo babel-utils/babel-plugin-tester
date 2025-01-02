@@ -2,8 +2,9 @@
 
 import path from 'node:path';
 
-import { pluginTester } from '../../src/index';
-import { identifierReversePlugin } from '../helpers/plugins';
+import { pluginTester } from 'universe';
+
+import { identifierReversePlugin } from 'testverse:helpers/plugins.ts';
 
 const customFormatFunction = (r: string) => r;
 

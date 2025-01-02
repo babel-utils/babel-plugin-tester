@@ -1,26 +1,26 @@
-import type { PluginItem, PluginObj, PluginPass as State } from '@babel/core';
-import type { PluginTesterOptions } from '../../src/index';
+import type { PluginItem, PluginObj } from '@babel/core';
+import type { PluginTesterOptions } from 'universe';
 
 /**
  * Dummy plugin that reverses the character order of all identifiers.
  */
-export const identifierReversePlugin: () => PluginObj<State> = require('./plugin-identifier-reverse');
+export const identifierReversePlugin: () => PluginObj = require('testverse:helpers/plugin-identifier-reverse.js');
 
 /**
  * Dummy plugin that deletes variable declarations.
  */
-export const deleteVariablesPlugin: () => PluginObj<State> = require('./plugin-delete-variables');
+export const deleteVariablesPlugin: () => PluginObj = require('testverse:helpers/plugin-delete-variables.js');
 
 /**
  * Dummy plugin that adds a single "hello world" string to the beginning of a
  * program.
  */
-export const addLinePlugin: () => PluginObj<State> = require('./plugin-add-line');
+export const addLinePlugin: () => PluginObj = require('testverse:helpers/plugin-add-line.js');
 
 /**
  * Dummy plugin that mutates global metadata.
  */
-export const metadataMutationPlugin: () => PluginObj<State> = () => {
+export const metadataMutationPlugin: () => PluginObj = () => {
   return {
     visitor: {
       Identifier(_, state) {
