@@ -905,7 +905,7 @@ regardless of other options.
 
 The `output` parameter is not trimmed, converted, stripped, or modified at all.
 
-Note that `outputRaw` does not _replace_ [`output.js`][56] et al, it only adds
+Note that `outputRaw` does not _replace_ [`output.js`][56] etc, it only adds
 additional (custom) expectations to your test. Further note that this option
 _can_ appear alongside any other [`fixtures`][35] option except [`throws`][84].
 
@@ -1147,7 +1147,7 @@ will fail regardless of other properties.
 
 The `output` parameter is not trimmed, converted, stripped, or modified at all.
 
-Note that `outputRaw` does not _replace_ [`output`][87] et al, it only adds
+Note that `outputRaw` does not _replace_ [`output`][87] etc, it only adds
 additional (custom) expectations to your test. Further note that `outputRaw`
 _can_ appear in the same test object as any other property except
 [`throws`][84].
