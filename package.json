@@ -68,7 +68,7 @@
     "list-tasks": "NODE_NO_WARNINGS=1 symbiote list-tasks --scope this-package",
     "prepare": "NODE_NO_WARNINGS=1 symbiote project prepare",
     "release": "NODE_NO_WARNINGS=1 symbiote release",
-    "renovate": "NODE_NO_WARNINGS=1 symbiote project renovate --hush --github-reconfigure-repo --regenerate-assets --assets-preset lib",
+    "renovate": "NODE_NO_WARNINGS=1 symbiote project renovate --hush --regenerate-assets --assets-preset lib",
     "start": "NODE_NO_WARNINGS=1 symbiote start --",
     "test": "npm run test:package:unit --",
     "test:package:all": "NODE_NO_WARNINGS=1 symbiote test --coverage",
