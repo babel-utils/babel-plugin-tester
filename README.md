@@ -61,10 +61,6 @@ This package is tested on both Windows and nix (Ubuntu) environments.
   - [Full Example](#full-example)
   - [Fixtures Examples](#fixtures-examples)
 - [Appendix](#appendix)
-  - [Published Package Details](#published-package-details)
-  - [License](#license)
-- [Contributing and Support](#contributing-and-support)
-  - [Contributors](#contributors)
   - [Testing Framework Compatibility](#testing-framework-compatibility)
   - [Using Babel for Configuration Loading](#using-babel-for-configuration-loading)
   - [`pluginName` Inference Caveat](#pluginname-inference-caveat)
@@ -73,11 +69,11 @@ This package is tested on both Windows and nix (Ubuntu) environments.
   - [Built-In Debugging Support](#built-in-debugging-support)
   - [`TEST_ONLY`/`TEST_NUM_ONLY` and `TEST_SKIP`/`TEST_NUM_SKIP` Environment Variables](#test_onlytest_num_only-and-test_skiptest_num_skip-environment-variables)
   - [`setup` and `teardown` Run Order](#setup-and-teardown-run-order)
-- [Inspiration](#inspiration)
-- [Issues](#issues)
-  - [🐛 Bugs](#-bugs)
-  - [💡 Feature Requests](#-feature-requests)
-- [Contributors ✨](#contributors-)
+  - [Published Package Details](#published-package-details)
+  - [License](#license)
+- [Contributing and Support](#contributing-and-support)
+  - [Inspiration](#inspiration)
+  - [Contributors](#contributors)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 <!-- symbiote-template-region-start 4 -->
@@ -1615,90 +1611,6 @@ babel-plugin-tester fixtures in some of these other projects:
 
 Further documentation can be found under [`docs/`][x-repo-docs].
 
-<!-- symbiote-template-region-start 6 -->
-
-### Published Package Details
-
-This is a [CJS2 package][x-pkg-cjs-mojito] with statically-analyzable exports
-built by Babel for use in Node.js versions that are not end-of-life. For
-TypeScript users, this package supports both `"Node10"` and `"Node16"` module
-resolution strategies.
-
-<!-- symbiote-template-region-end -->
-<!-- TODO: optional additional details here -->
-<!-- symbiote-template-region-start 7 -->
-
-<details><summary>Expand details</summary>
-
-That means both CJS2 (via `require(...)`) and ESM (via `import { ... } from ...`
-or `await import(...)`) source will load this package from the same entry points
-when using Node. This has several benefits, the foremost being: less code
-shipped/smaller package size, avoiding [dual package
-hazard][x-pkg-dual-package-hazard] entirely, distributables are not
-packed/bundled/uglified, a drastically less complex build process, and CJS
-consumers aren't shafted.
-
-Each entry point (i.e. `ENTRY`) in [`package.json`'s
-`exports[ENTRY]`][x-repo-package-json] object includes one or more [export
-conditions][x-pkg-exports-conditions]. These entries may or may not include: an
-[`exports[ENTRY].types`][x-pkg-exports-types-key] condition pointing to a type
-declaration file for TypeScript and IDEs, a
-[`exports[ENTRY].module`][x-pkg-exports-module-key] condition pointing to
-(usually ESM) source for Webpack/Rollup, a `exports[ENTRY].node` and/or
-`exports[ENTRY].default` condition pointing to (usually CJS2) source for Node.js
-`require`/`import` and for browsers and other environments, and [other
-conditions][x-pkg-exports-conditions] not enumerated here. Check the
-[package.json][x-repo-package-json] file to see which export conditions are
-supported.
-
-Note that, regardless of the [`{ "type": "..." }`][x-pkg-type] specified in
-[`package.json`][x-repo-package-json], any JavaScript files written in ESM
-syntax (including distributables) will always have the `.mjs` extension. Note
-also that [`package.json`][x-repo-package-json] may include the
-[`sideEffects`][x-pkg-side-effects-key] key, which is almost always `false` for
-optimal [tree shaking][x-pkg-tree-shaking] where appropriate.
-
-<!-- symbiote-template-region-end -->
-<!-- TODO: optional additional details here -->
-<!-- symbiote-template-region-start 8 -->
-
-</details>
-
-### License
-
-<!-- symbiote-template-region-end -->
-
-See [LICENSE][x-repo-license].
-
-<!-- TODO: optional additional details here -->
-<!-- symbiote-template-region-start 9 -->
-
-## Contributing and Support
-
-**[New issues][x-repo-choose-new-issue] and [pull requests][x-repo-pr-compare]
-are always welcome and greatly appreciated! 🤩** Just as well, you can [star 🌟
-this project][x-badge-repo-link] to let me know you found it useful! ✊🏿 Or [buy
-me a beer][x-repo-sponsor], I'd appreciate it. Thank you!
-
-See [CONTRIBUTING.md][x-repo-contributing] and [SUPPORT.md][x-repo-support] for
-more information.
-
-<!-- symbiote-template-region-end -->
-<!-- TODO: optional additional sections here -->
-<!-- symbiote-template-region-start 10 -->
-
-### Contributors
-
-<!-- symbiote-template-region-end -->
-<!-- symbiote-template-region-start root-package-only -->
-<!-- remark-ignore-start -->
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-
-[![All Contributors](https://img.shields.io/badge/all_contributors-31-orange.svg?style=flat-square)](#contributors-)
-
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-<!-- remark-ignore-end -->
-
 ### Testing Framework Compatibility
 
 This package was originally tested on and built to work with [Jest][4], but it
@@ -2126,7 +2038,76 @@ the following order:
 6. Any function returned by base `setup`.
 7. [Base `teardown`][45].
 
-## Inspiration
+<!-- symbiote-template-region-start 6 -->
+
+### Published Package Details
+
+This is a [CJS2 package][x-pkg-cjs-mojito] with statically-analyzable exports
+built by Babel for use in Node.js versions that are not end-of-life. For
+TypeScript users, this package supports both `"Node10"` and `"Node16"` module
+resolution strategies.
+
+<!-- symbiote-template-region-end -->
+<!-- TODO: optional additional details here -->
+<!-- symbiote-template-region-start 7 -->
+
+<details><summary>Expand details</summary>
+
+That means both CJS2 (via `require(...)`) and ESM (via `import { ... } from ...`
+or `await import(...)`) source will load this package from the same entry points
+when using Node. This has several benefits, the foremost being: less code
+shipped/smaller package size, avoiding [dual package
+hazard][x-pkg-dual-package-hazard] entirely, distributables are not
+packed/bundled/uglified, a drastically less complex build process, and CJS
+consumers aren't shafted.
+
+Each entry point (i.e. `ENTRY`) in [`package.json`'s
+`exports[ENTRY]`][x-repo-package-json] object includes one or more [export
+conditions][x-pkg-exports-conditions]. These entries may or may not include: an
+[`exports[ENTRY].types`][x-pkg-exports-types-key] condition pointing to a type
+declaration file for TypeScript and IDEs, a
+[`exports[ENTRY].module`][x-pkg-exports-module-key] condition pointing to
+(usually ESM) source for Webpack/Rollup, a `exports[ENTRY].node` and/or
+`exports[ENTRY].default` condition pointing to (usually CJS2) source for Node.js
+`require`/`import` and for browsers and other environments, and [other
+conditions][x-pkg-exports-conditions] not enumerated here. Check the
+[package.json][x-repo-package-json] file to see which export conditions are
+supported.
+
+Note that, regardless of the [`{ "type": "..." }`][x-pkg-type] specified in
+[`package.json`][x-repo-package-json], any JavaScript files written in ESM
+syntax (including distributables) will always have the `.mjs` extension. Note
+also that [`package.json`][x-repo-package-json] may include the
+[`sideEffects`][x-pkg-side-effects-key] key, which is almost always `false` for
+optimal [tree shaking][x-pkg-tree-shaking] where appropriate.
+
+<!-- symbiote-template-region-end -->
+<!-- TODO: optional additional details here -->
+<!-- symbiote-template-region-start 8 -->
+
+</details>
+
+### License
+
+<!-- symbiote-template-region-end -->
+
+See [LICENSE][x-repo-license].
+
+<!-- symbiote-template-region-start 9 -->
+
+## Contributing and Support
+
+**[New issues][x-repo-choose-new-issue] and [pull requests][x-repo-pr-compare]
+are always welcome and greatly appreciated! 🤩** Just as well, you can [star 🌟
+this project][x-badge-repo-link] to let me know you found it useful! ✊🏿 Or [buy
+me a beer][x-repo-sponsor], I'd appreciate it. Thank you!
+
+See [CONTRIBUTING.md][x-repo-contributing] and [SUPPORT.md][x-repo-support] for
+more information.
+
+<!-- symbiote-template-region-end -->
+
+### Inspiration
 
 The API was inspired by:
 
@@ -2135,25 +2116,19 @@ The API was inspired by:
 - Babel's own
   [`@babel/helper-plugin-test-runner`][@babel/helper-plugin-test-runner].
 
-## Issues
+<!-- symbiote-template-region-start 10 -->
 
-_Looking to contribute? Look for the [Good First Issue][good-first-issue]
-label._
+### Contributors
 
-### 🐛 Bugs
+<!-- symbiote-template-region-end -->
+<!-- symbiote-template-region-start root-package-only -->
+<!-- remark-ignore-start -->
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 
-Please file an issue for bugs, missing documentation, or unexpected behavior.
+[![All Contributors](https://img.shields.io/badge/all_contributors-31-orange.svg?style=flat-square)](#contributors-)
 
-[**See Bugs**][bugs]
-
-### 💡 Feature Requests
-
-Please file an issue to suggest new features. Vote on feature requests by adding
-a 👍. This helps maintainers prioritize what to work on.
-
-[**See Feature Requests**][requests]
-
-## Contributors ✨
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+<!-- remark-ignore-end -->
 
 Thanks goes to these wonderful people ([emoji
 key][x-repo-all-contributors-emojis]):
@@ -2224,14 +2199,8 @@ specification. Contributions of any kind welcome!
 
 [@babel/helper-plugin-test-runner]:
   https://github.com/babel/babel/tree/master/packages/babel-helper-plugin-test-runner
-[bugs]:
-  https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22bug%22
-[good-first-issue]:
-  https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 [jamestweet]: https://twitter.com/thejameskyle/status/864359438819262465
 [lodash.mergewith]: https://lodash.com/docs/4.17.4#mergeWith
-[requests]:
-  https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22enhancement%22
 [ruletester]:
   http://eslint.org/docs/developer-guide/working-with-rules#rule-unit-tests
 [x-badge-blm-image]: https://xunn.at/badge-blm 'Join the movement!'
