@@ -87,7 +87,7 @@
     "type-fest": "^4.31.0"
   },
   "devDependencies": {
-    "@-xun/symbiote": "^2.3.4",
+    "@-xun/symbiote": "^2.4.0",
     "@babel/helper-plugin-utils": "^7.25.9",
     "@babel/plugin-syntax-typescript": "^7.25.9",
     "@types/babel__helper-plugin-utils": "^7.10.3",
