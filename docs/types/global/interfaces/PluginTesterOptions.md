@@ -6,7 +6,7 @@
 
 # Interface: PluginTesterOptions
 
-Defined in: types/global.ts:59
+Defined in: [types/global.ts:59](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L59)
 
 Options passed as parameters to the `pluginTester` function.
 
@@ -20,7 +20,7 @@ https://npm.im/babel-plugin-tester#options
 
 > `optional` **babel**: `object`
 
-Defined in: types/global.ts:116
+Defined in: [types/global.ts:116](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L116)
 
 This is a `pluginTester` option used to provide your own implementation of
 babel. This is particularly useful if you want to use a different version
@@ -112,7 +112,7 @@ https://npm.im/babel-plugin-tester#babel
 
 > `optional` **babelOptions**: `Omit`\<`TransformOptions`, `"plugins"` \| `"presets"`\> & `object`
 
-Defined in: types/global.ts:128
+Defined in: [types/global.ts:128](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L128)
 
 This is a `pluginTester` option used to configure babel.
 
@@ -139,7 +139,7 @@ https://npm.im/babel-plugin-tester#babelOptions
 
 > `optional` **endOfLine**: `false` \| `"lf"` \| `"crlf"` \| `"auto"` \| `"preserve"`
 
-Defined in: types/global.ts:187
+Defined in: [types/global.ts:187](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L187)
 
 This is a `pluginTester` option used to control which line endings both the
 actual output from babel and the expected output will be converted to.
@@ -169,7 +169,7 @@ https://npm.im/babel-plugin-tester#endOfLine
 
 > `optional` **filename**: `string`
 
-Defined in: types/global.ts:170
+Defined in: [types/global.ts:170](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L170)
 
 #### Deprecated
 
@@ -185,7 +185,7 @@ https://npm.im/babel-plugin-tester#filepath
 
 > `optional` **filepath**: `string`
 
-Defined in: types/global.ts:165
+Defined in: [types/global.ts:165](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L165)
 
 This is a `pluginTester` option used to resolve relative paths provided by
 the `fixtures` option and the two test object properties `codeFixture` and
@@ -208,7 +208,7 @@ https://npm.im/babel-plugin-tester#filepath
 
 > `optional` **fixtureOutputExt**: `string`
 
-Defined in: types/global.ts:242
+Defined in: [types/global.ts:242](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L242)
 
 This is a `pluginTester` option used to provide a new default output file
 extension for all fixtures. This is particularly useful if you are testing
@@ -225,7 +225,7 @@ https://npm.im/babel-plugin-tester#fixtureOutputExt
 
 > `optional` **fixtureOutputName**: `string`
 
-Defined in: types/global.ts:233
+Defined in: [types/global.ts:233](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L233)
 
 This is a `pluginTester` option used to provide a new default output file
 name for all fixtures. Defaults to `"output"`.
@@ -246,7 +246,7 @@ https://npm.im/babel-plugin-tester#fixtureOutputName
 
 > `optional` **fixtures**: `string`
 
-Defined in: types/global.ts:272
+Defined in: [types/global.ts:272](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L272)
 
 This is a `pluginTester` option used to specify a path to a directory
 containing tests.
@@ -261,7 +261,7 @@ https://npm.im/babel-plugin-tester#fixtures
 
 > `optional` **formatResult**: [`ResultFormatter`](../type-aliases/ResultFormatter.md)\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: types/global.ts:216
+Defined in: [types/global.ts:216](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L216)
 
 This is a `pluginTester` option used to provide a function that formats
 actual babel outputs before they are compared to expected outputs, and
@@ -279,7 +279,7 @@ https://npm.im/babel-plugin-tester#formatResult
 
 > `optional` **plugin**: (...`args`) => `PluginObj`\<`any`\>
 
-Defined in: types/global.ts:67
+Defined in: [types/global.ts:67](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L67)
 
 This is a `pluginTester` option used to provide the babel plugin under
 test.
@@ -304,7 +304,7 @@ https://npm.im/babel-plugin-tester#plugin
 
 > `optional` **pluginName**: `string`
 
-Defined in: types/global.ts:76
+Defined in: [types/global.ts:76](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L76)
 
 This is a `pluginTester` option used as the describe block name and in your
 tests' names. If `pluginName` can be inferred from the `plugin`'s name,
@@ -321,7 +321,7 @@ https://npm.im/babel-plugin-tester#pluginName
 
 > `optional` **pluginOptions**: `PluginOptions`
 
-Defined in: types/global.ts:84
+Defined in: [types/global.ts:84](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L84)
 
 This is a `pluginTester` option used to pass options into your plugin at
 transform time. This option can be overwritten in a test object or fixture
@@ -337,7 +337,7 @@ https://npm.im/babel-plugin-tester#pluginOptions
 
 > `optional` **preset**: (...`args`) => `TransformOptions`
 
-Defined in: types/global.ts:92
+Defined in: [types/global.ts:92](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L92)
 
 This is a `pluginTester` option used to provide the babel preset under
 test.
@@ -362,7 +362,7 @@ https://npm.im/babel-plugin-tester#preset
 
 > `optional` **presetName**: `string`
 
-Defined in: types/global.ts:100
+Defined in: [types/global.ts:100](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L100)
 
 This is a `pluginTester` option used as the describe block name and in your
 tests' names. Defaults to `"unknown preset"`.
@@ -383,7 +383,7 @@ https://npm.im/babel-plugin-tester#presetName
 
 > `optional` **presetOptions**: `PluginOptions`
 
-Defined in: types/global.ts:108
+Defined in: [types/global.ts:108](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L108)
 
 This is a `pluginTester` option used to pass options into your preset at
 transform time. This option can be overwritten using test object properties
@@ -399,7 +399,7 @@ https://npm.im/babel-plugin-tester#presetOptions
 
 > `optional` **restartTitleNumbering**: `boolean`
 
-Defined in: types/global.ts:265
+Defined in: [types/global.ts:265](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L265)
 
 This is a `pluginTester` option used to restart test title numbering. Set
 this value to `true` to restart automatic title numbering at 1.
@@ -420,7 +420,7 @@ https://npm.im/babel-plugin-tester#restartTitleNumbering
 
 > `optional` **setup**: [`SetupFunction`](../type-aliases/SetupFunction.md)
 
-Defined in: types/global.ts:196
+Defined in: [types/global.ts:196](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L196)
 
 This is a `pluginTester` option to provide a setup function run before each
 test runs. It can return a function which will be treated as a `teardown`
@@ -437,7 +437,7 @@ https://npm.im/babel-plugin-tester#setup
 
 > `optional` **snapshot**: `boolean`
 
-Defined in: types/global.ts:225
+Defined in: [types/global.ts:225](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L225)
 
 This is a `pluginTester` option for when you prefer to take a snapshot of
 all test object outputs rather than compare it to something you hard-code.
@@ -454,7 +454,7 @@ https://npm.im/babel-plugin-tester#snapshot
 
 > `optional` **teardown**: [`TeardownFunction`](../type-aliases/TeardownFunction.md)
 
-Defined in: types/global.ts:206
+Defined in: [types/global.ts:206](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L206)
 
 This is a `pluginTester` option to provide a teardown function run after
 each test runs. Use this function to clean up after tests finish running.
@@ -472,7 +472,7 @@ https://npm.im/babel-plugin-tester#teardown
 
 > `optional` **tests**: (`string` \| [`TestObject`](TestObject.md))[] \| `Record`\<`string`, `string` \| [`TestObject`](TestObject.md)\>
 
-Defined in: types/global.ts:278
+Defined in: [types/global.ts:278](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L278)
 
 This is a `pluginTester` option used to create tests.
 
@@ -486,7 +486,7 @@ https://npm.im/babel-plugin-tester#tests
 
 > `optional` **title**: `string` \| `false`
 
-Defined in: types/global.ts:150
+Defined in: [types/global.ts:150](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L150)
 
 This is a `pluginTester` option used to specify a custom title for the
 describe block (overriding everything else). Set to `false` to prevent the
@@ -503,7 +503,7 @@ https://npm.im/babel-plugin-tester#title
 
 > `optional` **titleNumbering**: `false` \| `"all"` \| `"tests-only"` \| `"fixtures-only"`
 
-Defined in: types/global.ts:257
+Defined in: [types/global.ts:257](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L257)
 
 This is a `pluginTester` option used to determines which test titles are
 prefixed with a number when output. Defaults to `"all"`.

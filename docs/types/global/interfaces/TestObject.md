@@ -6,7 +6,7 @@
 
 # Interface: TestObject
 
-Defined in: types/global.ts:466
+Defined in: [types/global.ts:466](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L466)
 
 Options provided as properties of a test object for use with the `tests`
 option.
@@ -21,7 +21,7 @@ https://npm.im/babel-plugin-tester#test-objects
 
 > `optional` **babelOptions**: `Omit`\<`TransformOptions`, `"plugins"` \| `"presets"`\> & `object`
 
-Defined in: types/global.ts:473
+Defined in: [types/global.ts:473](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L473)
 
 This is a `tests` object option used to configure babel, overriding the
 `babelOptions` provided to babel-plugin-tester.
@@ -46,7 +46,7 @@ https://npm.im/babel-plugin-tester#babelOptions-2
 
 > `optional` **code**: `string`
 
-Defined in: types/global.ts:613
+Defined in: [types/global.ts:613](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L613)
 
 This is a `tests` object option providing the code that you want babel to
 transform using your plugin or preset. This must be provided unless you're
@@ -64,7 +64,7 @@ https://npm.im/babel-plugin-tester#code
 
 > `optional` **codeFixture**: `string`
 
-Defined in: types/global.ts:651
+Defined in: [types/global.ts:651](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L651)
 
 This is a `tests` object option for when you'd rather put your `code` in a
 separate file. If an absolute file path is provided here, then that's the
@@ -84,7 +84,7 @@ https://npm.im/babel-plugin-tester#codeFixture
 
 > `optional` **error**: [`ErrorExpectation`](../type-aliases/ErrorExpectation.md)
 
-Defined in: types/global.ts:566
+Defined in: [types/global.ts:566](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L566)
 
 This is a `tests` object option used to assert that this test should throw
 an error during transformation. For example:
@@ -119,7 +119,7 @@ https://npm.im/babel-plugin-tester#throws-1
 
 > `optional` **exec**: `string`
 
-Defined in: types/global.ts:639
+Defined in: [types/global.ts:639](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L639)
 
 This is a `tests` object option that will be transformed just like the
 `code` property, except the output will be _evaluated_ in the same context
@@ -136,7 +136,7 @@ https://npm.im/babel-plugin-tester#exec
 
 > `optional` **execFixture**: `string`
 
-Defined in: types/global.ts:680
+Defined in: [types/global.ts:680](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L680)
 
 This is a `tests` object option for when you'd rather put your `exec` in a
 separate file. If an absolute file path is provided here, then that's the
@@ -156,7 +156,7 @@ https://npm.im/babel-plugin-tester#execFixture
 
 > `optional` **fixture**: `string`
 
-Defined in: types/global.ts:656
+Defined in: [types/global.ts:656](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L656)
 
 #### Deprecated
 
@@ -172,7 +172,7 @@ https://npm.im/babel-plugin-tester#codeFixture
 
 > `optional` **formatResult**: [`ResultFormatter`](../type-aliases/ResultFormatter.md)\<`Record`\<`string`, `unknown`\>\>
 
-Defined in: types/global.ts:594
+Defined in: [types/global.ts:594](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L594)
 
 This is a `tests` object option used to provide a function that formats the
 babel output yielded from transforming `code` _before_ it is compared to
@@ -190,7 +190,7 @@ https://npm.im/babel-plugin-tester#formatResult-2
 
 > `optional` **only**: `boolean`
 
-Defined in: types/global.ts:504
+Defined in: [types/global.ts:504](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L504)
 
 This is a `tests` object option used to run only the specified test. Useful
 while developing to help focus on a small number of tests. Can be used on
@@ -206,7 +206,7 @@ https://npm.im/babel-plugin-tester#only-1
 
 > `optional` **output**: `string`
 
-Defined in: types/global.ts:621
+Defined in: [types/global.ts:621](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L621)
 
 This is a `tests` object option to which the result of the babel
 transformation will be compared. `output` will have any indentation
@@ -222,7 +222,7 @@ https://npm.im/babel-plugin-tester#output
 
 > `optional` **outputFixture**: `string`
 
-Defined in: types/global.ts:668
+Defined in: [types/global.ts:668](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L668)
 
 This is a `tests` object option for when you'd rather put your `output` in
 a separate file. If an absolute file path is provided here, then that's the
@@ -242,7 +242,7 @@ https://npm.im/babel-plugin-tester#outputFixture
 
 > `optional` **outputRaw**: [`OutputTesterFunction`](../type-aliases/OutputTesterFunction.md)
 
-Defined in: types/global.ts:630
+Defined in: [types/global.ts:630](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L630)
 
 This is a `tests` object option similar in intent to the `output` option
 except it tests against the entire `BabelFileResult` object returned by
@@ -259,7 +259,7 @@ https://npm.im/babel-plugin-tester#outputRaw-1
 
 > `optional` **pluginOptions**: `PluginOptions`
 
-Defined in: types/global.ts:481
+Defined in: [types/global.ts:481](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L481)
 
 This is a `tests` object option used to pass options into your plugin at
 transform time, overriding the `pluginOptions` provided to
@@ -275,7 +275,7 @@ https://npm.im/babel-plugin-tester#pluginOptions-2
 
 > `optional` **presetOptions**: `PluginOptions`
 
-Defined in: types/global.ts:489
+Defined in: [types/global.ts:489](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L489)
 
 This is a `tests` object option used to pass options into your preset at
 transform time, overriding the `presetOptions` provided to
@@ -291,7 +291,7 @@ https://npm.im/babel-plugin-tester#presetOptions-1
 
 > `optional` **setup**: [`SetupFunction`](../type-aliases/SetupFunction.md)
 
-Defined in: types/global.ts:575
+Defined in: [types/global.ts:575](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L575)
 
 This is a `tests` object option to provide a setup function run before this
 test. It can return a function which will be treated as a `teardown`
@@ -308,7 +308,7 @@ https://npm.im/babel-plugin-tester#setup-2
 
 > `optional` **skip**: `boolean`
 
-Defined in: types/global.ts:512
+Defined in: [types/global.ts:512](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L512)
 
 This is a `tests` object option used to skip running the specified test.
 Useful for when you're working on a feature that is not yet supported. Can
@@ -324,7 +324,7 @@ https://npm.im/babel-plugin-tester#skip-1
 
 > `optional` **snapshot**: `boolean`
 
-Defined in: types/global.ts:603
+Defined in: [types/global.ts:603](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L603)
 
 This is a `tests` object option for when you prefer to take a snapshot of
 your output rather than compare it to something you hard-code. When `true`,
@@ -341,7 +341,7 @@ https://npm.im/babel-plugin-tester#snapshot-1
 
 > `optional` **teardown**: [`TeardownFunction`](../type-aliases/TeardownFunction.md)
 
-Defined in: types/global.ts:584
+Defined in: [types/global.ts:584](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L584)
 
 This is a `tests` object option to provide a teardown function run after
 this test. You can either define this as its own property, or you can
@@ -358,7 +358,7 @@ https://npm.im/babel-plugin-tester#teardown-2
 
 > `optional` **throws**: [`ErrorExpectation`](../type-aliases/ErrorExpectation.md)
 
-Defined in: types/global.ts:539
+Defined in: [types/global.ts:539](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L539)
 
 This is a `tests` object option used to assert that this test should throw
 an error during transformation. For example:
@@ -393,7 +393,7 @@ https://npm.im/babel-plugin-tester#throws-1
 
 > `optional` **title**: `string`
 
-Defined in: types/global.ts:496
+Defined in: [types/global.ts:496](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L496)
 
 This is a `tests` object option used as the title of the test (overriding
 everything else).

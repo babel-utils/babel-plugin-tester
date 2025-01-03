@@ -6,7 +6,7 @@
 
 # Interface: RunOptions
 
-Defined in: [test/setup.ts:392](https://github.com/Xunnamius/babel-plugin-tester/blob/91349cafb3cefac8248e86580feec53bd082321e/test/setup.ts#L392)
+Defined in: [test/setup.ts:392](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L392)
 
 ## Extends
 
@@ -332,7 +332,7 @@ false
 
 > `optional` **reject**: `boolean`
 
-Defined in: [test/setup.ts:397](https://github.com/Xunnamius/babel-plugin-tester/blob/91349cafb3cefac8248e86580feec53bd082321e/test/setup.ts#L397)
+Defined in: [test/setup.ts:397](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L397)
 
 Setting this to `true` rejects the promise instead of resolving it with the error.
 
@@ -441,7 +441,7 @@ Same options as [`stdio`](https://nodejs.org/dist/latest-v6.x/docs/api/child_pro
 
 ### stdio?
 
-> `readonly` `optional` **stdio**: `"ignore"` \| `"pipe"` \| `"inherit"` \| readonly `StdioOption`[]
+> `readonly` `optional` **stdio**: `"pipe"` \| `"ignore"` \| `"inherit"` \| readonly `StdioOption`[]
 
 Defined in: node\_modules/execa~5/index.d.ts:136
 

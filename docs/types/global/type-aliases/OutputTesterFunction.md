@@ -8,7 +8,7 @@
 
 > **OutputTesterFunction**: (`output`) => `Promisable`\<`void`\>
 
-Defined in: types/global.ts:52
+Defined in: [types/global.ts:52](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L52)
 
 The shape of an `outputRaw` test object or fixture option.
 

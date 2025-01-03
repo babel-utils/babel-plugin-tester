@@ -8,7 +8,7 @@
 
 > **isolatedImport**(`args`): `unknown`
 
-Defined in: [test/setup.ts:279](https://github.com/Xunnamius/babel-plugin-tester/blob/91349cafb3cefac8248e86580feec53bd082321e/test/setup.ts#L279)
+Defined in: [test/setup.ts:279](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L279)
 
 Performs a module import as if it were being imported for the first time.
 

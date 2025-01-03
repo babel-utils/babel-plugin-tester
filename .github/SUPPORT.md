@@ -46,15 +46,15 @@ you for contribution 🎉, your efforts are greatly appreciated! 🙌🏿
 - Issues that go for an extended period without activity are subject to closure.
 
 [badge-issue-percentage]:
-  https://isitmaintained.com/badge/open/Xunnamius/babel-plugin-tester.svg
+  https://isitmaintained.com/badge/open/babel-utils/babel-plugin-tester.svg
   'Open issues as a percentage of all issues'
 [badge-issue-resolution]:
-  https://isitmaintained.com/badge/resolution/Xunnamius/babel-plugin-tester.svg
+  https://isitmaintained.com/badge/resolution/babel-utils/babel-plugin-tester.svg
   'Average time to resolve an issue'
 [choose-new-issue]:
   https://github.com/babel-utils/babel-plugin-tester/issues/new/choose
 [github-blog]:
   https://github.com/blog/2119-add-reactions-to-pull-requests-issues-and-comments
 [link-issue-resolution]:
-  https://isitmaintained.com/project/Xunnamius/babel-plugin-tester
+  https://isitmaintained.com/project/babel-utils/babel-plugin-tester
 [open-issues]: https://github.com/babel-utils/babel-plugin-tester/issues?q=
