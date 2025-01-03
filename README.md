@@ -747,7 +747,7 @@ expect(() => throw new Error('throw expression')).toThrow('throw expression');
 > ).toStrictEqual({ data: 'imported' });
 > ```
 >
-> Or:
+> Or use `JSON.stringify` + `toBe` (or your testing framework's equivalent):
 >
 > ```javascript
 > expect(JSON.stringify(require(`${__dirname}/imported-file.json`))).toBe(
@@ -755,7 +755,7 @@ expect(() => throw new Error('throw expression')).toThrow('throw expression');
 > );
 > ```
 >
-> Or even:
+> Or use `isEqual` (or your testing framework's equivalent):
 >
 > ```javascript
 > expect(require(`${__dirname}/imported-file.json`)).toEqual({
@@ -1298,7 +1298,7 @@ following:
 > ).toStrictEqual({ data: 'imported' });
 > ```
 >
-> Or:
+> Or use `JSON.stringify` + `toBe` (or your testing framework's equivalent):
 >
 > ```javascript
 > expect(JSON.stringify(require(`${__dirname}/imported-file.json`))).toBe(
@@ -1306,7 +1306,7 @@ following:
 > );
 > ```
 >
-> Or even:
+> Or use `isEqual` (or your testing framework's equivalent):
 >
 > ```javascript
 > expect(require(`${__dirname}/imported-file.json`)).toEqual({
