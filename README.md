@@ -2161,8 +2161,6 @@ specification. Contributions of any kind welcome!
   https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 [jamestweet]: https://twitter.com/thejameskyle/status/864359438819262465
 [lodash.mergewith]: https://lodash.com/docs/4.17.4#mergeWith
-[node]: https://nodejs.org
-[npm]: https://www.npmjs.com
 [requests]:
   https://github.com/babel-utils/babel-plugin-tester/issues?q=is%3Aissue+is%3Aopen+label%3A%22enhancement%22
 [ruletester]:
@@ -2198,8 +2196,6 @@ specification. Contributions of any kind welcome!
   https://dev.to/jakobjingleheimer/configuring-commonjs-es-modules-for-nodejs-12ed#publish-only-a-cjs-distribution-with-property-exports
 [x-pkg-dual-package-hazard]:
   https://nodejs.org/api/packages.html#dual-package-hazard
-[x-pkg-esm-wine]:
-  https://dev.to/jakobjingleheimer/configuring-commonjs-es-modules-for-nodejs-12ed#esm-source-and-distribution
 [x-pkg-exports-conditions]:
   https://webpack.js.org/guides/package-exports#reference-syntax
 [x-pkg-exports-module-key]:
@@ -2222,6 +2218,7 @@ specification. Contributions of any kind welcome!
 [x-repo-pr-compare]: https://github.com/babel-utils/babel-plugin-tester/compare
 [x-repo-sponsor]: https://github.com/sponsors/Xunnamius
 [x-repo-support]: /.github/SUPPORT.md
+[1]: https://www.npmjs.com/package/babel-plugin-tester?activeTab=versions
 [3]: https://babeljs.io/docs/en/presets
 [4]: https://jestjs.io
 [5]: https://mochajs.org
@@ -2276,7 +2273,6 @@ specification. Contributions of any kind welcome!
 [52]: #fixtureoutputext-1
 [53]: #titlenumbering
 [54]: #filepath
-[55]: https://github.com/nodejs/node/issues/35889
 [56]: #outputjs
 [57]: #endofline
 [58]: #execjs
@@ -2296,13 +2292,6 @@ specification. Contributions of any kind welcome!
 [71]:
   https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/no-instanceof-array.md
 [72]: https://nodejs.org/api/vm.html#vm-executing-javascript
-[73]:
-  https://github.com/sindresorhus/eslint-plugin-unicorn/issues/723#issuecomment-627001966
-[74]: https://nodejs.org/api/util.html#utiltypesisnativeerrorvalue
-[75]:
-  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray
-[76]:
-  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/hasInstance
 [77]: https://stackoverflow.com/a/32750746/1367414
 [78]: #outputraw
 [79]: #teardown-1
