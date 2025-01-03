@@ -57,7 +57,7 @@
     "build": "npm run build:dist --",
     "build:changelog": "NODE_NO_WARNINGS=1 symbiote build changelog",
     "build:dist": "NODE_NO_WARNINGS=1 symbiote build distributables --skip-bijective 'test/fixtures/.+$'",
-    "build:docs": "NODE_NO_WARNINGS=1 symbiote build docs",
+    "build:docs": "NODE_NO_WARNINGS=1 symbiote build docs --options --gitRemote upstream --entries 'src/**/*.ts' 'test/setup.ts' 'types/**/*.ts'",
     "clean": "NODE_NO_WARNINGS=1 symbiote clean",
     "format": "NODE_NO_WARNINGS=1 symbiote format --hush",
     "info": "NODE_NO_WARNINGS=1 symbiote project info",
