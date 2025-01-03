@@ -176,6 +176,8 @@ pluginTester({
 });
 ```
 
+> [!TIP]
+>
 > Note how `pluginTester` does not appear inside any `test`/`it` block nor
 > within any [hook functions][10]. For advanced use cases, `pluginTester` may
 > appear within one or more `describe` blocks, though this is discouraged.
@@ -460,6 +462,8 @@ available, and it is used as the default value for `babelOptions.filename` in
 This option defaults to the absolute path of the file that [invoked the
 `pluginTester` function][43].
 
+> [!NOTE]
+>
 > For backwards compatibility reasons, `filepath` is synonymous with `filename`.
 > They can be used interchangeably, though care must be taken not to confuse the
 > babel-plugin-tester option `filename` with `babelOptions.filename`. They are
@@ -478,6 +482,8 @@ the expected output will be converted to. Defaults to `"lf"`.
 | `"preserve"` | Use the line endings from the input     |
 | `false`      | Disable line ending conversion entirely |
 
+> [!NOTE]
+>
 > When disabling line ending conversion, note that [Babel will always output
 > LF][44] even if the input is CRLF.
 
@@ -639,6 +645,11 @@ fixtures
         └── exec.js    # required (alternative to code/output structure)
 ```
 
+> [!TIP]
+>
+> `.babelrc`, `.babelrc.json`, `.babelrc.js`, `.babelrc.cjs`, and `.babelrc.mjs`
+> config files in fixture directories are supported out-of-the-box.
+
 Assuming the `fixtures` directory is in the same directory as your test file,
 you could use it with the following configuration:
 
@@ -649,13 +660,10 @@ pluginTester({
 });
 ```
 
+> [!NOTE]
+>
 > If `fixtures` is not an absolute path, it will be [`path.join`][40]'d with the
 > [directory name][41] of [`filepath`][54].
-
-> `.babelrc`, `.babelrc.json`, `.babelrc.js`, `.babelrc.cjs`, and `.babelrc.mjs`
-> config files in fixture directories are technically supported out-of-the-box,
-> though `.mjs` config files will cause a segfault in Jest until [this issue
-> with V8/Chromium is resolved][55].
 
 And it would run four tests, one for each directory in `fixtures` containing a
 file starting with "code" or "exec".
@@ -713,6 +721,8 @@ file might contain:
 expect(() => throw new Error('throw expression')).toThrow('throw expression');
 ```
 
+> [!CAUTION]
+>
 > Keep in mind that, despite sharing a global context, execution will occur in a
 > [separate realm][63], which means native/intrinsic types will be different.
 > This can lead to unexpectedly failing tests. For example:
@@ -829,6 +839,8 @@ Use this to run only the specified fixture. Useful while developing to help
 focus on a small number of fixtures. Can be used in multiple `options.json`
 files.
 
+> [!IMPORTANT]
+>
 > Requires [Jest][66], an equivalent interface (like [Vitest][8]), or a
 > manually-defined `it` object exposing an appropriate [`only`][67] method.
 
@@ -838,11 +850,15 @@ Use this to skip running the specified fixture. Useful for when you are working
 on a feature that is not yet supported. Can be used in multiple `options.json`
 files.
 
+> [!IMPORTANT]
+>
 > Requires [Jest][66], an equivalent interface (like [Vitest][8]), or a
 > manually-defined `it` object exposing an appropriate [`skip`][68] method.
 
 ###### `throws`
 
+> [!IMPORTANT]
+>
 > When using certain values, this property must be used in `options.js` instead
 > of `options.json`.
 
@@ -864,23 +880,27 @@ an error during transformation. For example:
 }
 ```
 
+> [!CAUTION]
+>
 > Be careful using `instanceof` [across realms][69] as it can lead to [strange
 > behavior][70] with [frontend frames/windows][71] and with tools that rely on
-> [Node's VM module][72] (like Jest). Prefer [name checks][73] and utilities
-> like [`isNativeError`][74], [`Array.isArray`][75], and overriding
-> [`Symbol.hasInstance`][76] instead.
+> [Node's VM module][72] (like Jest).
 
 If the value of `throws` is a class, that class must [be a subtype of
 `Error`][77] or the behavior of babel-plugin-tester is undefined.
 
-> For backwards compatibility reasons, `throws` is synonymous with `error`. They
-> can be used interchangeably, with `throws` taking precedence.
-
 Note that this property cannot be present when using an [`exec.js`][58] or
 [`output.js`][56] file or when using the [`outputRaw`][78] option.
 
+> [!NOTE]
+>
+> For backwards compatibility reasons, `throws` is synonymous with `error`. They
+> can be used interchangeably, with `throws` taking precedence.
+
 ###### `setup`
 
+> [!IMPORTANT]
+>
 > As it requires a function value, this property must be used in `options.js`
 > instead of `options.json`.
 
@@ -894,6 +914,8 @@ as a babel-plugin-tester option. See [here][46] for the complete run order.
 
 ###### `teardown`
 
+> [!IMPORTANT]
+>
 > As it requires a function value, this property must be used in `options.js`
 > instead of `options.json`.
 
@@ -908,6 +930,8 @@ by the [`setup`][80] property, both of which will run _before_ any
 
 ###### `formatResult`
 
+> [!IMPORTANT]
+>
 > As it requires a function value, this property must be used in `options.js`
 > instead of `options.json`.
 
@@ -923,6 +947,12 @@ babel-plugin-tester.
 
 ###### `outputRaw`
 
+> [!WARNING]
+>
+> This feature is only available in `babel-plugin-tester@>=12`.
+
+> [!IMPORTANT]
+>
 > As it requires a function value, this property must be used in `options.js`
 > instead of `options.json`.
 
@@ -1039,6 +1069,8 @@ will be determined from test object by default.
 Use this to run only the specified test. Useful while developing to help focus
 on a small number of tests. Can be used on multiple tests.
 
+> [!IMPORTANT]
+>
 > Requires [Jest][66], an equivalent interface (like [Vitest][8]), or a
 > manually-defined `it` object exposing an appropriate [`only`][67] method.
 
@@ -1047,6 +1079,8 @@ on a small number of tests. Can be used on multiple tests.
 Use this to skip running the specified test. Useful for when you are working on
 a feature that is not yet supported. Can be used on multiple tests.
 
+> [!IMPORTANT]
+>
 > Requires [Jest][66], an equivalent interface (like [Vitest][8]), or a
 > manually-defined `it` object exposing an appropriate [`skip`][68] method.
 
@@ -1070,21 +1104,23 @@ error during transformation. For example:
 }
 ```
 
+> [!CAUTION]
+>
 > Be careful using `instanceof` [across realms][69] as it can lead to [strange
 > behavior][70] with [frontend frames/windows][71] and with tools that rely on
-> [Node's VM module][72] (like Jest). Prefer [name checks][73] and utilities
-> like [`isNativeError`][74], [`Array.isArray`][75], and overriding
-> [`Symbol.hasInstance`][76] instead.
+> [Node's VM module][72] (like Jest).
 
 If the value of `throws` is a class, that class must [be a subtype of
 `Error`][77] or the behavior of babel-plugin-tester is undefined.
 
-> For backwards compatibility reasons, `throws` is synonymous with `error`. They
-> can be used interchangeably, with `throws` taking precedence.
-
 Note that this property cannot be present when using the [`output`][87],
 [`outputRaw`][88], [`outputFixture`][37], [`exec`][89], [`execFixture`][38], or
 [`snapshot`][50] properties.
+
+> [!NOTE]
+>
+> For backwards compatibility reasons, `throws` is synonymous with `error`. They
+> can be used interchangeably, with `throws` taking precedence.
 
 ###### `setup`
 
@@ -1132,6 +1168,8 @@ Note that this property cannot appear in the same test object as the
 [`output`][87], [`outputFixture`][37], [`exec`][89], [`execFixture`][38], or
 [`throws`][84] properties. However, it _can_ be used with [`outputRaw`][88].
 
+> [!IMPORTANT]
+>
 > Requires [Jest][66], an [appropriate shim][92] or equivalent interface (like
 > [Vitest][8]), or a manually-defined `expect` object exposing an appropriate
 > [`toMatchSnapshot`][93] method.
@@ -1166,6 +1204,10 @@ Note that this property cannot appear in the same test object as the
 [`snapshot`][50] properties. However, it _can_ be used with [`outputRaw`][88].
 
 ###### `outputRaw`
+
+> [!WARNING]
+>
+> This feature is only available in `babel-plugin-tester@>=12`.
 
 This property is similar to [`output`][87] and related properties except it
 tests against the _entire [`BabelFileResult`][82] object_ returned by [babel's
@@ -1230,6 +1272,8 @@ following:
 }
 ```
 
+> [!CAUTION]
+>
 > Keep in mind that, despite sharing a global context, execution will occur in a
 > [separate realm][63], which means native/intrinsic types will be different.
 > This can lead to unexpectedly failing tests. For example:
@@ -1292,9 +1336,13 @@ trimmed, line endings [converted][57], and then get [formatted by prettier][39].
 Like [`code`][86], this property cannot appear in the same test object as the
 [`exec`][89] or [`execFixture`][38] properties, nor the [`code`][86] property.
 
+> [!TIP]
+>
 > If you find you are using this property more than a couple of times, consider
 > using [`fixtures`][35] instead.
 
+> [!NOTE]
+>
 > For backwards compatibility reasons, `codeFixture` is synonymous with
 > `fixture`. They can be used interchangeably, though care must be taken not to
 > confuse the test object property `fixture` with the babel-plugin-tester option
@@ -1315,6 +1363,8 @@ Like [`output`][87], this property cannot appear in the same test object as the
 properties, nor the [`output`][87] property. However, it _can_ be used with
 [`outputRaw`][88].
 
+> [!TIP]
+>
 > If you find you are using this property more than a couple of times, consider
 > using [`fixtures`][35] instead.
 
@@ -1334,6 +1384,8 @@ Like [`exec`][89], this property cannot appear in the same test object as the
 [`throws`][84], or [`snapshot`][50] properties, nor the [`exec`][89] property.
 However, it _can_ be used with [`outputRaw`][88].
 
+> [!TIP]
+>
 > If you find you are using this property more than a couple of times, consider
 > using [`fixtures`][35] instead.
 
