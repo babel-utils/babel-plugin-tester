@@ -49,6 +49,8 @@ This package is tested on both Windows and nix (Ubuntu) environments.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Install](#install)
+  - [`babel-plugin-tester@11`](#babel-plugin-tester11)
+  - [`babel-plugin-tester@12`](#babel-plugin-tester12)
 - [Usage](#usage)
   - [Import](#import)
   - [Invoke](#invoke)
@@ -87,14 +89,62 @@ This package is tested on both Windows and nix (Ubuntu) environments.
 
 <!-- symbiote-template-region-end -->
 
-This module is distributed via [npm][npm] which is bundled with [node][node] and
-should be installed as one of your project's `devDependencies`:
+Currently, babel-plugin-tester comes in two flavors:
+
+### `babel-plugin-tester@11`
 
 ```shell
 npm install --save-dev babel-plugin-tester
+# Alternatively:
+#npm install --save-dev babel-plugin-tester@11
 ```
 
+This version of babel-plugin-tester:
+
+- Has a minimum Node version of `18.19.0`.
+
+- Optionally works with `jest@<=29` (as an optional peer dependency).
+
+- Works with `prettier@2` (as a dependency).
+
+### `babel-plugin-tester@12`
+
+```shell
+npm install --save-dev babel-plugin-tester@12.0.0-canary.2
+# May require --force in some situations:
+#npm install --save-dev babel-plugin-tester@12.0.0-canary.2 jest-extended
+#npm install --save-dev --force jest@30.0.0-alpha.6
+```
+
+> [!TIP]
+>
+> Check [the registry][1] for the latest canary version number.
+
+This version of babel-plugin-tester:
+
+- Technically has a minimum Node version of `20.18.0`, but likely works with
+  `node@18`.
+
+- Optionally works with `jest@>=30` (as an optional peer dependency).
+
+  > [!CAUTION]
+  >
+  > You may need `--force` (i.e. `npm install ... --force`) if your project
+  > depends on Jest ecosystem packages that don't yet recognize `jest@>=30`,
+  > such as `jest-extended@<=4.0.2`.
+
+- Works with `prettier@3` (as a dependency).
+
+- Is stable and fully tested (despite the "canary" and "prerelease" monikers)
+  but cannot be released until `jest@30` is released.
+
 ## Usage
+
+To use babel-plugin-tester:
+
+1. Import babel-plugin-tester into your test file.
+2. Invoke `pluginTester` in your test file.
+3. Execute your test file.
 
 ### Import
 
