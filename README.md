@@ -1517,33 +1517,16 @@ Further documentation can be found under [`docs/`][x-repo-docs].
 
 ### Published Package Details
 
-<!-- TODO: choose one of the following and --✄--delete--✄-- the others: -->
-
 This is a [CJS2 package][x-pkg-cjs-mojito] with statically-analyzable exports
 built by Babel for use in Node.js versions that are not end-of-life. For
 TypeScript users, this package supports both `"Node10"` and `"Node16"` module
 resolution strategies.
 
-✄------------✄-----------⏶-⏷-----------✄------------✄
-
-This is an [ESM-only package][x-pkg-esm-wine] built by Babel for use in Node.js
-versions that are not end-of-life. For TypeScript users, this package supports
-both `"Node10"` and `"Node16"` module resolution strategies.
-
-✄------------✄-----------⏶-⏷-----------✄------------✄
-
-This is an [ESM-only package][x-pkg-esm-wine] built by Babel for use in
-browser-like environments. For TypeScript users, this package supports both
-`"Node10"` and `"Node16"` module resolution strategies.
-
-<!-- TODO: choose one of the above and --✄--delete--✄-- the others! -->
 <!-- symbiote-template-region-end -->
 <!-- TODO: optional additional details here -->
 <!-- symbiote-template-region-start 7 -->
 
 <details><summary>Expand details</summary>
-
-<!-- TODO: choose one of the following and --✄--delete--✄-- the others: -->
 
 That means both CJS2 (via `require(...)`) and ESM (via `import { ... } from ...`
 or `await import(...)`) source will load this package from the same entry points
@@ -1552,22 +1535,6 @@ shipped/smaller package size, avoiding [dual package
 hazard][x-pkg-dual-package-hazard] entirely, distributables are not
 packed/bundled/uglified, a drastically less complex build process, and CJS
 consumers aren't shafted.
-
-✄------------✄-----------⏶-⏷-----------✄------------✄
-
-That means ESM source will load this package via `import { ... } from ...` or
-`await import(...)` and CJS source will load this package via dynamic
-`import()`. This has several benefits, the foremost being: less code
-shipped/smaller package size, avoiding [dual package
-hazard][x-pkg-dual-package-hazard] entirely, distributables are not
-packed/bundled/uglified, and a drastically less complex build process.
-
-The glaring downside, which may or may not be relevant, is that CJS consumers
-cannot `require()` this package and can only use `import()` in an asynchronous
-context. This means, in effect, CJS consumers may not be able to use this
-package at all.
-
-<!-- TODO: choose one of the above and --✄--delete--✄-- the others! -->
 
 Each entry point (i.e. `ENTRY`) in [`package.json`'s
 `exports[ENTRY]`][x-repo-package-json] object includes one or more [export
