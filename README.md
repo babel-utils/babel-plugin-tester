@@ -127,11 +127,11 @@ This version of babel-plugin-tester:
 
 - Optionally works with `jest@>=30` (as an optional peer dependency).
 
-  > [!CAUTION]
-  >
-  > You may need `--force` (i.e. `npm install ... --force`) if your project
-  > depends on Jest ecosystem packages that don't yet recognize `jest@>=30`,
-  > such as `jest-extended@<=4.0.2`.
+> [!CAUTION]
+>
+> You may need `--force` (i.e. `npm install ... --force`) if your project
+> depends on Jest ecosystem packages that don't yet recognize `jest@>=30`, such
+> as `jest-extended@<=4.0.2`.
 
 - Works with `prettier@3` (as a dependency).
 
