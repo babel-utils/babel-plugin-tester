@@ -62,8 +62,8 @@
     "format": "NODE_NO_WARNINGS=1 symbiote format --hush",
     "info": "NODE_NO_WARNINGS=1 symbiote project info",
     "lint": "npm run lint:package --",
-    "lint:package": "NODE_NO_WARNINGS=1 symbiote lint",
-    "lint:packages": "NODE_NO_WARNINGS=1 symbiote lint --scope unlimited",
+    "lint:package": "NODE_NO_WARNINGS=1 symbiote lint --hush",
+    "lint:packages": "NODE_NO_WARNINGS=1 symbiote lint --hush --scope unlimited",
     "lint:project": "NODE_NO_WARNINGS=1 symbiote project lint",
     "list-tasks": "NODE_NO_WARNINGS=1 symbiote list-tasks --scope this-package",
     "prepare": "NODE_NO_WARNINGS=1 symbiote project prepare",
@@ -87,7 +87,7 @@
     "type-fest": "^4.31.0"
   },
   "devDependencies": {
-    "@-xun/symbiote": "^2.5.2",
+    "@-xun/symbiote": "^2.5.3",
     "@babel/helper-plugin-utils": "^7.25.9",
     "@babel/plugin-syntax-typescript": "^7.25.9",
     "@types/babel__helper-plugin-utils": "^7.10.3",
