@@ -8,7 +8,7 @@
 
 > `const` **runPluginUnderTestHere**: unique `symbol`
 
-Defined in: [src/plugin-tester.ts:84](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/src/plugin-tester.ts#L84)
+Defined in: [src/plugin-tester.ts:85](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/src/plugin-tester.ts#L85)
 
 A unique symbol that, when included in `babelOptions.plugins`, will be
 replaced with the plugin under test. Use this symbol to create a custom

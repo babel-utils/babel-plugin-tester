@@ -6,7 +6,7 @@
 
 # Interface: RunOptions
 
-Defined in: [test/setup.ts:392](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L392)
+Defined in: [test/setup.ts:392](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L392)
 
 ## Extends
 
@@ -332,7 +332,7 @@ false
 
 > `optional` **reject**: `boolean`
 
-Defined in: [test/setup.ts:397](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L397)
+Defined in: [test/setup.ts:397](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L397)
 
 Setting this to `true` rejects the promise instead of resolving it with the error.
 

@@ -6,7 +6,7 @@
 
 # Interface: FixtureOptions
 
-Defined in: [test/setup.ts:426](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L426)
+Defined in: [test/setup.ts:426](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L426)
 
 ## Extends
 
@@ -18,7 +18,7 @@ Defined in: [test/setup.ts:426](https://github.com/babel-utils/babel-plugin-test
 
 > `optional` **directoryPaths**: `string`[]
 
-Defined in: [test/setup.ts:448](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L448)
+Defined in: [test/setup.ts:448](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L448)
 
 #### Inherited from
 
@@ -30,7 +30,7 @@ Defined in: [test/setup.ts:448](https://github.com/babel-utils/babel-plugin-test
 
 > **initialFileContents**: `object`
 
-Defined in: [test/setup.ts:433](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L433)
+Defined in: [test/setup.ts:433](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L433)
 
 #### Index Signature
 
@@ -42,7 +42,7 @@ Defined in: [test/setup.ts:433](https://github.com/babel-utils/babel-plugin-test
 
 > `optional` **npmInstall**: `string` \| `string`[]
 
-Defined in: [test/setup.ts:453](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L453)
+Defined in: [test/setup.ts:453](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L453)
 
 #### Inherited from
 
@@ -54,7 +54,7 @@ Defined in: [test/setup.ts:453](https://github.com/babel-utils/babel-plugin-test
 
 > **performCleanup**: `boolean`
 
-Defined in: [test/setup.ts:431](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L431)
+Defined in: [test/setup.ts:431](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L431)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: [test/setup.ts:431](https://github.com/babel-utils/babel-plugin-test
 
 > `optional` **runInstallScripts**: `boolean`
 
-Defined in: [test/setup.ts:454](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L454)
+Defined in: [test/setup.ts:454](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L454)
 
 #### Inherited from
 
@@ -74,7 +74,7 @@ Defined in: [test/setup.ts:454](https://github.com/babel-utils/babel-plugin-test
 
 > `optional` **runWith**: `object`
 
-Defined in: [test/setup.ts:455](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L455)
+Defined in: [test/setup.ts:455](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L455)
 
 #### args?
 
@@ -98,7 +98,7 @@ Defined in: [test/setup.ts:455](https://github.com/babel-utils/babel-plugin-test
 
 > **use**: [`MockFixture`](MockFixture.md)[]
 
-Defined in: [test/setup.ts:432](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L432)
+Defined in: [test/setup.ts:432](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L432)
 
 ***
 
@@ -106,7 +106,7 @@ Defined in: [test/setup.ts:432](https://github.com/babel-utils/babel-plugin-test
 
 > `optional` **webpackVersion**: `string`
 
-Defined in: [test/setup.ts:438](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/test/setup.ts#L438)
+Defined in: [test/setup.ts:438](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/test/setup.ts#L438)
 
 #### Inherited from
 

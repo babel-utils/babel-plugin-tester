@@ -8,7 +8,7 @@
 
 > `const` **unstringSnapshotSerializer**: [`SnapshotSerializer`](../../../type-aliases/SnapshotSerializer.md)
 
-Defined in: [src/serializers/unstring-snapshot.ts:14](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/src/serializers/unstring-snapshot.ts#L14)
+Defined in: [src/serializers/unstring-snapshot.ts:14](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/src/serializers/unstring-snapshot.ts#L14)
 
 If you're using jest and snapshots, then the snapshot output could have a
 bunch of bothersome `\"` to escape quotes because when Jest serializes a

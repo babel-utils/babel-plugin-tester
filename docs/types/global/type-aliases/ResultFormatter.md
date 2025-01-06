@@ -8,7 +8,7 @@
 
 > **ResultFormatter**\<`AdditionalOptions`\>: (`code`, `options`?) => `Promise`\<`string`\> \| `string`
 
-Defined in: [types/global.ts:689](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/types/global.ts#L689)
+Defined in: [types/global.ts:689](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/types/global.ts#L689)
 
 The shape of a code formatter used to normalize the results of a babel
 transformation.

@@ -8,7 +8,7 @@
 
 > **pluginTester**(`options`): `void`
 
-Defined in: [src/plugin-tester.ts:128](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/src/plugin-tester.ts#L128)
+Defined in: [src/plugin-tester.ts:129](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/src/plugin-tester.ts#L129)
 
 An abstraction around babel to help you write tests for your babel plugin or
 preset.

@@ -8,6 +8,6 @@
 
 > `const` **validTitleNumberingValues**: readonly \[`"all"`, `"tests-only"`, `"fixtures-only"`, `false`\]
 
-Defined in: [src/plugin-tester.ts:102](https://github.com/babel-utils/babel-plugin-tester/blob/fc3d21b0d5e00d8cddad4db323f3724c672066fd/src/plugin-tester.ts#L102)
+Defined in: [src/plugin-tester.ts:103](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/src/plugin-tester.ts#L103)
 
 Valid choices for the `titleNumbering` babel-plugin-tester option.
