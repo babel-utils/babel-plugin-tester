@@ -9,13 +9,15 @@ import { assertEnvironment, moduleExport } from '@-xun/symbiote/assets/jest.conf
 
 /*const debug = createDebugLogger({ namespace: 'symbiote:config:jest' });*/
 
+const environment = assertEnvironment();
+
 const config = deepMergeConfig(
-  moduleExport({ derivedAliases: getJestAliases(), ...assertEnvironment() }),
+  moduleExport({ derivedAliases: getJestAliases(), ...environment }),
   /**
    * @type {import('@-xun/symbiote/assets/jest.config.mjs').JestConfig}
    */
   {
-    // Any custom configs here will be deep merged with moduleExport's result
+    testTimeout: 1000 * 60 * (environment.isDebugging ? 60 * 24 : 10)
   }
 );
 
