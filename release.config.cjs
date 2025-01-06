@@ -17,6 +17,7 @@ module.exports = deepMergeConfig(
   moduleExport(assertEnvironment({ projectRoot: __dirname })),
   {
     // Any custom configs here will be deep merged with moduleExport's result
+    branches: ['master']
   }
 );
 
