@@ -8,15 +8,9 @@ import { assertEnvironment, moduleExport } from '@-xun/symbiote/assets/.remarkrc
 
 /*const debug = createDebugLogger({ namespace: 'symbiote:config:remarkrc' });*/
 
-const config = deepMergeConfig(
-  moduleExport(await assertEnvironment()),
-  /**
-   * @type {import('@-xun/symbiote/assets/.remarkrc.mjs').RemarkConfig}
-   */
-  {
-    // Any custom configs here will be deep merged with moduleExport
-  }
-);
+const config = deepMergeConfig(moduleExport(await assertEnvironment()), {
+  // Any custom configs here will be deep merged with moduleExport
+});
 
 export default config;
 

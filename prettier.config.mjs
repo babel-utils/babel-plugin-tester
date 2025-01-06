@@ -8,15 +8,9 @@ import { moduleExport } from '@-xun/symbiote/assets/prettier.config.mjs';
 
 /*const debug = createDebugLogger({ namespace: 'symbiote:config:prettier' });*/
 
-const config = deepMergeConfig(
-  moduleExport(),
-  /**
-   * @type {import('@-xun/symbiote/assets/prettier.config.mjs').PrettierConfig}
-   */
-  {
-    // Any custom configs here will be deep merged with moduleExport's result
-  }
-);
+const config = deepMergeConfig(moduleExport(), {
+  // Any custom configs here will be deep merged with moduleExport's result
+});
 
 export default config;
 

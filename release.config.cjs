@@ -15,9 +15,6 @@ const {
 
 module.exports = deepMergeConfig(
   moduleExport(assertEnvironment({ projectRoot: __dirname })),
-  /**
-   * @type {import('@-xun/symbiote/assets/release.config.cjs').ReleaseConfig}
-   */
   {
     // Any custom configs here will be deep merged with moduleExport's result
   }

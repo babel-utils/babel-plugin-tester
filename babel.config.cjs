@@ -18,9 +18,6 @@ module.exports = deepMergeConfig(
     derivedAliases: getBabelAliases(),
     ...assertEnvironment({ projectRoot: __dirname })
   }),
-  /**
-   * @type {import('@-xun/symbiote/assets/babel.config.cjs').BabelConfig}
-   */
   {
     // Any custom configs here will be deep merged with moduleExport's result
   }

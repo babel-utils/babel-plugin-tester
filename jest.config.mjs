@@ -13,9 +13,6 @@ const environment = assertEnvironment();
 
 const config = deepMergeConfig(
   moduleExport({ derivedAliases: getJestAliases(), ...environment }),
-  /**
-   * @type {import('@-xun/symbiote/assets/jest.config.mjs').JestConfig}
-   */
   {
     testTimeout: 1000 * 60 * (environment.isDebugging ? 60 * 24 : 10)
   }
