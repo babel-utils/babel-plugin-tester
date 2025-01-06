@@ -5251,6 +5251,69 @@ describe('tests targeting the FixtureOptions interface', () => {
       ]
     ]);
   });
+
+  it('does not throw "duplicate plugin/preset detected" when merging various options files', async () => {
+    expect.hasAssertions();
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        fixtures: getFixturePath('nested-options-js-deep-plugin')
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        fixtures: getFixturePath('nested-options-js-deep-preset')
+      })
+    );
+
+    expect(itSpy).toHaveBeenCalledTimes(2);
+
+    expect(transformAsyncSpy.mock.calls).toMatchObject([
+      [
+        expect.any(String),
+        expect.objectContaining({
+          plugins: expect.arrayContaining([
+            [
+              expect.any(Function),
+              {
+                appendExtension: '.mjs',
+                replaceExtensions: {
+                  '.ts': '.xjs'
+                }
+              }
+            ],
+            '@babel/plugin-syntax-jsx',
+            ['@babel/plugin-syntax-typescript', { isTSX: true }],
+            [
+              '@babel/plugin-syntax-jsx',
+              { somethingOrOther: 8 },
+              'ok-duplicate-plugin-syntax-jsx'
+            ]
+          ])
+        })
+      ],
+      [
+        expect.any(String),
+        expect.objectContaining({
+          presets: expect.arrayContaining([
+            [
+              expect.any(Function),
+              {
+                appendExtension: '.mjs',
+                replaceExtensions: {
+                  '.ts': '.xjs'
+                }
+              }
+            ],
+            '@babel/preset-react',
+            ['@babel/preset-typescript', { allowDeclareFields: true }],
+            ['@babel/preset-react', { somethingOrOther: 8 }, 'ok-duplicate-preset-react']
+          ])
+        })
+      ]
+    ]);
+  });
 });
 
 describe('tests targeting the TestObject interface', () => {

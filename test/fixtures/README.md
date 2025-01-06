@@ -8,6 +8,6 @@ structure similar to the following:
 
 ```text
 fixture-name-here
-└── fixture
+└── fixture (or some more specific sub-name)
     └── ... (one or more fixture-specific files like `code.js` or `options.js`)
 ```

@@ -13,6 +13,7 @@ import stripIndent from 'strip-indent~3';
 import { ErrorMessage } from 'universe:errors.ts';
 import { $type } from 'universe:symbols.ts';
 
+import type { PluginItem } from '@babel/core';
 import type { Class } from 'type-fest';
 
 import type {
@@ -830,6 +831,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
 
           verbose3('partially constructed fixture-based test object: %O', testConfig);
 
+          // ! Invariant: test plugin/preset is always first/last respectively
           if (plugin) {
             testConfig.babelOptions.plugins.push([
               plugin,
@@ -843,6 +845,8 @@ function pluginTester(options: PluginTesterOptions = {}) {
           }
 
           finalizePluginAndPresetRunOrder(testConfig.babelOptions);
+          reduceDuplicatePluginsAndPresets(testConfig.babelOptions);
+
           verbose3('finalized fixture-based test object: %O', testConfig);
 
           validateTestConfig(testConfig);
@@ -998,6 +1002,8 @@ function pluginTester(options: PluginTesterOptions = {}) {
       }
 
       finalizePluginAndPresetRunOrder(testConfig.babelOptions);
+      reduceDuplicatePluginsAndPresets(testConfig.babelOptions);
+
       verbose3('finalized test object: %O', testConfig);
 
       validateTestConfig(testConfig, {
@@ -1630,7 +1636,7 @@ function trimAndFixLineEndings(
 function finalizePluginAndPresetRunOrder(
   babelOptions: PluginTesterOptions['babelOptions']
 ) {
-  const { verbose: verbose2 } = getDebuggers('finalize', debug1);
+  const { verbose: verbose2 } = getDebuggers('finalize:order', debug1);
 
   if (babelOptions?.plugins) {
     babelOptions.plugins = babelOptions.plugins.filter((p) => {
@@ -1684,6 +1690,116 @@ function finalizePluginAndPresetRunOrder(
   }
 
   verbose2('finalized test object plugin and preset run order');
+}
+
+/**
+ * Collapses duplicate plugin/preset entries down to a single plugin/preset
+ * entry. The last duplicate plugin/preset (i.e. highest index) wins, the rest
+ * are essentially deleted.
+ *
+ * This function accounts for the three generic babel plugin/preset
+ * configurations: string, 2-tuple, and 3-tuple.
+ *
+ * @see {@link PluginItem}
+ */
+function reduceDuplicatePluginsAndPresets(
+  babelOptions: PluginTesterOptions['babelOptions']
+) {
+  const { verbose: verbose2 } = getDebuggers('finalize:duplicates', debug1);
+
+  if (babelOptions?.plugins) {
+    const plugins: typeof babelOptions.plugins = [];
+
+    babelOptions.plugins.forEach((incomingPlugin) => {
+      if (incomingPlugin && typeof incomingPlugin !== 'symbol') {
+        const incomingPluginName = pluginOrPresetToName(incomingPlugin);
+
+        if (incomingPluginName) {
+          const duplicatedPluginIndex = plugins.findIndex((outgoingPlugin) => {
+            if (outgoingPlugin && typeof outgoingPlugin !== 'symbol') {
+              const outgoingPluginName = pluginOrPresetToName(outgoingPlugin);
+              return outgoingPluginName === incomingPluginName;
+            }
+          });
+
+          if (duplicatedPluginIndex !== -1) {
+            verbose2(
+              'collapsed duplicate plugin configuration for %O (at index %O)',
+              incomingPluginName,
+              duplicatedPluginIndex
+            );
+
+            plugins[duplicatedPluginIndex] = incomingPlugin;
+            return;
+          }
+        }
+      }
+
+      plugins.push(incomingPlugin);
+    });
+
+    babelOptions.plugins = plugins;
+  }
+
+  if (babelOptions?.presets) {
+    const presets: typeof babelOptions.presets = [];
+
+    babelOptions.presets.forEach((incomingPreset) => {
+      if (incomingPreset && typeof incomingPreset !== 'symbol') {
+        const incomingPresetName = pluginOrPresetToName(incomingPreset);
+
+        if (incomingPresetName) {
+          const duplicatedPresetIndex = presets.findIndex((outgoingPreset) => {
+            if (outgoingPreset && typeof outgoingPreset !== 'symbol') {
+              const outgoingPresetName = pluginOrPresetToName(outgoingPreset);
+              return outgoingPresetName === incomingPresetName;
+            }
+          });
+
+          if (duplicatedPresetIndex !== -1) {
+            verbose2(
+              'collapsed duplicate preset configuration for %O (at index %O)',
+              incomingPresetName,
+              duplicatedPresetIndex
+            );
+
+            presets[duplicatedPresetIndex] = incomingPreset;
+            return;
+          }
+        }
+      }
+
+      presets.push(incomingPreset);
+    });
+
+    babelOptions.presets = presets;
+  }
+
+  verbose2('collapsed duplicate test object plugins and presets');
+
+  /**
+   * Note that, due to how flexible Babel configuration is, not all plugins or
+   * presets will have a name.
+   *
+   * This function is a _much_ more generic version of `tryInferPluginName`.
+   * TODO: perhaps they should be merged?
+   */
+  function pluginOrPresetToName(pluginOrPreset: PluginItem) {
+    if (typeof pluginOrPreset === 'string') {
+      return pluginOrPreset;
+    }
+
+    if (Array.isArray(pluginOrPreset)) {
+      const candidate = pluginOrPreset.at(2) ?? pluginOrPreset.at(0);
+      return typeof candidate === 'string' ? candidate : undefined;
+    }
+
+    if (typeof pluginOrPreset === 'object' && 'name' in pluginOrPreset) {
+      return typeof pluginOrPreset.name === 'string' ? pluginOrPreset.name : undefined;
+    }
+
+    return undefined;
+  }
 }
 
 /**

@@ -318,8 +318,23 @@ this package.
 This is used to configure babel. If provided, the object will be
 [`lodash.mergeWith`][lodash.mergewith]'d with the [defaults][25] and each [test
 object's `babelOptions`][26]/[fixture's `babelOptions`][27], with the latter
-taking precedence. Note that arrays will be concatenated and explicitly
-undefined values will unset previously defined values during merging.
+taking precedence.
+
+Be aware that arrays will be concatenated and explicitly undefined values will
+unset previously defined values during merging.
+
+> [!IMPORTANT]
+>
+> For `babel-plugin-tester@>=12`, [duplicate entries][2] in
+> [`babelOptions.plugins`][55] and [`babelOptions.presets`][73] are reduced,
+> with latter entries _completely overwriting_ any that came before. In other
+> words: the last duplicate plugin or preset configuration wins. **They are not
+> merged.** This makes it easy to provide an alternative one-off configuration
+> for a plugin or preset that is also used elsewhere, such as a project's root
+> `babel.config.js` file.
+>
+> Attempting the same with `babel-plugin-tester@<12` will cause babel [to
+> throw][2] since duplicate entries are technically not allowed.
 
 Also note that [`babelOptions.babelrc`][28] and [`babelOptions.configFile`][29]
 are set to `false` by default, which disables automatic babel configuration
@@ -329,6 +344,8 @@ To simply reuse your project's [`babel.config.js`][31] or some other
 configuration file, set `babelOptions` like so:
 
 ```javascript
+// file: /repos/my-project/tests/unit-plugin.test.ts
+
 import path from 'node:path';
 import { pluginTester } from 'babel-plugin-tester';
 
@@ -795,9 +812,12 @@ of which are optional:
 
 This is used to configure babel. Properties specified here override
 ([`lodash.mergeWith`][lodash.mergewith]) those from the [`babelOptions`][65]
-option provided to babel-plugin-tester. Note that arrays will be concatenated
-and explicitly undefined values will unset previously defined values during
-merging.
+option provided to babel-plugin-tester.
+
+Note that arrays will be concatenated, explicitly undefined values will unset
+previously defined values, and (as of `babel-plugin-tester@>=12`) duplicate
+plugin/preset configurations will override each other (last configuration wins)
+during merging.
 
 ###### `pluginOptions`
 
@@ -1027,9 +1047,12 @@ which are optional:
 
 This is used to configure babel. Properties specified here override
 ([`lodash.mergeWith`][lodash.mergewith]) those from the [`babelOptions`][65]
-option provided to babel-plugin-tester. Note that arrays will be concatenated
-and explicitly undefined values will unset previously defined values during
-merging.
+option provided to babel-plugin-tester.
+
+Note that arrays will be concatenated, explicitly undefined values will unset
+previously defined values, and (as of `babel-plugin-tester@>=12`) duplicate
+plugin/preset configurations will override each other (last configuration wins)
+during merging.
 
 ###### `pluginOptions`
 
@@ -1687,6 +1710,8 @@ work, and you do not mind the [default run order][100], you can leverage
 [babel's automatic configuration loading][101] via the `babelOptions.babelrc`
 and/or `babelOptions.configFile` options.
 
+> [!TIP]
+>
 > Fixtures provided via the [`fixtures`][35] option **do not** need to provide a
 > separate `babelOptions.filename` since it will be set automatically. This
 > section only applies to [test objects][42].
@@ -1967,6 +1992,8 @@ The following [debug namespaces][109] are available for activation:
   - `babel-plugin-tester:tester:read-code`
   - `babel-plugin-tester:tester:eol`
   - `babel-plugin-tester:tester:finalize`
+    - `babel-plugin-tester:tester:finalize:order`
+    - `babel-plugin-tester:tester:finalize:duplicates`
 
 <!-- lint enable list-item-style -->
 
@@ -2257,6 +2284,8 @@ specification. Contributions of any kind welcome!
 [x-repo-sponsor]: https://github.com/sponsors/Xunnamius
 [x-repo-support]: /.github/SUPPORT.md
 [1]: https://www.npmjs.com/package/babel-plugin-tester?activeTab=versions
+[2]:
+  https://stackoverflow.com/questions/52798987/babel-7-fails-with-single-plugin-saying-duplicate-plugin-preset-detected
 [3]: https://babeljs.io/docs/en/presets
 [4]: https://jestjs.io
 [5]: https://mochajs.org
@@ -2311,6 +2340,7 @@ specification. Contributions of any kind welcome!
 [52]: #fixtureoutputext-1
 [53]: #titlenumbering
 [54]: #filepath
+[55]: https://babeljs.io/docs/options#plugins
 [56]: #outputjs
 [57]: #endofline
 [58]: #execjs
@@ -2330,6 +2360,7 @@ specification. Contributions of any kind welcome!
 [71]:
   https://github.com/sindresorhus/eslint-plugin-unicorn/blob/main/docs/rules/no-instanceof-array.md
 [72]: https://nodejs.org/api/vm.html#vm-executing-javascript
+[73]: https://babeljs.io/docs/options#presets
 [77]: https://stackoverflow.com/a/32750746/1367414
 [78]: #outputraw
 [79]: #teardown-1
