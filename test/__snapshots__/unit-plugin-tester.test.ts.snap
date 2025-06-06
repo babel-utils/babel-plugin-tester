@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`tests targeting the TestObject interface takes a snapshot if \`snapshot\` is enabled: 1. captains-log (explicit) 1`] = `
 

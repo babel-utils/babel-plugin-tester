@@ -1,10 +1,11 @@
-import { type AssertionError } from 'node:assert';
 import fs from 'node:fs';
-import path from 'node:path';
 import { types } from 'node:util';
+
+import { toPath } from '@-xun/fs';
 
 import { pluginTester } from 'universe:plugin-tester.ts';
 
+import type { AssertionError } from 'node:assert';
 import type { ErrorExpectation, FixtureOptions, PluginTesterOptions } from 'universe';
 
 const { isNativeError } = types;
@@ -38,7 +39,7 @@ export const shouldNotBeSeen = 'if you see this text, the test is failing';
  * Dummy `filepath` value pointing to a non-existent `fake-file.js` file at the
  * project root.
  */
-export const dummyProjectRootFilepath = path.join(__dirname, '..', 'fake-file.js');
+export const dummyProjectRootFilepath = toPath(__dirname, '..', 'fake-file.js');
 
 /**
  * Dummy `pluginName` value used by `getDummyPluginOptions`.
@@ -297,7 +298,7 @@ export async function runPluginTesterExpectThrownExceptionWhenCapturingError({
  * @example getFixturePath('fixtures');
  */
 export function getFixturePath(fixture: string) {
-  return path.join(__dirname, 'fixtures', ...fixture.split('/'));
+  return toPath(__dirname, 'fixtures', ...fixture.split('/'));
 }
 
 /**
@@ -326,7 +327,7 @@ export function requireFixtureOptions(fixture: string): FixtureOptions {
   const fullPath = getFixturePath(fixture);
 
   try {
-    return tryRequire(path.join(fullPath, 'fixture'));
+    return tryRequire(toPath(fullPath, 'fixture'));
   } catch {
     return tryRequire(fullPath);
   }

@@ -81,28 +81,26 @@
   },
   "dependencies": {
     "core-js": "^3.42.0",
-    "debug": "^4.4.1",
     "lodash.mergewith": "^4.6.2",
     "prettier": "^3.5.3",
     "pretty-format": "^29.7.0",
     "strip-indent~3": "npm:strip-indent@^3.0.0",
-    "type-fest": "^4.41.0"
+    "type-fest": "^4.41.0",
+    "@-xun/fs": "^2.0.0",
+    "rejoinder": "^1.2.5"
   },
   "devDependencies": {
-    "@-xun/jest": "^2.2.1",
+    "@-xun/project": "^2.0.2",
     "@-xun/symbiote": "^4.2.7",
     "@-xun/types": "^1.1.0",
     "@babel/helper-plugin-utils": "^7.27.1",
     "@babel/plugin-syntax-typescript": "^7.27.1",
     "@types/babel__helper-plugin-utils": "^7.10.3",
     "@types/lodash.mergewith": "^4.6.9",
-    "execa~5": "npm:execa@^5.1.1",
-    "glob": "^11.0.2",
     "jest-extended": "^5.0.3",
     "semver": "^7.7.2",
     "strip-ansi~6": "npm:strip-ansi@^6.0.1",
-    "toss-expression": "^0.1.2",
-    "unique-filename": "^4.0.0"
+    "toss-expression": "^0.1.2"
   },
   "peerDependencies": {
     "@babel/core": ">=7.22.0",

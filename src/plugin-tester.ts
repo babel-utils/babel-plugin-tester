@@ -2,18 +2,18 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import { EOL } from 'node:os';
-import path from 'node:path';
 import { types } from 'node:util';
 import { createContext, Script } from 'node:vm';
 
-import debugFactory from 'debug';
+import { isAbsolutePath, toDirname, toPath } from '@-xun/fs';
 import mergeWith from 'lodash.mergewith';
 import stripIndent from 'strip-indent~3';
 
+import { $type, globalDebugger } from 'universe:constant.ts';
 import { ErrorMessage } from 'universe:errors.ts';
-import { $type } from 'universe:symbols.ts';
 
 import type { PluginItem } from '@babel/core';
+import type { ExtendedDebugger } from 'rejoinder';
 import type { Class } from 'type-fest';
 
 import type {
@@ -30,7 +30,7 @@ import type {
   Range,
   ResultFormatter,
   TestObject
-} from 'typeverse:global.ts';
+} from 'universe:types.ts';
 
 export { prettierFormatter } from 'universe:formatters/prettier.ts';
 export { unstringSnapshotSerializer } from 'universe:serializers/unstring-snapshot.ts';
@@ -44,7 +44,7 @@ export {
   validTitleNumberingValues
 };
 
-export type * from 'typeverse:global.ts';
+export type * from 'universe:types.ts';
 
 const { isNativeError } = types;
 
@@ -61,7 +61,7 @@ const isIntegerRangeRegExp = /^(?<startStr>\d+)-(?<endStr>\d+)$/;
 const noop = () => undefined;
 Object.freeze(noop);
 
-const getDebuggers = (namespace: string, parentDebugger: debugFactory.Debugger) => {
+const getDebuggers = (namespace: string, parentDebugger: ExtendedDebugger) => {
   const debug = parentDebugger.extend(namespace);
 
   return {
@@ -70,10 +70,7 @@ const getDebuggers = (namespace: string, parentDebugger: debugFactory.Debugger) 
   };
 };
 
-const { debug: debug1, verbose: verbose1 } = getDebuggers(
-  'tester',
-  debugFactory('babel-plugin-tester')
-);
+const { debug: debug1, verbose: verbose1 } = getDebuggers('tester', globalDebugger);
 
 /**
  * A unique symbol that, when included in `babelOptions.plugins`, will be
@@ -418,7 +415,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
       }
 
       function findReferenceStackIndex(
-        reversedCallStack: { functionName: string; filePath: string }[]
+        reversedCallStack: { functionName?: string; filePath: string }[]
       ) {
         // ? Different realms might have slightly different stacks depending on
         // ? which file was imported. Return the first one found.
@@ -647,7 +644,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
       verbose3('root options: %O', rootOptions);
 
       fs.readdirSync(fixturesDirectory).forEach((filename) => {
-        const fixtureSubdir = path.join(fixturesDirectory, filename);
+        const fixtureSubdir = toPath(fixturesDirectory, filename);
 
         debug3(
           'potentially generating new test object from fixture at subpath %O',
@@ -706,11 +703,11 @@ function pluginTester(options: PluginTesterOptions = {}) {
           );
 
           const codePath = codeFilename
-            ? path.join(fixtureSubdir, codeFilename)
+            ? toPath(fixtureSubdir, codeFilename)
             : undefined;
 
           const execPath = execFilename
-            ? path.join(fixtureSubdir, execFilename)
+            ? toPath(fixtureSubdir, execFilename)
             : undefined;
 
           const hasBabelrc = [
@@ -720,7 +717,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             '.babelrc.cjs',
             '.babelrc.mjs'
           ].some((p) => {
-            return fs.existsSync(path.join(fixtureSubdir, p));
+            return fs.existsSync(toPath(fixtureSubdir, p));
           });
 
           const {
@@ -769,7 +766,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             fixtureOutputName || baseFixtureOutputName
           }.${outputExtension}`;
 
-          const outputPath = path.join(fixtureSubdir, fixtureOutputBasename);
+          const outputPath = toPath(fixtureSubdir, fixtureOutputBasename);
 
           const hasOutputFile = outputPath && fs.existsSync(outputPath);
 
@@ -1257,7 +1254,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
         // ? babel
         const result = trimAndFixLineEndings(
           await formatResult(rawBabelOutput.code || '', {
-            cwd: formatResultFilepath ? path.dirname(formatResultFilepath) : undefined,
+            cwd: formatResultFilepath ? toDirname(formatResultFilepath) : undefined,
             filepath: formatResultFilepath,
             filename: formatResultFilepath
           }),
@@ -1276,7 +1273,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             module: fakeModule,
             exports: fakeModule.exports,
             require,
-            __dirname: path.dirname(execFixture),
+            __dirname: toDirname(execFixture),
             __filename: execFixture
           });
 
@@ -1486,10 +1483,10 @@ function getAbsolutePathUsingFilepathDirname(filepath?: string, basename?: strin
 
   const result = !basename
     ? undefined
-    : path.isAbsolute(basename)
+    : isAbsolutePath(basename)
       ? basename
       : filepath
-        ? path.join(path.dirname(filepath), basename)
+        ? toPath(toDirname(filepath), basename)
         : undefined;
 
   verbose2(`dirname(${String(filepath)}) + ${String(basename)} => ${String(result)}`);
@@ -1504,8 +1501,8 @@ function readFixtureOptions(baseDirectory: string) {
   const { verbose: verbose2 } = getDebuggers('read-opts', debug1);
 
   const optionsPath = [
-    path.join(baseDirectory, 'options.js'),
-    path.join(baseDirectory, 'options.json')
+    toPath(baseDirectory, 'options.js'),
+    toPath(baseDirectory, 'options.json')
   ].find((p) => fs.existsSync(p));
 
   try {
@@ -1556,7 +1553,7 @@ function readCode(filepath: string | undefined, basename?: string): string | und
   }
 
   /* istanbul ignore next */
-  if (!path.isAbsolute(codePath)) {
+  if (!isAbsolutePath(codePath)) {
     const message = ErrorMessage.PathIsNotAbsolute(codePath);
     verbose2(`attempt to read in contents from file failed: ${message}`);
     throw new Error(message);

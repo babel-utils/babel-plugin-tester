@@ -1,5 +1,4 @@
-import debugFactory from 'debug';
-
+import { globalDebugger as debug } from 'universe:constant.ts';
 import { prettierFormatter } from 'universe:formatters/prettier.ts';
 
 import {
@@ -10,11 +9,11 @@ import {
 
 import { unstringSnapshotSerializer } from 'universe:serializers/unstring-snapshot.ts';
 
-import type { PluginTesterOptions } from 'typeverse:global.ts';
+import type { PluginTesterOptions } from 'universe:types.ts';
 
 // {@symbiote/notExtraneous jest}
 
-export type * from 'typeverse:global.ts';
+export type * from 'universe:types.ts';
 
 export {
   defaultPluginTester as pluginTester,
@@ -23,8 +22,6 @@ export {
   runPresetUnderTestHere,
   unstringSnapshotSerializer
 };
-
-const debug = debugFactory('babel-plugin-tester:index');
 
 if ('expect' in globalThis && typeof expect.addSnapshotSerializer === 'function') {
   debug(

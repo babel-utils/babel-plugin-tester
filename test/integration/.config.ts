@@ -14,9 +14,7 @@ import { coerce } from 'semver';
 
 import {
   engines as packageEngines,
-  name as packageName,
-  peerDependencies as packagePeerDependencies,
-  version as packageVersion
+  peerDependencies as packagePeerDependencies
 } from 'rootverse:package.json';
 
 import { assets } from 'testverse:integration/assets.ts';
@@ -35,35 +33,7 @@ import {
   withNodeTestInterop
 } from 'testverse:integration/test-interop.ts';
 
-import {
-  dummyDirectoriesFixture,
-  dummyFilesFixture,
-  dummyNpmPackageFixture,
-  nodeImportTestFixture,
-  npmCopySelfFixture,
-  type FixtureContext,
-  type FixtureOptions
-} from 'testverse:setup.ts';
-
 import type { ReadonlyDeep } from 'type-fest';
-
-export const defaultFixtureOptions = {
-  performCleanup: true,
-  initialFileContents: {
-    'package.json': `{"name":"dummy-pkg","dependencies":{"${packageName}":"${packageVersion}"}}`,
-    'plugin-identifier-reverse.js': assets.pluginIdentifierReverse
-  },
-  directoryPaths: ['fixtures/dummy-fixture-asset'],
-  use: [
-    dummyNpmPackageFixture(),
-    npmCopySelfFixture(),
-    dummyDirectoriesFixture(),
-    dummyFilesFixture(),
-    nodeImportTestFixture()
-  ]
-} as Partial<FixtureOptions> & {
-  initialFileContents: FixtureOptions['initialFileContents'];
-};
 
 /* prettier-ignore */
 export const IMPORT_SPECIFIERS_UNDER_TEST = ([
@@ -203,7 +173,8 @@ export type FrameworksUnderTest = ReadonlyDeep<
         (typeof IMPORT_SPECIFIERS_UNDER_TEST)[number],
         string | { esm: string; cjs: string }
       >;
-      expectations: (context: FixtureContext) => unknown;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expectations: (context: any) => unknown;
     }[];
   }[]
 >;

@@ -1,27 +1,20 @@
 import assert, { AssertionError } from 'node:assert';
 import fs from 'node:fs';
 import { EOL } from 'node:os';
-import path from 'node:path';
+import { resolve as resolvePath } from 'node:path';
 
-import babel, { type BabelFileResult } from '@babel/core';
+import { toPath } from '@-xun/fs';
+import babel from '@babel/core';
 import { declare } from '@babel/helper-plugin-utils';
-
-import { AnyFunction } from '@-xun/types';
 import stripIndent from 'strip-indent~3';
 import { toss } from 'toss-expression';
 
-import {
-  pluginTester,
-  runPluginUnderTestHere,
-  runPresetUnderTestHere,
-  type PluginTesterOptions
-} from 'universe';
-
+import { pluginTester, runPluginUnderTestHere, runPresetUnderTestHere } from 'universe';
+import { $type } from 'universe:constant.ts';
 import { ErrorMessage } from 'universe:errors.ts';
 import { prettierFormatter } from 'universe:formatters/prettier.ts';
 import { restartTestTitleNumbering } from 'universe:plugin-tester.ts';
 import { unstringSnapshotSerializer } from 'universe:serializers/unstring-snapshot.ts';
-import { $type } from 'universe:symbols.ts';
 
 import {
   deleteVariablesPlugin,
@@ -56,7 +49,11 @@ import {
   simpleTest
 } from 'testverse:helpers.ts';
 
-import { withMockedEnv, withMockedOutput } from 'testverse:setup.ts';
+import { asMocked, withMockedEnv, withMockedOutput } from 'testverse:util.ts';
+
+import type { AnyFunction } from '@-xun/types';
+import type { BabelFileResult } from '@babel/core';
+import type { PluginTesterOptions } from 'universe';
 
 // {@symbiote/notExtraneous @babel/plugin-syntax-typescript}
 
@@ -104,8 +101,8 @@ beforeEach(() => {
   transformAsyncSpy = jest.spyOn(babel, 'transformAsync');
   itSpy = jest.spyOn(globalThis, 'it');
 
-  mockedItOnly = globalThis.it.only = asMockedFunction<typeof it.only>();
-  mockedItSkip = globalThis.it.skip = asMockedFunction<typeof it.skip>();
+  mockedItOnly = globalThis.it.only = asMocked(it.only);
+  mockedItSkip = globalThis.it.skip = asMocked(it.skip);
 
   describeSpy.mockImplementation((_title, body) => {
     // * https://github.com/facebook/jest/issues/10271
@@ -527,7 +524,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     // await runPluginTester(
     //   getDummyPresetOptions({
     //     babel: { transform: transformFn } as NonNullable<PluginTesterOptions['babel']>,
-    //     fixtures: path.join('..', 'fixtures', 'simple'),
+    //     fixtures: toPath('..', 'fixtures', 'simple'),
     //     tests: [simpleTest]
     //   })
     // );
@@ -1002,7 +999,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     const fixtureFilename = getFixturePath('simple/fixture/code.js');
-    const testObjectFilename = path.resolve(__dirname, './helpers.ts');
+    const testObjectFilename = resolvePath(__dirname, './helpers.ts');
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
       [expect.any(String), expect.objectContaining({ filename: fixtureFilename })],
@@ -1423,7 +1420,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(runOrder).toStrictEqual([1, 4, 1, 4, 1, 4, 1, 4]);
-    runOrder.splice(0, runOrder.length);
+    runOrder.splice(0);
 
     await runPluginTester(
       getDummyPluginOptions({
@@ -3874,7 +3871,7 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPluginOptions({
-        filepath: path.join(
+        filepath: toPath(
           __dirname,
           './does-not-exist/should-use-absolute-fixtures-path-instead.js'
         ),
@@ -3884,7 +3881,7 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPresetOptions({
-        filepath: path.join(
+        filepath: toPath(
           __dirname,
           './does-not-exist/should-use-absolute-fixtures-path-instead.js'
         ),

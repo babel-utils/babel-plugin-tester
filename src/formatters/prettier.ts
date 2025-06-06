@@ -1,13 +1,13 @@
-import path from 'node:path';
-
-import debugFactory from 'debug';
+import { toPath } from '@-xun/fs';
 
 import {
   format as formatWithPrettier,
-  resolveConfig as resolvePrettierConfig,
-  type Options as PrettierOptions
+  resolveConfig as resolvePrettierConfig
 } from 'prettier';
 
+import { globalDebugger } from 'universe:constant.ts';
+
+import type { Options as PrettierOptions } from 'prettier';
 import type { ResultFormatter } from 'universe';
 
 export type { PrettierOptions };
@@ -39,7 +39,7 @@ export const prettierFormatter: ResultFormatter<{
     // eslint-disable-next-line no-restricted-syntax
     cwd = process.cwd(),
     filename,
-    filepath = filename || path.join(cwd, 'dummy.js'),
+    filepath = filename || toPath(cwd, 'dummy.js'),
     config,
     prettierOptions = config || getCachedConfig(filepath)
   } = {}
@@ -62,7 +62,7 @@ export const prettierFormatter: ResultFormatter<{
 
 export default prettierFormatter;
 
-const debug = debugFactory('babel-plugin-tester:formatter');
+const debug = globalDebugger.extend('formatter');
 
 type MaybePrettierOptions = PrettierOptions | null;
 const configDirectoryCache: Record<string, MaybePrettierOptions> = Object.create(null);

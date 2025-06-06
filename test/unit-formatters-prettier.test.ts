@@ -1,6 +1,6 @@
 import os from 'node:os';
-import path from 'node:path';
 
+import { toPath } from '@-xun/fs';
 import prettier from 'prettier';
 
 import { prettierFormatter } from 'universe:formatters/prettier.ts';
@@ -35,7 +35,7 @@ it('uses user-supplied prettier config at project root if available (found start
 it('treats deprecated `filename` option as if it were `filepath`', async () => {
   expect.hasAssertions();
 
-  const expectedFilename = path.join(__dirname, 'fake.js');
+  const expectedFilename = toPath(__dirname, 'fake.js');
   await prettierFormatter(`  var a = 'hi'  `, { filename: expectedFilename });
 
   expect(prettierSpy.mock.calls).toMatchObject([

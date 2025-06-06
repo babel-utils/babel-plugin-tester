@@ -1,6 +1,6 @@
 import { types } from 'node:util';
 
-import { $type } from 'universe:symbols.ts';
+import { $type } from 'universe:constant.ts';
 
 import type {
   MaybePluginTesterTestConfig,

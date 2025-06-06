@@ -2385,7 +2385,7 @@ specification. Contributions of any kind welcome!
   https://github.com/Xunnamius/babel-plugin-explicit-exports-references/blob/main/test/unit-index.test.ts
 [96]:
   https://github.com/Xunnamius/babel-plugin-transform-default-named-imports/blob/main/test/unit-index.test.ts
-[97]: ./test/integration/integration-node-smoke.test.ts
+[97]: ./test/integration/integration-smoke.test.ts
 [98]: https://vitest.dev/config#globals
 [99]: https://babeljs.io/docs/en/options#config-loading-options
 [100]: #custom-plugin-and-preset-run-order

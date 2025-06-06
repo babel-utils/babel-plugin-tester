@@ -1,5 +1,6 @@
 import type * as Babel from '@babel/core';
 import type { Class, Promisable } from 'type-fest';
+import type { $type } from 'universe:constant.ts';
 
 import type {
   runPluginUnderTestHere,
@@ -7,8 +8,6 @@ import type {
   validEndOfLineValues,
   validTitleNumberingValues
 } from 'universe:plugin-tester.ts';
-
-import type { $type } from 'universe:symbols.ts';
 
 /**
  * The shape of the Babel API.
