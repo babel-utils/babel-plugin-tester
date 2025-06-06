@@ -2,11 +2,9 @@
 
 import { deepMergeConfig } from '@-xun/symbiote/assets';
 import { assertEnvironment, moduleExport } from '@-xun/symbiote/assets/.remarkrc.mjs';
+import { createDebugLogger } from 'rejoinder';
 
-// TODO: publish latest rejoinder package first, then update configs to use it
-//import { createDebugLogger } from 'rejoinder';
-
-/*const debug = createDebugLogger({ namespace: 'symbiote:config:remarkrc' });*/
+const debug = createDebugLogger({ namespace: 'symbiote:config:remarkrc' });
 
 const config = deepMergeConfig(moduleExport(await assertEnvironment()), {
   // Any custom configs here will be deep merged with moduleExport
@@ -14,4 +12,4 @@ const config = deepMergeConfig(moduleExport(await assertEnvironment()), {
 
 export default config;
 
-/*debug('exported config: %O', config);*/
+debug('exported config: %O', config);

@@ -5,9 +5,8 @@ import path from 'node:path';
 
 import babel, { type BabelFileResult } from '@babel/core';
 import { declare } from '@babel/helper-plugin-utils';
-// TODO: replace this with @-xun/types
-// @ts-expect-error: need to update this package
-import { asMockedFunction, type AnyFunction } from '@xunnamius/jest-types';
+
+import { AnyFunction } from '@-xun/types';
 import stripIndent from 'strip-indent~3';
 import { toss } from 'toss-expression';
 

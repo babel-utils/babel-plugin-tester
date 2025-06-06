@@ -20,6 +20,7 @@ tmp
 
 # Ignore packaged files that probably shouldn't be committed
 *.tgz
+*.tar.gz
 
 # Ignore relevant build artifacts in any subdir (with exceptions)
 *.tsbuildinfo
@@ -41,7 +42,6 @@ bower_components
 build/Release
 .vercel
 .next
-.turbo
 next-env.d.ts
 
 # Ignore cloned GitHub wiki (do not regard it as a so-called "submodule")

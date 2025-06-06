@@ -8,10 +8,9 @@ const {
   moduleExport
 } = require('@-xun/symbiote/assets/release.config.cjs');
 
-// TODO: publish latest rejoinder package first, then update configs to use it
-//const { createDebugLogger } = require('rejoinder');
+const { createDebugLogger } = require('rejoinder');
 
-/*const debug = createDebugLogger({ namespace: 'symbiote:config:release' });*/
+const debug = createDebugLogger({ namespace: 'symbiote:config:release' });
 
 module.exports = deepMergeConfig(
   moduleExport(assertEnvironment({ projectRoot: __dirname })),
@@ -21,4 +20,4 @@ module.exports = deepMergeConfig(
   }
 );
 
-/*debug('exported config: %O', module.exports);*/
+debug('exported config: %O', module.exports);

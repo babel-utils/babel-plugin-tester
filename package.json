@@ -56,8 +56,8 @@
   "scripts": {
     "build": "npm run build:dist --",
     "build:changelog": "symbiote build changelog --env NODE_NO_WARNINGS=1",
-    "build:dist": "symbiote build distributables --env NODE_NO_WARNINGS=1 --skip-bijective 'test/fixtures/.+$'",
-    "build:docs": "symbiote build docs --env NODE_NO_WARNINGS=1 --options --gitRemote upstream --entries 'src/**/*.ts' 'test/setup.ts' 'types/**/*.ts'",
+    "build:dist": "symbiote build distributables --env NODE_NO_WARNINGS=1 --not-multiversal --skip-bijective 'test/fixtures/.+$'",
+    "build:docs": "symbiote build docs --env NODE_NO_WARNINGS=1 --options --gitRemote upstream --entries 'src/**/*.ts' 'test/util.ts' 'types/**/*.ts'",
     "clean": "symbiote clean --env NODE_NO_WARNINGS=1",
     "format": "symbiote format --env NODE_NO_WARNINGS=1 --hush",
     "info": "symbiote project info --env NODE_NO_WARNINGS=1",
@@ -68,14 +68,16 @@
     "list-tasks": "symbiote list-tasks --env NODE_NO_WARNINGS=1 --scope this-package",
     "prepare": "symbiote project prepare --env NODE_NO_WARNINGS=1",
     "release": "symbiote release --env NODE_NO_WARNINGS=1",
-    "renovate": "symbiote project renovate --env NODE_NO_WARNINGS=1 --hush --regenerate-assets --assets-preset lib",
+    "renovate": "symbiote project renovate --env NODE_NO_WARNINGS=1 --github-reconfigure-repo --regenerate-assets --assets-preset lib",
+    "renovate:aliases": "symbiote project renovate --env NODE_NO_WARNINGS=1 --regenerate-assets --assets-preset lib --only-aliases",
     "start": "symbiote start --env NODE_NO_WARNINGS=1 --",
     "test": "npm run test:package:unit --",
-    "test:package:all": "symbiote test --env NODE_NO_WARNINGS=1 --coverage",
+    "test:package:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all-local --coverage",
     "test:package:e2e": "symbiote test --env NODE_NO_WARNINGS=1 --tests e2e-local",
     "test:package:integration": "symbiote test --env NODE_NO_WARNINGS=1 --tests integration",
-    "test:package:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit",
-    "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --scope unlimited --coverage"
+    "test:package:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type",
+    "test:packages:all": "symbiote test --env NODE_NO_WARNINGS=1 --tests all-local --scope unlimited --coverage",
+    "test:packages:all:unit": "symbiote test --env NODE_NO_WARNINGS=1 --tests unit type --scope unlimited --coverage"
   },
   "dependencies": {
     "core-js": "^3.42.0",
@@ -89,6 +91,7 @@
   "devDependencies": {
     "@-xun/jest": "^2.2.1",
     "@-xun/symbiote": "^4.2.7",
+    "@-xun/types": "^1.1.0",
     "@babel/helper-plugin-utils": "^7.27.1",
     "@babel/plugin-syntax-typescript": "^7.27.1",
     "@types/babel__helper-plugin-utils": "^7.10.3",

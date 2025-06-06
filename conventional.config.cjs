@@ -6,10 +6,9 @@ const {
   moduleExport
 } = require('@-xun/symbiote/assets/conventional.config.cjs');
 
-// TODO: publish latest rejoinder package first, then update configs to use it
-//const { createDebugLogger } = require('rejoinder');
+const { createDebugLogger } = require('rejoinder');
 
-/*const debug = createDebugLogger({ namespace: 'symbiote:config:conventional' });*/
+const debug = createDebugLogger({ namespace: 'symbiote:config:conventional' });
 
 module.exports = moduleExport({
   ...assertEnvironment(),
@@ -20,4 +19,4 @@ module.exports = moduleExport({
   }
 });
 
-/*debug('exported config: %O', module.exports);*/
+debug('exported config: %O', module.exports);

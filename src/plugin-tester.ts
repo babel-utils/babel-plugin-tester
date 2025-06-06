@@ -1321,7 +1321,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
         }
       }
     } catch (error) {
-      verbose2(`test failed: ${String(error)}`);
+      verbose2('test failed: %O', error);
       throw error;
     }
   }

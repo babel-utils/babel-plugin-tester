@@ -1,10 +1,9 @@
 // @ts-check
 'use strict';
 
-// TODO: publish latest rejoinder package first, then update configs to use it
-//const { createDebugLogger } = require('rejoinder');
+const { createDebugLogger } = require('rejoinder');
 
-/*const debug = createDebugLogger({ namespace: 'symbiote:config:ncurc' });*/
+const debug = createDebugLogger({ namespace: 'symbiote:config:ncurc' });
 
 // * https://www.npmjs.com/package/npm-check-updates#configuration-files
 module.exports = {
@@ -15,4 +14,4 @@ module.exports = {
   ]
 };
 
-/*debug('exported config: %O', module.exports);*/
+debug('exported config: %O', module.exports);

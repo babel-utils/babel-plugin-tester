@@ -13,6 +13,8 @@ document.
 
 ---
 
+<br />
+
 <!-- symbiote-template-region-end -->
 
 There are as of yet no notable deviations or additions. See the linked document
