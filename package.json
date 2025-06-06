@@ -94,7 +94,7 @@
     "@types/babel__helper-plugin-utils": "^7.10.3",
     "@types/lodash.mergewith": "^4.6.9",
     "execa~5": "npm:execa@^5.1.1",
-    "glob": "^11.0.0",
+    "glob": "^11.0.2",
     "jest-extended": "^4.0.2",
     "semver": "^7.6.3",
     "strip-ansi~6": "npm:strip-ansi@^6.0.1",
