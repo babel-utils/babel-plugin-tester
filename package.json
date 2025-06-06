@@ -90,7 +90,7 @@
     "@-xun/jest": "^2.2.1",
     "@-xun/symbiote": "^4.2.7",
     "@babel/helper-plugin-utils": "^7.27.1",
-    "@babel/plugin-syntax-typescript": "^7.25.9",
+    "@babel/plugin-syntax-typescript": "^7.27.1",
     "@types/babel__helper-plugin-utils": "^7.10.3",
     "@types/lodash.mergewith": "^4.6.9",
     "execa~5": "npm:execa@^5.1.1",
