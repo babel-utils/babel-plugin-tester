@@ -96,7 +96,7 @@
     "execa~5": "npm:execa@^5.1.1",
     "glob": "^11.0.2",
     "jest-extended": "^5.0.3",
-    "semver": "^7.6.3",
+    "semver": "^7.7.2",
     "strip-ansi~6": "npm:strip-ansi@^6.0.1",
     "toss-expression": "^0.1.2",
     "unique-filename": "^4.0.0"
