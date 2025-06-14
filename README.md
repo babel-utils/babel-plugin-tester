@@ -1387,11 +1387,11 @@ pluginTester({
     },
     {
       // This test will pass if and only if code has not changed.
-      code: '"hello";'
+      code: '"hello";',
       // To prevent false negatives (like with reckless use of `npx jest -u`),
       // snapshots of code that does not change are forbidden. Snapshots
       // succeed only when babel output !== code input.
-      snapshot: false;
+      snapshot: false
     },
     {
       code: 'var hello = "hi";',
