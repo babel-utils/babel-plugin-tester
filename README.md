@@ -115,7 +115,7 @@ const { pluginTester } = require('babel-plugin-tester');
 /* file: test/unit.test.js */
 
 import { pluginTester } from 'babel-plugin-tester';
-import yourPlugin from 'universe:your-plugin';
+import yourPlugin from './your-plugin.js';
 
 pluginTester({
   plugin: yourPlugin,
@@ -160,7 +160,7 @@ This is used to provide the babel plugin under test. For example:
 /* file: test/unit.test.js */
 
 import { pluginTester } from 'babel-plugin-tester';
-import identifierReversePlugin from 'universe:identifier-reverse-plugin';
+import identifierReversePlugin from 'universe:identifier-reverse-plugin.js';
 
 pluginTester({
   plugin: identifierReversePlugin,
@@ -517,7 +517,7 @@ file will share the same [test title numbering][53]. For example:
 /* file: test/unit.test.js */
 
 import { pluginTester } from 'babel-plugin-tester';
-import yourPlugin from 'universe:your-plugin';
+import yourPlugin from './your-plugin.js';
 
 pluginTester({
   plugin: yourPlugin,
@@ -551,7 +551,7 @@ However, setting this option to `true` will restart the numbering:
 /* file: test/unit.test.js */
 
 import { pluginTester } from 'babel-plugin-tester';
-import yourPlugin from 'universe:your-plugin';
+import yourPlugin from './your-plugin';
 
 pluginTester({
   plugin: yourPlugin,
