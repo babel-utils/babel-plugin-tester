@@ -57,6 +57,7 @@ export const BABEL_VERSIONS_UNDER_TEST = ([
   // * [babel@version, ...otherPackages]
   [`@babel/core@${babelCoreMinimumVersion.version}`], // ? Current minimum version
   ['@babel/core@latest'], // ? Latest version
+  // ! Canary/next version should always be last (so Jest can skip it for now)
   ['@babel/core@next'],   // ? Next version
 ]);
 
@@ -74,14 +75,15 @@ export const NODE_VERSIONS_UNDER_TEST = packageEngines.node
 
 export const FRAMEWORKS_UNDER_TEST: FrameworksUnderTest = [
   {
-    frameworkPkg: 'jest@>=30 || >=30.0.0-alpha.2',
+    frameworkPkg: 'jest@latest',
     frameworkArgs: ['jest'],
     tests: [
       { source: assets.invocation, expectations: expectSuccessAndOutput },
       { source: assets.invocationOnly, expectations: expectSuccess },
       { source: assets.invocationSkip, expectations: expectSuccess },
       { source: assets.invocationSnapshot, expectations: expectSuccess }
-    ]
+    ],
+    skipLastBabelVersionUnderTest: true
   },
   {
     frameworkPkg: 'vitest@latest',
@@ -168,6 +170,14 @@ export type FrameworksUnderTest = ReadonlyDeep<
     frameworkPkg: string;
     frameworkArgs: string[];
     otherFrameworkPkgs?: string[];
+    /**
+     * TODO: Try to fix this next time you see this!
+     * Only applies to integration-smoke.test.ts. Useful because babel@8 and
+     * babel-jest are incompatible for a couple reasons, including breaking API
+     * changes from babel@8 as well as jest not handling cjs-importing-esm
+     * properly (a fix is monkey-patched in via a @-xun/jest helper method).
+     */
+    skipLastBabelVersionUnderTest?: boolean;
     tests: {
       source: Record<
         (typeof IMPORT_SPECIFIERS_UNDER_TEST)[number],

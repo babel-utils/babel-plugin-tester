@@ -52,13 +52,27 @@ beforeAll(async () => {
 
 let counter = 1;
 
-for (const [babelPackage, ...otherBabelPkgs] of BABEL_VERSIONS_UNDER_TEST) {
+for (const [
+  index,
+  [babelPackage, ...otherBabelPkgs]
+] of BABEL_VERSIONS_UNDER_TEST.entries()) {
   for (const {
     frameworkPkg,
     frameworkArgs,
     otherFrameworkPkgs,
+    skipLastBabelVersionUnderTest = false,
     tests
   } of FRAMEWORKS_UNDER_TEST) {
+    if (skipLastBabelVersionUnderTest && index >= BABEL_VERSIONS_UNDER_TEST.length - 1) {
+      debug.warn(
+        'saw skipLastBabelVersionUnderTest=true in FRAMEWORKS_UNDER_TEST entry; skipped testing %O with %O',
+        babelPackage,
+        frameworkPkg
+      );
+
+      continue;
+    }
+
     const otherPkgs = otherBabelPkgs.concat(otherFrameworkPkgs || []);
     const pkgsString = [babelPackage, frameworkPkg, ...otherPkgs].join(', ');
 
