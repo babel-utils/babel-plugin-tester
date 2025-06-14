@@ -34,7 +34,7 @@ Defined in: node\_modules/prettier/doc.d.ts:226
 
 > `optional` **arrowParens**: `"always"` \| `"avoid"`
 
-Defined in: node\_modules/prettier/index.d.ts:392
+Defined in: node\_modules/prettier/index.d.ts:397
 
 Include parentheses around a sole arrow function parameter.
 
@@ -54,7 +54,7 @@ Include parentheses around a sole arrow function parameter.
 
 > `optional` **bracketSameLine**: `boolean`
 
-Defined in: node\_modules/prettier/index.d.ts:349
+Defined in: node\_modules/prettier/index.d.ts:354
 
 Put the `>` of a multi-line HTML (HTML, JSX, Vue, Angular) element at the end of the last line instead of being
 alone on the next line (does not apply to self closing elements).
@@ -95,7 +95,7 @@ true
 
 > `optional` **embeddedLanguageFormatting**: `"auto"` \| `"off"`
 
-Defined in: node\_modules/prettier/index.d.ts:421
+Defined in: node\_modules/prettier/index.d.ts:426
 
 Control whether Prettier formats quoted code embedded in the file.
 
@@ -115,7 +115,7 @@ Control whether Prettier formats quoted code embedded in the file.
 
 > `optional` **endOfLine**: `"lf"` \| `"crlf"` \| `"auto"` \| `"cr"`
 
-Defined in: node\_modules/prettier/index.d.ts:406
+Defined in: node\_modules/prettier/index.d.ts:411
 
 Which end of line characters to apply.
 
@@ -131,11 +131,31 @@ Which end of line characters to apply.
 
 ***
 
+### experimentalOperatorPosition?
+
+> `optional` **experimentalOperatorPosition**: `"start"` \| `"end"`
+
+Defined in: node\_modules/prettier/index.d.ts:436
+
+Where to print operators when binary expressions wrap lines.
+
+#### Default
+
+```ts
+"end"
+```
+
+#### Inherited from
+
+`Partial.experimentalOperatorPosition`
+
+***
+
 ### experimentalTernaries?
 
 > `optional` **experimentalTernaries**: `boolean`
 
-Defined in: node\_modules/prettier/index.d.ts:432
+Defined in: node\_modules/prettier/index.d.ts:442
 
 Use curious ternaries, with the question mark after the condition, instead
 of on the same line as the consequent.
@@ -156,7 +176,7 @@ false
 
 > `optional` **filepath**: `string`
 
-Defined in: node\_modules/prettier/index.d.ts:367
+Defined in: node\_modules/prettier/index.d.ts:372
 
 Specify the input filepath. This will be used to do parser inference.
 
@@ -170,7 +190,7 @@ Specify the input filepath. This will be used to do parser inference.
 
 > `optional` **htmlWhitespaceSensitivity**: `"ignore"` \| `"css"` \| `"strict"`
 
-Defined in: node\_modules/prettier/index.d.ts:401
+Defined in: node\_modules/prettier/index.d.ts:406
 
 How to handle whitespaces in HTML.
 
@@ -190,7 +210,7 @@ How to handle whitespaces in HTML.
 
 > `optional` **insertPragma**: `boolean`
 
-Defined in: node\_modules/prettier/index.d.ts:381
+Defined in: node\_modules/prettier/index.d.ts:386
 
 Prettier can insert a special
 
@@ -221,7 +241,7 @@ false
 
 > `optional` **jsxBracketSameLine**: `boolean`
 
-Defined in: node\_modules/prettier/index.d.ts:438
+Defined in: node\_modules/prettier/index.d.ts:448
 
 Put the `>` of a multi-line JSX element at the end of the last line instead of being alone on the next line.
 
@@ -261,6 +281,26 @@ false
 
 ***
 
+### objectWrap?
+
+> `optional` **objectWrap**: `"preserve"` \| `"collapse"`
+
+Defined in: node\_modules/prettier/index.d.ts:348
+
+How to wrap object literals.
+
+#### Default
+
+```ts
+"preserve"
+```
+
+#### Inherited from
+
+`Partial.objectWrap`
+
+***
+
 ### parentParser?
 
 > `optional` **parentParser**: `string`
@@ -277,7 +317,7 @@ Defined in: node\_modules/prettier/doc.d.ts:225
 
 > `optional` **parser**: `LiteralUnion`\<`BuiltInParserName`, `string`\>
 
-Defined in: node\_modules/prettier/index.d.ts:363
+Defined in: node\_modules/prettier/index.d.ts:368
 
 Specify which parser to use.
 
@@ -289,9 +329,9 @@ Specify which parser to use.
 
 ### plugins?
 
-> `optional` **plugins**: (`string` \| `Plugin`)[]
+> `optional` **plugins**: (`string` \| `Plugin`\<`any`\>)[]
 
-Defined in: node\_modules/prettier/index.d.ts:396
+Defined in: node\_modules/prettier/index.d.ts:401
 
 Provide ability to support new languages to prettier.
 
@@ -325,7 +365,7 @@ Specify the line length that the printer will wrap on.
 
 > `optional` **proseWrap**: `"preserve"` \| `"always"` \| `"never"`
 
-Defined in: node\_modules/prettier/index.d.ts:387
+Defined in: node\_modules/prettier/index.d.ts:392
 
 By default, Prettier will wrap markdown text as-is since some services use a linebreak-sensitive renderer.
 In some cases you may want to rely on editor/viewer soft wrapping instead, so this option allows you to opt out.
@@ -346,7 +386,7 @@ In some cases you may want to rely on editor/viewer soft wrapping instead, so th
 
 > `optional` **quoteProps**: `"preserve"` \| `"as-needed"` \| `"consistent"`
 
-Defined in: node\_modules/prettier/index.d.ts:411
+Defined in: node\_modules/prettier/index.d.ts:416
 
 Change when properties in objects are quoted.
 
@@ -366,7 +406,7 @@ Change when properties in objects are quoted.
 
 > `optional` **rangeEnd**: `number`
 
-Defined in: node\_modules/prettier/index.d.ts:359
+Defined in: node\_modules/prettier/index.d.ts:364
 
 Format only a segment of a file.
 
@@ -386,7 +426,7 @@ Number.POSITIVE_INFINITY
 
 > `optional` **rangeStart**: `number`
 
-Defined in: node\_modules/prettier/index.d.ts:354
+Defined in: node\_modules/prettier/index.d.ts:359
 
 Format only a segment of a file.
 
@@ -406,7 +446,7 @@ Format only a segment of a file.
 
 > `optional` **requirePragma**: `boolean`
 
-Defined in: node\_modules/prettier/index.d.ts:373
+Defined in: node\_modules/prettier/index.d.ts:378
 
 Prettier can restrict itself to only format files that contain a special comment, called a pragma, at the top of the file.
 This is very useful when gradually transitioning large, unformatted codebases to prettier.
@@ -447,7 +487,7 @@ true
 
 > `optional` **singleAttributePerLine**: `boolean`
 
-Defined in: node\_modules/prettier/index.d.ts:426
+Defined in: node\_modules/prettier/index.d.ts:431
 
 Enforce single attribute per line in HTML, Vue and JSX.
 
@@ -547,7 +587,7 @@ false
 
 > `optional` **vueIndentScriptAndStyle**: `boolean`
 
-Defined in: node\_modules/prettier/index.d.ts:416
+Defined in: node\_modules/prettier/index.d.ts:421
 
 Whether or not to indent the code inside <script> and <style> tags in Vue files.
 

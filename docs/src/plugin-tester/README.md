@@ -22,49 +22,49 @@
 
 ### BabelType
 
-Re-exports [BabelType](../../types/global/type-aliases/BabelType.md)
+Re-exports [BabelType](../types/type-aliases/BabelType.md)
 
 ***
 
 ### ErrorExpectation
 
-Re-exports [ErrorExpectation](../../types/global/type-aliases/ErrorExpectation.md)
+Re-exports [ErrorExpectation](../types/type-aliases/ErrorExpectation.md)
 
 ***
 
 ### FixtureOptions
 
-Re-exports [FixtureOptions](../../types/global/interfaces/FixtureOptions.md)
+Re-exports [FixtureOptions](../types/interfaces/FixtureOptions.md)
 
 ***
 
 ### OutputTesterFunction
 
-Re-exports [OutputTesterFunction](../../types/global/type-aliases/OutputTesterFunction.md)
+Re-exports [OutputTesterFunction](../types/type-aliases/OutputTesterFunction.md)
 
 ***
 
 ### PluginTesterOptions
 
-Re-exports [PluginTesterOptions](../../types/global/interfaces/PluginTesterOptions.md)
+Re-exports [PluginTesterOptions](../types/interfaces/PluginTesterOptions.md)
 
 ***
 
 ### prettierFormatter
 
-Re-exports [prettierFormatter](../formatters/prettier/functions/prettierFormatter.md)
+Re-exports [prettierFormatter](../formatters/prettier/variables/prettierFormatter.md)
 
 ***
 
 ### ResultFormatter
 
-Re-exports [ResultFormatter](../../types/global/type-aliases/ResultFormatter.md)
+Re-exports [ResultFormatter](../types/type-aliases/ResultFormatter.md)
 
 ***
 
 ### SetupFunction
 
-Re-exports [SetupFunction](../../types/global/type-aliases/SetupFunction.md)
+Re-exports [SetupFunction](../types/type-aliases/SetupFunction.md)
 
 ***
 
@@ -76,13 +76,13 @@ Re-exports [SnapshotSerializer](../type-aliases/SnapshotSerializer.md)
 
 ### TeardownFunction
 
-Re-exports [TeardownFunction](../../types/global/type-aliases/TeardownFunction.md)
+Re-exports [TeardownFunction](../types/type-aliases/TeardownFunction.md)
 
 ***
 
 ### TestObject
 
-Re-exports [TestObject](../../types/global/interfaces/TestObject.md)
+Re-exports [TestObject](../types/interfaces/TestObject.md)
 
 ***
 

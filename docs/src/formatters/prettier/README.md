@@ -10,12 +10,12 @@
 
 - [PrettierOptions](interfaces/PrettierOptions.md)
 
-## Functions
+## Variables
 
-- [prettierFormatter](functions/prettierFormatter.md)
+- [prettierFormatter](variables/prettierFormatter.md)
 
 ## References
 
 ### default
 
-Renames and re-exports [prettierFormatter](functions/prettierFormatter.md)
+Renames and re-exports [prettierFormatter](variables/prettierFormatter.md)

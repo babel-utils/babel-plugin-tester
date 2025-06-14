@@ -6,6 +6,6 @@
 
 # Type Alias: SnapshotSerializer
 
-> **SnapshotSerializer**: `NewPlugin` \| `OldPlugin`
+> **SnapshotSerializer** = `NewPlugin` \| `OldPlugin`
 
-Defined in: node\_modules/pretty-format/build/index.d.ts:118
+Defined in: node\_modules/pretty-format/build/index.d.ts:119

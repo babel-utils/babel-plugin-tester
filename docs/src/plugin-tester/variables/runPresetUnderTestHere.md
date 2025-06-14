@@ -8,7 +8,7 @@
 
 > `const` **runPresetUnderTestHere**: unique `symbol`
 
-Defined in: [src/plugin-tester.ts:96](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/src/plugin-tester.ts#L96)
+Defined in: [src/plugin-tester.ts:93](https://github.com/babel-utils/babel-plugin-tester/blob/4d4ff268cbd4a3f5ae326c51e5487f07121f5c9d/src/plugin-tester.ts#L93)
 
 A unique symbol that, when included in `babelOptions.presets`, will be
 replaced with the preset under test. Use this symbol to create a custom

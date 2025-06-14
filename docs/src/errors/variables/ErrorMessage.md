@@ -8,7 +8,7 @@
 
 > `const` **ErrorMessage**: `object`
 
-Defined in: [src/errors.ts:17](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/src/errors.ts#L17)
+Defined in: [src/errors.ts:17](https://github.com/babel-utils/babel-plugin-tester/blob/4d4ff268cbd4a3f5ae326c51e5487f07121f5c9d/src/errors.ts#L17)
 
 A collection of possible errors and warnings.
 
@@ -128,7 +128,7 @@ A collection of possible errors and warnings.
 
 ### BadEnvironmentVariableRange()
 
-> **BadEnvironmentVariableRange**: (`name`, `rangeStr`, `range`?) => `string`
+> **BadEnvironmentVariableRange**: (`name`, `rangeStr`, `range?`) => `string`
 
 #### Parameters
 
@@ -164,7 +164,7 @@ A collection of possible errors and warnings.
 
 ##### expectedError
 
-`Function` | \{ `name`: `string`; \}
+`Function` | \{ `name?`: `string`; \}
 
 #### Returns
 
@@ -420,7 +420,7 @@ A collection of possible errors and warnings.
 
 ### TeardownFunctionFailed()
 
-> **TeardownFunctionFailed**: (`functionError`, `frameworkError`?) => `string`
+> **TeardownFunctionFailed**: (`functionError`, `frameworkError?`) => `string`
 
 #### Parameters
 

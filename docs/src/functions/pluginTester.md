@@ -6,9 +6,9 @@
 
 # Function: pluginTester()
 
-> **pluginTester**(`options`?): `void`
+> **pluginTester**(`options?`): `void`
 
-Defined in: [src/index.ts:45](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/src/index.ts#L45)
+Defined in: [src/index.ts:42](https://github.com/babel-utils/babel-plugin-tester/blob/4d4ff268cbd4a3f5ae326c51e5487f07121f5c9d/src/index.ts#L42)
 
 An abstraction around babel to help you write tests for your babel plugin or
 preset.
@@ -17,7 +17,7 @@ preset.
 
 ### options?
 
-[`PluginTesterOptions`](../../types/global/interfaces/PluginTesterOptions.md)
+[`PluginTesterOptions`](../types/interfaces/PluginTesterOptions.md)
 
 ## Returns
 

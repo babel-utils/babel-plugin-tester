@@ -8,7 +8,7 @@
 
 > **restartTestTitleNumbering**(): `void`
 
-Defined in: [src/plugin-tester.ts:120](https://github.com/babel-utils/babel-plugin-tester/blob/03734eaa985470bea60d71fab1aa0d0dbdddae3c/src/plugin-tester.ts#L120)
+Defined in: [src/plugin-tester.ts:117](https://github.com/babel-utils/babel-plugin-tester/blob/4d4ff268cbd4a3f5ae326c51e5487f07121f5c9d/src/plugin-tester.ts#L117)
 
 This function has the same effect as calling `pluginTester` with
 `restartTitleNumbering: true`.
