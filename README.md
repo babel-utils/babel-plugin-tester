@@ -136,7 +136,7 @@ pluginTester({
 In your terminal of choice:
 
 ```shell
-# Prettier@3 requires --experimental-vm-modules for older Node versions
+# Some older Node versions require --experimental-vm-modules
 NODE_OPTIONS='--no-warnings --experimental-vm-modules' npx jest
 ```
 
