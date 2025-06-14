@@ -1,7 +1,8 @@
-import debugFactory from 'debug';
-import type { SnapshotSerializer } from '..';
+import { globalDebugger } from 'universe:constant.ts';
 
-const debug = debugFactory('babel-plugin-tester:serializer');
+import type { SnapshotSerializer } from 'universe';
+
+const debug = globalDebugger.extend('serializer');
 
 /**
  * If you're using jest and snapshots, then the snapshot output could have a

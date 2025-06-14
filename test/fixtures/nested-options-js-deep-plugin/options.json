@@ -1,0 +1,27 @@
+{
+  "fixtureOutputExt": ".mjs",
+  "pluginOptions": {
+    "replaceExtensions": {
+      ".ts": ".xjs"
+    }
+  },
+  "babelOptions": {
+    "plugins": [
+      [
+        "@babel/plugin-syntax-typescript",
+        { "isTSX": true, "somethingOrOther": 5 }
+      ],
+      ["@babel/plugin-syntax-jsx", { "somethingOrOther": 6 }],
+      [
+        "@babel/plugin-syntax-typescript",
+        { "isTSX": true, "somethingOrOther": 7 },
+        "ok-duplicate-plugin-syntax-typescript"
+      ],
+      [
+        "@babel/plugin-syntax-jsx",
+        { "somethingOrOther": 8 },
+        "ok-duplicate-plugin-syntax-jsx"
+      ]
+    ]
+  }
+}

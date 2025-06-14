@@ -1,19 +1,29 @@
-import debugFactory from 'debug';
-
-import { prettierFormatter } from './formatters/prettier';
-import { unstringSnapshotSerializer } from './serializers/unstring-snapshot';
+import { globalDebugger as debug } from 'universe:constant.ts';
+import { prettierFormatter } from 'universe:formatters/prettier.ts';
 
 import {
   pluginTester,
   runPluginUnderTestHere,
   runPresetUnderTestHere
-} from './plugin-tester';
+} from 'universe:plugin-tester.ts';
 
-import type { PluginTesterOptions } from './types';
+import { unstringSnapshotSerializer } from 'universe:serializers/unstring-snapshot.ts';
 
-const debug = debugFactory('babel-plugin-tester:index');
+import type { PluginTesterOptions } from 'universe:types.ts';
 
-if ('expect' in globalThis && typeof expect?.addSnapshotSerializer == 'function') {
+// {@symbiote/notExtraneous jest}
+
+export type * from 'universe:types.ts';
+
+export {
+  defaultPluginTester as pluginTester,
+  prettierFormatter,
+  runPluginUnderTestHere,
+  runPresetUnderTestHere,
+  unstringSnapshotSerializer
+};
+
+if ('expect' in globalThis && typeof expect.addSnapshotSerializer === 'function') {
   debug(
     'added unstring snapshot serializer globally; all snapshots after this point will be affected'
   );
@@ -30,27 +40,5 @@ if ('expect' in globalThis && typeof expect?.addSnapshotSerializer == 'function'
  * preset.
  */
 function defaultPluginTester(options?: PluginTesterOptions) {
-  return pluginTester({ formatResult: prettierFormatter, ...options });
+  pluginTester({ formatResult: prettierFormatter, ...options });
 }
-
-export {
-  defaultPluginTester as default,
-  defaultPluginTester as pluginTester,
-  prettierFormatter,
-  unstringSnapshotSerializer,
-  runPluginUnderTestHere,
-  runPresetUnderTestHere
-};
-
-export * from './types';
-
-// ? What follows is some not-so-pretty interop for backwards compatible require
-// ? calls using the old CJS default import syntax. In the next major version of
-// ? babel-plugin-tester, all default exports will be removed entirely.
-defaultPluginTester.default = defaultPluginTester;
-defaultPluginTester.pluginTester = defaultPluginTester;
-defaultPluginTester.prettierFormatter = prettierFormatter;
-defaultPluginTester.unstringSnapshotSerializer = unstringSnapshotSerializer;
-defaultPluginTester.runPluginUnderTestHere = runPluginUnderTestHere;
-defaultPluginTester.runPresetUnderTestHere = runPresetUnderTestHere;
-module.exports = defaultPluginTester;

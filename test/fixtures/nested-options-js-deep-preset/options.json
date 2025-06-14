@@ -1,0 +1,30 @@
+{
+  "fixtureOutputExt": ".mjs",
+  "presetOptions": {
+    "replaceExtensions": {
+      ".ts": ".xjs"
+    }
+  },
+  "babelOptions": {
+    "presets": [
+      [
+        "@babel/preset-typescript",
+        { "allowDeclareFields": false, "somethingOrOther": 5 }
+      ],
+      [
+        "@babel/preset-react",
+        { "somethingOrOther": 6 }
+      ],
+      [
+        "@babel/preset-typescript",
+        { "allowDeclareFields": false, "somethingOrOther": 7 },
+        "ok-duplicate-preset-typescript"
+      ],
+      [
+        "@babel/preset-react",
+        { "somethingOrOther": 8 },
+        "ok-duplicate-preset-react"
+      ]
+    ]
+  }
+}

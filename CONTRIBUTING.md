@@ -1,55 +1,100 @@
 # Contributing
 
-Thanks for being willing to contribute!
+Hi there! First off, we're thrilled 🤩 you want contribute to this project!
 
-**Working on your first Pull Request?** You can learn how from this _free_
-series [How to Contribute to an Open Source Project on GitHub][egghead]
+First time contributor to a GitHub project? If you could use some help getting
+started, [take a look at this quick and easy guide][how-to-contribute]. 💜
 
-## Project Setup
+## Briefly: Submitting a Pull Request (Pr)
 
-1. Fork and clone the repo.
-2. `$ npm ci` to install dependencies without affecting the `package-lock.json`
-   file.
-3. `$ npm run test` to validate you've got it working.
-4. Create a branch for your PR.
+> See also: [CODE_OF_CONDUCT.md][code-of-conduct]
 
-> Tip: Keep your `master` branch pointing at the original repository and make
-> pull requests from branches on your fork. To do this, run:
->
-> ```shell
-> git remote add upstream https://github.com/babel-utils/babel-plugin-tester
-> git fetch upstream
-> git branch --set-upstream-to=upstream/master master
-> ```
->
-> This will add the original repository as a "remote" called "upstream," Then
-> fetch the git information from that remote, then set your local `master`
-> branch to use the upstream master branch whenever you run `git pull`. Then you
-> can make all of your pull request branches based on this `master` branch.
-> Whenever you want to update your version of `master`, do a regular `git pull`.
+This repository uses a [fully automated][github-actions] [continuous
+linting][husky-cl] (CL), integration testing (CI), and deployment (CD)
+[xpipeline][xpipeline]-based pipeline for integrating PRs and publishing
+releases. The neat thing about a fully automated pipeline is that anyone
+anywhere can make a contribution quickly and with minimal tedium.
 
-## Committing and Pushing Changes
+This repository makes extensive use of [debug][pkg-debug]. Should you wish to
+view all possible debugging output, [export
+`DEBUG='*,*:*'`][pkg-debug-wildcards].
 
-Please make sure to run the unit _and integration_ tests before you send your
-PR. You can do so by running `npm run test:all`, which will run all possible
-tests. On some Windows/WSL systems, the concurrent integration tests can be
-unstable, so set the environment variable `NO_CONCURRENT=true` to run the tests
-serially (which will be slow) if you encounter strange errors.
+The ideal contributor flow is as follows:
 
-Also, this project comes with Husky git hooks that run unit tests, linters, and
-formatters on the source before each commit. To prevent your contributions from
-being rejected, avoid circumventing these git hooks.
+1. [Fork][fork] this repository and [clone it locally][how-to-clone].
+   - If there is a custom Docker image available for this project and you're
+     comfortable with Docker, consider using it instead.
+2. Configure and install dependencies with `npm ci`.
+   - You use `npm ci` here instead of `npm install` to [prevent unnecessary
+     updates to `package.json` and `package-lock.json`][npm-ci], but if it makes
+     more sense to use `npm install` feel free to use that instead.
+     - **If you're getting an EINTEGRITY error from npm, you need to delete
+       package-lock.json before running `npm install` (not `npm ci`).**
+   - If `.env.default` exists, consider copying it to `.env` for sensible
+     pre-configured defaults.
+3. Before making any changes, ensure all unit tests are passing with
+   `npm run test`.
+4. _(optional but recommended)_ Create a new branch, usually off `main`.
+   - Example: `git checkout -b contrib-feature-1`.
+5. Make your changes and commit. Your work will be checked as you commit; any
+   problems will abort the commit/push attempt.
+   - Ensure any new tests still pass even when the `DEBUG` environment variable
+     is defined.
+6. Push your commits to your fork and, when you're ready, [_fearlessly_ submit
+   your PR][pr-compare]! Your changes will be tested in our CI pipeline.
+7. Pat yourself on the back! Your hard work is well on its way to being reviewed
+   and, if everything looks good, merged and released 🚀
 
-## Help Needed
+Additionally, there are a few things you can do to greatly increase the
+likelihood your PR passes review:
 
-Please checkout the [the open issues][issues].
+- **Do** [open an issue][choose-new-issue] and discuss your proposed changes (to
+  prevent wasting your valuable time, e.g. _maybe we're already working on a
+  fix!_), and [search][open-issues] to see if there are any existing issues
+  related to your concerns.
+- **Do** practice [atomic committing][atomic-commits].
+- **Do not** reduce code coverage ([codecov][codecov] checks are performed
+  during CI).
+- **Do** [follow convention][conventional-commits] when coming up with your
+  commit messages.
+- **Do not** circumvent CL, i.e. automated pre-commit linting, formatting, and
+  unit testing.
+- **Do** ensure `README.md` and other documentation that isn't autogenerated is
+  kept consistent with your changes.
+- **Do not** create a PR to introduce [_purely_ cosmetic
+  commits][cosmetic-commits].
+  - Code de-duplication and other potential optimizations we **do not** consider
+    _purely_ cosmetic 🙂
+- **Do** keep your PR as narrow and focused as possible.
+  - If you ran `npm install` instead of `npm ci` and it updated `package.json`
+    or `package-lock.json` and those updates have nothing to do with your PR
+    (e.g. random nested deps were updated), **do not** stage changes to those
+    files.
+  - If there are multiple related changes to be made but (1) they do not
+    immediately depend on one another or (2) one implements extended/alternative
+    functionality based on the other, consider submitting them as separate PRs
+    instead.
 
-Also, please watch the repo and respond to questions, bug reports, and feature
-requests! Thanks!
+At this point, you're ready to create your PR and ✨ contribute ✨!
 
-<!-- prettier-ignore-start -->
-<!-- prettier-ignore-end -->
-
-[egghead]:
-  https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github
-[issues]: https://github.com/kentcdodds/generator-kcd-oss/issues
+[atomic-commits]: https://www.codewithjason.com/atomic-commits-testing
+[choose-new-issue]:
+  https://github.com/babel-utils/babel-plugin-tester/issues/new/choose
+[code-of-conduct]:
+  https://github.com/babel-utils/babel-plugin-tester/.github/CODE_OF_CONDUCT.md
+[codecov]: https://about.codecov.io
+[conventional-commits]: https://www.conventionalcommits.org/en/v1.0.0#summary
+[cosmetic-commits]:
+  https://github.com/rails/rails/pull/13771#issuecomment-32746700
+[fork]: https://github.com/babel-utils/babel-plugin-tester/fork
+[github-actions]: https://github.com/features/actions
+[how-to-clone]:
+  https://docs.github.com/en/free-pro-team@latest/github/creating-cloning-and-archiving-repositories/cloning-a-repository
+[how-to-contribute]: https://www.dataschool.io/how-to-contribute-on-github
+[husky-cl]: https://github.com/babel-utils/babel-plugin-tester/tree/main/.husky
+[npm-ci]: https://docs.npmjs.com/cli/v6/commands/npm-ci
+[open-issues]: https://github.com/babel-utils/babel-plugin-tester/issues?q=
+[pkg-debug]: https://www.npmjs.com/package/debug
+[pkg-debug-wildcards]: https://www.npmjs.com/package/debug#wildcards
+[pr-compare]: https://github.com/babel-utils/babel-plugin-tester/compare
+[xpipeline]: https://github.com/Xunnamius/xpipeline#readme

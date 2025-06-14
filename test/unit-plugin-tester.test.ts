@@ -1,61 +1,61 @@
-/* eslint-disable jest/prefer-lowercase-title */
-import fs from 'node:fs';
-import path from 'node:path';
 import assert, { AssertionError } from 'node:assert';
-import babel from '@babel/core';
+import fs from 'node:fs';
 import { EOL } from 'node:os';
-import { toss } from 'toss-expression';
-import stripIndent from 'strip-indent';
+import { resolve as resolvePath } from 'node:path';
+
+import { toPath } from '@-xun/fs';
+import babel from '@babel/core';
 import { declare } from '@babel/helper-plugin-utils';
-import { asMockedFunction } from '@xunnamius/jest-types';
+import stripIndent from 'strip-indent~3';
+import { toss } from 'toss-expression';
 
-import { withMockedEnv, withMockedOutput } from './setup';
-import { prettierFormatter } from '../src/formatters/prettier';
-import { unstringSnapshotSerializer } from '../src/serializers/unstring-snapshot';
-import { restartTestTitleNumbering } from '../src/plugin-tester';
-import { ErrorMessage } from '../src/errors';
-import { $type } from '../src/symbols';
-
-import {
-  type PluginTesterOptions,
-  runPluginUnderTestHere,
-  runPresetUnderTestHere,
-  pluginTester
-} from '../src/index';
+import { pluginTester, runPluginUnderTestHere, runPresetUnderTestHere } from 'universe';
+import { $type } from 'universe:constant.ts';
+import { ErrorMessage } from 'universe:errors.ts';
+import { prettierFormatter } from 'universe:formatters/prettier.ts';
+import { restartTestTitleNumbering } from 'universe:plugin-tester.ts';
+import { unstringSnapshotSerializer } from 'universe:serializers/unstring-snapshot.ts';
 
 import {
   deleteVariablesPlugin,
   identifierReversePlugin,
   makePluginThatAppendsToIdentifier,
   makePluginWithOrderTracking,
-  makePresetFromPlugin
-} from './helpers/plugins';
+  makePresetFromPlugin,
+  metadataMutationPlugin
+} from 'testverse:helpers/plugins.ts';
 
 import {
-  simpleTest,
-  simpleFixture,
-  shouldNotBeSeen,
-  dummyProjectRootFilepath,
+  addRunnableJestTest,
+  clearRunnableJestTests,
   dummyExplicitPluginName,
   dummyInferredPluginName,
   dummyPresetName,
-  addRunnableJestTest,
+  dummyProjectRootFilepath,
+  escapeRegExp,
   getDummyPluginOptions,
   getDummyPresetOptions,
-  runPluginTester,
-  runPluginTesterExpectThrownException,
-  runPluginTesterExpectCapturedError,
-  runPluginTesterExpectThrownExceptionWhenCapturingError,
-  getFixturePath,
   getFixtureContents,
-  requireFixtureOptions,
+  getFixturePath,
   getRunnableJestTests,
-  clearRunnableJestTests,
   regExpContainsString,
-  escapeRegExp
-} from './helpers';
+  requireFixtureOptions,
+  runPluginTester,
+  runPluginTesterExpectCapturedError,
+  runPluginTesterExpectThrownException,
+  runPluginTesterExpectThrownExceptionWhenCapturingError,
+  shouldNotBeSeen,
+  simpleFixture,
+  simpleTest
+} from 'testverse:helpers.ts';
 
-import type { AnyFunction } from '@xunnamius/jest-types';
+import { asMocked, withMockedEnv, withMockedOutput } from 'testverse:util.ts';
+
+import type { AnyFunction } from '@-xun/types';
+import type { BabelFileResult } from '@babel/core';
+import type { PluginTesterOptions } from 'universe';
+
+// {@symbiote/notExtraneous @babel/plugin-syntax-typescript}
 
 expect.addSnapshotSerializer(unstringSnapshotSerializer);
 
@@ -65,6 +65,18 @@ type SpiedFunction<T extends AnyFunction> = jest.SpyInstance<
   Parameters<T>
 >;
 
+const isBabelFileResult = function (obj: unknown) {
+  const isNotBabelFileResult =
+    !obj ||
+    typeof obj !== 'object' ||
+    !('ast' in obj) ||
+    !('code' in obj) ||
+    !('map' in obj) ||
+    !('metadata' in obj);
+
+  return !isNotBabelFileResult;
+};
+
 const dummyTestObject = { [$type]: 'test-object' } as const;
 const dummyFixtureObject = {
   [$type]: 'fixture-object',
@@ -73,24 +85,24 @@ const dummyFixtureObject = {
 
 let equalSpy: SpiedFunction<typeof assert.equal>;
 let errorSpy: SpiedFunction<typeof console.error>;
-let describeSpy: SpiedFunction<typeof global.describe>;
+let describeSpy: SpiedFunction<typeof globalThis.describe>;
 let writeFileSyncSpy: SpiedFunction<typeof fs.writeFileSync>;
 let transformAsyncSpy: SpiedFunction<typeof babel.transformAsync>;
-let itSpy: SpiedFunction<typeof global.it>;
+let itSpy: SpiedFunction<typeof globalThis.it>;
 
-let mockedItOnly: MockedFunction<typeof global.it.only>;
-let mockedItSkip: MockedFunction<typeof global.it.skip>;
+let mockedItOnly: MockedFunction<typeof globalThis.it.only>;
+let mockedItSkip: MockedFunction<typeof globalThis.it.skip>;
 
 beforeEach(() => {
   equalSpy = jest.spyOn(assert, 'equal');
   errorSpy = jest.spyOn(console, 'error');
-  describeSpy = jest.spyOn(global, 'describe');
+  describeSpy = jest.spyOn(globalThis, 'describe');
   writeFileSyncSpy = jest.spyOn(fs, 'writeFileSync');
   transformAsyncSpy = jest.spyOn(babel, 'transformAsync');
-  itSpy = jest.spyOn(global, 'it');
+  itSpy = jest.spyOn(globalThis, 'it');
 
-  mockedItOnly = global.it.only = asMockedFunction<typeof it.only>();
-  mockedItSkip = global.it.skip = asMockedFunction<typeof it.skip>();
+  mockedItOnly = globalThis.it.only = asMocked(it.only);
+  mockedItSkip = globalThis.it.skip = asMocked(it.skip);
 
   describeSpy.mockImplementation((_title, body) => {
     // * https://github.com/facebook/jest/issues/10271
@@ -504,7 +516,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     await runPluginTester(
       getDummyPluginOptions({
         babel: { transform: transformFn } as NonNullable<PluginTesterOptions['babel']>,
-        fixtures: path.join('..', 'fixtures', 'simple'),
+        fixtures: getFixturePath('simple'),
         tests: [simpleTest]
       })
     );
@@ -512,7 +524,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     // await runPluginTester(
     //   getDummyPresetOptions({
     //     babel: { transform: transformFn } as NonNullable<PluginTesterOptions['babel']>,
-    //     fixtures: path.join('..', 'fixtures', 'simple'),
+    //     fixtures: toPath('..', 'fixtures', 'simple'),
     //     tests: [simpleTest]
     //   })
     // );
@@ -687,7 +699,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('runs plugins for `fixtures` and `tests` in the same order', async () => {
@@ -856,7 +868,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('throws if `babelOptions.babelrc: true` and `babelOptions.filename` is unset', async () => {
@@ -937,7 +949,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(describeSpy).toBeCalledTimes(0);
+    expect(describeSpy).toHaveBeenCalledTimes(0);
   });
 
   it('setting `title` to an empty string is equivalent to setting `title` to `undefined`', async () => {
@@ -975,19 +987,19 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     await runPluginTester(
       getDummyPluginOptions({
         tests: [simpleTest],
-        fixtures: '../fixtures/simple'
+        fixtures: getFixturePath('simple')
       })
     );
 
     await runPluginTester(
       getDummyPresetOptions({
         tests: [simpleTest],
-        fixtures: '../fixtures/simple'
+        fixtures: getFixturePath('simple')
       })
     );
 
     const fixtureFilename = getFixturePath('simple/fixture/code.js');
-    const testObjectFilename = path.resolve(__dirname, './helpers/index.ts');
+    const testObjectFilename = resolvePath(__dirname, './helpers.ts');
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
       [expect.any(String), expect.objectContaining({ filename: fixtureFilename })],
@@ -1107,7 +1119,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('converts line endings with respect to `endOfLine: lf`', async () => {
@@ -1139,7 +1151,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('converts line endings with respect to `endOfLine: crlf`', async () => {
@@ -1171,7 +1183,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('converts line endings with respect to `endOfLine: auto`', async () => {
@@ -1203,7 +1215,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('converts line endings with respect to `endOfLine: preserve`', async () => {
@@ -1237,7 +1249,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('handles `endOfLine: preserve` when line does not end with linefeed', async () => {
@@ -1298,7 +1310,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(8);
+    expect(itSpy).toHaveBeenCalledTimes(8);
   });
 
   it('does not convert line endings when `endOfLine: false`', async () => {
@@ -1332,7 +1344,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('throws if `endOfLine` is invalid', async () => {
@@ -1408,7 +1420,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(runOrder).toStrictEqual([1, 4, 1, 4, 1, 4, 1, 4]);
-    runOrder.splice(0, runOrder.length);
+    runOrder.splice(0);
 
     await runPluginTester(
       getDummyPluginOptions({
@@ -1649,7 +1661,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it("supports built-in prettier-based formatter using this project's own prettier configuration", async () => {
@@ -1689,7 +1701,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('applies `snapshot` globally', async () => {
@@ -1822,7 +1834,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [`1. ${requireFixtureOptions('option-title').title}`, expect.any(Function)],
+      [`1. ${requireFixtureOptions('option-title').title!}`, expect.any(Function)],
       ['2. a-custom-title', expect.any(Function)],
       ['3. another one', expect.any(Function)],
       ['4. fixture', expect.any(Function)],
@@ -1866,7 +1878,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [`1. ${requireFixtureOptions('option-title').title}`, expect.any(Function)],
+      [`1. ${requireFixtureOptions('option-title').title!}`, expect.any(Function)],
       ['2. a-custom-title', expect.any(Function)],
       ['3. another one', expect.any(Function)],
       ['4. fixture', expect.any(Function)],
@@ -1910,7 +1922,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [requireFixtureOptions('option-title').title, expect.any(Function)],
+      [requireFixtureOptions('option-title').title!, expect.any(Function)],
       ['1. a-custom-title', expect.any(Function)],
       ['2. another one', expect.any(Function)],
       ['fixture', expect.any(Function)],
@@ -1954,7 +1966,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [`1. ${requireFixtureOptions('option-title').title}`, expect.any(Function)],
+      [`1. ${requireFixtureOptions('option-title').title!}`, expect.any(Function)],
       ['a-custom-title', expect.any(Function)],
       ['another one', expect.any(Function)],
       ['2. fixture', expect.any(Function)],
@@ -1998,7 +2010,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [requireFixtureOptions('option-title').title, expect.any(Function)],
+      [requireFixtureOptions('option-title').title!, expect.any(Function)],
       ['a-custom-title', expect.any(Function)],
       ['another one', expect.any(Function)],
       ['fixture', expect.any(Function)],
@@ -2011,7 +2023,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('uses correct numbering when multiple different `titleNumbering`s are provided', async () => {
     expect.hasAssertions();
 
-    const fixtureTitle = requireFixtureOptions('option-title').title;
+    const fixtureTitle = requireFixtureOptions('option-title').title!;
 
     await runPluginTester(
       getDummyPluginOptions({
@@ -2126,7 +2138,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [`1. ${requireFixtureOptions('option-title').title}`, expect.any(Function)],
+      [`1. ${requireFixtureOptions('option-title').title!}`, expect.any(Function)],
       ['2. a-custom-title', expect.any(Function)],
       ['1. another one', expect.any(Function)],
       ['2. fixture', expect.any(Function)],
@@ -2139,7 +2151,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
   it('handles `titleNumbering` and `restartTitleNumbering` together', async () => {
     expect.hasAssertions();
 
-    const fixtureTitle = requireFixtureOptions('option-title').title;
+    const fixtureTitle = requireFixtureOptions('option-title').title!;
 
     await runPluginTester(
       getDummyPluginOptions({
@@ -2255,7 +2267,7 @@ describe('tests targeting the PluginTesterOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(1);
+    expect(itSpy).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -2319,7 +2331,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
     );
 
     expect(itSpy.mock.calls).toMatchObject([
-      [`1. ${requireFixtureOptions('option-title').title}`, expect.any(Function)],
+      [`1. ${requireFixtureOptions('option-title').title!}`, expect.any(Function)],
       ['2. test-x', expect.any(Function)],
       ['3. test 2', expect.any(Function)],
       [`4. ${dummyExplicitPluginName}`, expect.any(Function)],
@@ -2868,7 +2880,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       },
       {
         //? Should be able to handle unicode-enabled regular expressions
-        TEST_SKIP: 'fixture 1|fixture 2|5|6|test-\\p{Emoji_Presentation}',
+        TEST_SKIP: String.raw`fixture 1|fixture 2|5|6|test-\p{Emoji_Presentation}`,
         TEST_ONLY: 'fixture 1|6|test-🚀|3'
       }
     );
@@ -2913,7 +2925,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       },
       {
         //? Should be able to handle unicode-enabled regular expressions
-        TEST_ONLY: 'fixture 1|fixture 2|5|6|test-\\p{Emoji_Presentation}'
+        TEST_ONLY: String.raw`fixture 1|fixture 2|5|6|test-\p{Emoji_Presentation}`
       }
     );
   });
@@ -2949,8 +2961,8 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           ['9. test-y', expect.any(Function)]
         ]);
 
-        expect(mockedItSkip).toBeCalledTimes(0);
-        expect(itSpy).toBeCalledTimes(0);
+        expect(mockedItSkip).toHaveBeenCalledTimes(0);
+        expect(itSpy).toHaveBeenCalledTimes(0);
       },
       {
         // ? Should be able to handle multiple random commas and overlapping
@@ -2991,8 +3003,8 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           ['9. test-y', expect.any(Function)]
         ]);
 
-        expect(mockedItOnly).toBeCalledTimes(0);
-        expect(itSpy).toBeCalledTimes(0);
+        expect(mockedItOnly).toHaveBeenCalledTimes(0);
+        expect(itSpy).toHaveBeenCalledTimes(0);
       },
       {
         // ? Should be able to handle multiple random commas, overlapping
@@ -3033,8 +3045,8 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           ['9. test-y', expect.any(Function)]
         ]);
 
-        expect(mockedItOnly).toBeCalledTimes(0);
-        expect(itSpy).toBeCalledTimes(0);
+        expect(mockedItOnly).toHaveBeenCalledTimes(0);
+        expect(itSpy).toHaveBeenCalledTimes(0);
       },
       { TEST_NUM_SKIP: '1-9', TEST_NUM_ONLY: '5, 6, 7' }
     );
@@ -3071,8 +3083,8 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           ['9. test-y', expect.any(Function)]
         ]);
 
-        expect(mockedItSkip).toBeCalledTimes(0);
-        expect(itSpy).toBeCalledTimes(0);
+        expect(mockedItSkip).toHaveBeenCalledTimes(0);
+        expect(itSpy).toHaveBeenCalledTimes(0);
       },
       { TEST_NUM_ONLY: '1-9' }
     );
@@ -3117,7 +3129,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
           ['10. test-z', expect.any(Function)]
         ]);
 
-        expect(itSpy).toBeCalledTimes(0);
+        expect(itSpy).toHaveBeenCalledTimes(0);
       },
       {
         TEST_SKIP: 'fixture',
@@ -3467,7 +3479,10 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
     await runPluginTesterExpectThrownExceptionWhenCapturingError({
       throws: /not-captured/,
       overrides: { babel: { transform: () => toss('bad plugin') } },
-      expectedError: ErrorMessage.ExpectedErrorToMatchRegExp('bad plugin', /not-captured/)
+      expectedError: ErrorMessage.ExpectedErrorToMatchRegExp(
+        'bad plugin',
+        /not-captured/
+      )
     });
   });
 
@@ -3502,7 +3517,10 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
     expect.hasAssertions();
 
     await runPluginTesterExpectCapturedError({
-      throws: (error) => error instanceof SyntaxError && /captured/.test(error.message),
+      throws: function (error) {
+        // eslint-disable-next-line no-restricted-syntax
+        return error instanceof SyntaxError && error.message.includes('captured');
+      },
       overrides: {
         fixtures: getFixturePath('option-throws-function')
       }
@@ -3555,7 +3573,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
     });
   });
 
-  it('throws if both `throws` and `output`/`outputFixture`/output.js are provided', async () => {
+  it('throws if both `throws` and `output`/`outputFixture`/`outputRaw`/output.js are provided', async () => {
     expect.hasAssertions();
 
     await runPluginTesterExpectThrownExceptionWhenCapturingError({
@@ -3564,6 +3582,14 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
         fixtures: getFixturePath('option-throws-and-output-file')
       },
       expectedError: ErrorMessage.InvalidHasThrowsAndOutput(dummyFixtureObject)
+    });
+
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        fixtures: getFixturePath('option-throws-and-outputRaw')
+      },
+      expectedError: ErrorMessage.InvalidHasThrowsAndOutputRaw()
     });
 
     await runPluginTesterExpectThrownExceptionWhenCapturingError({
@@ -3586,6 +3612,20 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
         ]
       },
       expectedError: ErrorMessage.InvalidHasThrowsAndOutput(dummyTestObject)
+    });
+
+    await runPluginTesterExpectThrownExceptionWhenCapturingError({
+      throws: true,
+      overrides: {
+        tests: [
+          {
+            code: simpleTest,
+            throws: true,
+            outputRaw: () => undefined
+          }
+        ]
+      },
+      expectedError: ErrorMessage.InvalidHasThrowsAndOutputRaw()
     });
   });
 
@@ -3681,7 +3721,9 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       getDummyPluginOptions({
         formatResult: formatResultSpy,
         fixtures: getFixturePath('option-formatResult'),
-        tests: [{ code: simpleTest, output: formatResult!(simpleTest), formatResult }]
+        tests: [
+          { code: simpleTest, output: await formatResult!(simpleTest), formatResult }
+        ]
       })
     );
 
@@ -3689,11 +3731,13 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       getDummyPresetOptions({
         formatResult: formatResultSpy,
         fixtures: getFixturePath('option-formatResult'),
-        tests: [{ code: simpleTest, output: formatResult!(simpleTest), formatResult }]
+        tests: [
+          { code: simpleTest, output: await formatResult!(simpleTest), formatResult }
+        ]
       })
     );
 
-    expect(formatResultSpy).toBeCalledTimes(0);
+    expect(formatResultSpy).toHaveBeenCalledTimes(0);
   });
 
   it('supports jsx source using syntax plugin', async () => {
@@ -3723,7 +3767,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('supports ts source using syntax plugin', async () => {
@@ -3755,7 +3799,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('supports tsx source using syntax plugin', async () => {
@@ -3789,7 +3833,7 @@ describe('tests targeting both FixtureOptions and TestObject interfaces', () => 
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 });
 
@@ -3827,7 +3871,7 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPluginOptions({
-        filepath: path.join(
+        filepath: toPath(
           __dirname,
           './does-not-exist/should-use-absolute-fixtures-path-instead.js'
         ),
@@ -3837,7 +3881,7 @@ describe('tests targeting the FixtureOptions interface', () => {
 
     await runPluginTester(
       getDummyPresetOptions({
-        filepath: path.join(
+        filepath: toPath(
           __dirname,
           './does-not-exist/should-use-absolute-fixtures-path-instead.js'
         ),
@@ -4117,6 +4161,38 @@ describe('tests targeting the FixtureOptions interface', () => {
     });
   });
 
+  it('can test "raw" babel output via `outputRaw`', async () => {
+    expect.hasAssertions();
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        plugin: metadataMutationPlugin,
+        fixtures: getFixturePath('simple-outputRaw')
+      })
+    );
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        fixtures: getFixturePath('simple-outputRaw')
+      }),
+      expectedError: regExpContainsString('"seen": true')
+    });
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        preset: makePresetFromPlugin(metadataMutationPlugin),
+        fixtures: getFixturePath('simple-outputRaw')
+      })
+    );
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        fixtures: getFixturePath('simple-outputRaw')
+      }),
+      expectedError: regExpContainsString('"seen": true')
+    });
+  });
+
   it('formats, trims, and fixes line endings of code.js babel output; trims and fixes line endings of output.js contents', async () => {
     expect.hasAssertions();
 
@@ -4153,7 +4229,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(formatResult).toBeCalledTimes(2);
+    expect(formatResult).toHaveBeenCalledTimes(2);
   });
 
   it('runs mixed-extension tests with code.js and some with output.js', async () => {
@@ -4171,7 +4247,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(10);
+    expect(itSpy).toHaveBeenCalledTimes(10);
   });
 
   it('handles multiple code.js files in the same directory', async () => {
@@ -4189,7 +4265,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('handles incorrectly-structured fixtures directory', async () => {
@@ -4238,7 +4314,25 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
+  });
+
+  it('handles empty `outputRaw` and missing output.js file', async () => {
+    expect.hasAssertions();
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        fixtures: getFixturePath('creates-output-file-outputRaw')
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        fixtures: getFixturePath('creates-output-file-outputRaw')
+      })
+    );
+
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('handles code.js and output.js files with strange extensions', async () => {
@@ -4256,7 +4350,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('throws with helpful message if there is a problem parsing code.js', async () => {
@@ -4281,7 +4375,7 @@ describe('tests targeting the FixtureOptions interface', () => {
     expect.hasAssertions();
 
     const formatResult = jest.fn(
-      () => "if(`\r\n`.length == 2) { throw new Error('crlf not replaced with lf'); }"
+      () => "if(`\r\n`.length === 2) { throw new Error('crlf not replaced with lf'); }"
     );
 
     await runPluginTester(
@@ -4300,7 +4394,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(formatResult).toBeCalledTimes(2);
+    expect(formatResult).toHaveBeenCalledTimes(2);
   });
 
   it('runs exec.js files with various extensions', async () => {
@@ -4356,8 +4450,8 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(10);
-    expect(writeFileSyncSpy).not.toBeCalled();
+    expect(itSpy).toHaveBeenCalledTimes(10);
+    expect(writeFileSyncSpy).not.toHaveBeenCalled();
   });
 
   it('throws if exec.js file is empty', async () => {
@@ -4935,7 +5029,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(8);
+    expect(itSpy).toHaveBeenCalledTimes(8);
   });
 
   it('coexists with .babelrc configurations', async () => {
@@ -4954,7 +5048,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('respects nested .babelrc configurations that extend one-another', async () => {
@@ -4972,7 +5066,7 @@ describe('tests targeting the FixtureOptions interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(6);
+    expect(itSpy).toHaveBeenCalledTimes(6);
   });
 
   it('runs global and test-level setup, teardown, and returned teardown functions/promises in the proper order', async () => {
@@ -5153,6 +5247,69 @@ describe('tests targeting the FixtureOptions interface', () => {
       ]
     ]);
   });
+
+  it('does not throw "duplicate plugin/preset detected" when merging various options files', async () => {
+    expect.hasAssertions();
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        fixtures: getFixturePath('nested-options-js-deep-plugin')
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        fixtures: getFixturePath('nested-options-js-deep-preset')
+      })
+    );
+
+    expect(itSpy).toHaveBeenCalledTimes(2);
+
+    expect(transformAsyncSpy.mock.calls).toMatchObject([
+      [
+        expect.any(String),
+        expect.objectContaining({
+          plugins: expect.arrayContaining([
+            [
+              expect.any(Function),
+              {
+                appendExtension: '.mjs',
+                replaceExtensions: {
+                  '.ts': '.xjs'
+                }
+              }
+            ],
+            '@babel/plugin-syntax-jsx',
+            ['@babel/plugin-syntax-typescript', { isTSX: true }],
+            [
+              '@babel/plugin-syntax-jsx',
+              { somethingOrOther: 8 },
+              'ok-duplicate-plugin-syntax-jsx'
+            ]
+          ])
+        })
+      ],
+      [
+        expect.any(String),
+        expect.objectContaining({
+          presets: expect.arrayContaining([
+            [
+              expect.any(Function),
+              {
+                appendExtension: '.mjs',
+                replaceExtensions: {
+                  '.ts': '.xjs'
+                }
+              }
+            ],
+            '@babel/preset-react',
+            ['@babel/preset-typescript', { allowDeclareFields: true }],
+            ['@babel/preset-react', { somethingOrOther: 8 }, 'ok-duplicate-preset-react']
+          ])
+        })
+      ]
+    ]);
+  });
 });
 
 describe('tests targeting the TestObject interface', () => {
@@ -5324,7 +5481,7 @@ describe('tests targeting the TestObject interface', () => {
       [getFixtureContents('execFixture.js', { trim: false }), expect.any(Object)]
     ]);
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('resolves absolute `codeFixture`/`outputFixture`/`execFixture` path regardless of `filepath`', async () => {
@@ -5351,7 +5508,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
       [getFixtureContents('execFixture.js', { trim: false }), expect.any(Object)],
@@ -5418,7 +5575,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('can test that `code`/`codeFixture` and `output`/`outputFixture` babel output matches', async () => {
@@ -5472,6 +5629,160 @@ describe('tests targeting the TestObject interface', () => {
     });
   });
 
+  it('can test "raw" babel output via `outputRaw` with and without `output`/`outputFixture`', async () => {
+    expect.hasAssertions();
+
+    const codeFixturePath = getFixturePath('codeFixture.js');
+    const outputFixturePath = getFixturePath('outputFixture.js');
+    const codeFixtureContents = getFixtureContents('codeFixture.js');
+    const outputFixtureContents = getFixtureContents('outputFixture.js');
+
+    let expected = 0;
+
+    const outputRaw = (output: BabelFileResult) => {
+      expect(isBabelFileResult(output)).toBeTrue();
+      expected += 1;
+    };
+
+    const outputRawContainsMetadata = (output: BabelFileResult) => {
+      expect(output.metadata).toStrictEqual({ seen: true });
+    };
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        plugin: identifierReversePlugin,
+        tests: [
+          {
+            code: codeFixtureContents,
+            output: outputFixtureContents,
+            outputRaw
+          },
+          { code: codeFixtureContents, outputFixture: outputFixturePath, outputRaw },
+          { codeFixture: codeFixturePath, output: outputFixtureContents, outputRaw },
+          { codeFixture: codeFixturePath, outputFixture: outputFixturePath, outputRaw }
+        ]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        preset: makePresetFromPlugin(identifierReversePlugin),
+        tests: [
+          { code: codeFixtureContents, output: outputFixtureContents, outputRaw },
+          { code: codeFixtureContents, outputFixture: outputFixturePath, outputRaw },
+          { codeFixture: codeFixturePath, output: outputFixtureContents, outputRaw },
+          { codeFixture: codeFixturePath, outputFixture: outputFixturePath, outputRaw }
+        ]
+      })
+    );
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        tests: [
+          { code: codeFixtureContents, outputFixture: outputFixturePath, outputRaw }
+        ]
+      }),
+      expectedError: regExpContainsString(
+        ErrorMessage.ExpectedOutputToEqualActual(dummyTestObject)
+      )
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        tests: [
+          { codeFixture: codeFixturePath, output: outputFixtureContents, outputRaw }
+        ]
+      }),
+      expectedError: regExpContainsString(
+        ErrorMessage.ExpectedOutputToEqualActual(dummyTestObject)
+      )
+    });
+
+    expect(expected).toBe(10);
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        plugin: metadataMutationPlugin,
+        tests: [
+          {
+            code: codeFixtureContents,
+            output: codeFixtureContents,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            code: codeFixtureContents,
+            outputFixture: codeFixturePath,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            codeFixture: codeFixturePath,
+            output: codeFixtureContents,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            codeFixture: codeFixturePath,
+            outputFixture: codeFixturePath,
+            outputRaw: outputRawContainsMetadata
+          }
+        ]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        preset: makePresetFromPlugin(metadataMutationPlugin),
+        tests: [
+          {
+            code: codeFixtureContents,
+            output: codeFixtureContents,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            code: codeFixtureContents,
+            outputFixture: codeFixturePath,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            codeFixture: codeFixturePath,
+            output: codeFixtureContents,
+            outputRaw: outputRawContainsMetadata
+          },
+          {
+            codeFixture: codeFixturePath,
+            outputFixture: codeFixturePath,
+            outputRaw: outputRawContainsMetadata
+          }
+        ]
+      })
+    );
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPluginOptions({
+        tests: [
+          {
+            codeFixture: codeFixturePath,
+            outputFixture: codeFixturePath,
+            outputRaw: outputRawContainsMetadata
+          }
+        ]
+      }),
+      expectedError: regExpContainsString('"seen": true')
+    });
+
+    await runPluginTesterExpectThrownException({
+      options: getDummyPresetOptions({
+        tests: [
+          {
+            code: codeFixtureContents,
+            output: codeFixtureContents,
+            outputRaw: outputRawContainsMetadata
+          }
+        ]
+      }),
+      expectedError: regExpContainsString('"seen": true')
+    });
+  });
+
   it('handles empty `code`/`codeFixture`', async () => {
     expect.hasAssertions();
 
@@ -5510,7 +5821,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
   });
 
   it('handles empty `output`/`outputFixture`', async () => {
@@ -5552,7 +5863,41 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(4);
+    expect(itSpy).toHaveBeenCalledTimes(4);
+  });
+
+  it('handles empty `output` and `outputRaw`', async () => {
+    expect.hasAssertions();
+
+    const codeFixturePath = getFixturePath('codeFixture.js');
+
+    await runPluginTester(
+      getDummyPluginOptions({
+        plugin: deleteVariablesPlugin,
+        tests: [
+          {
+            codeFixture: codeFixturePath,
+            output: '',
+            outputRaw: () => undefined
+          }
+        ]
+      })
+    );
+
+    await runPluginTester(
+      getDummyPresetOptions({
+        preset: makePresetFromPlugin(deleteVariablesPlugin),
+        tests: [
+          {
+            codeFixture: codeFixturePath,
+            output: '',
+            outputRaw: () => undefined
+          }
+        ]
+      })
+    );
+
+    expect(itSpy).toHaveBeenCalledTimes(2);
   });
 
   it('throws if `exec`/`execFixture` is empty', async () => {
@@ -5801,7 +6146,7 @@ describe('tests targeting the TestObject interface', () => {
       [expect.any(String), 'cool']
     ]);
 
-    expect(formatResult).toBeCalledTimes(6);
+    expect(formatResult).toHaveBeenCalledTimes(6);
   });
 
   it('does not strip `codeFixture`/`outputFixture`/`execFixture` of any indentation before transformation', async () => {
@@ -5872,7 +6217,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(formatResult).toBeCalledTimes(4);
+    expect(formatResult).toHaveBeenCalledTimes(4);
   });
 
   it('throws if both `code`/`codeFixture` and `exec`/`execFixture` are provided', async () => {
@@ -5881,7 +6226,9 @@ describe('tests targeting the TestObject interface', () => {
     const path = getFixturePath('simple/fixture/code.js');
 
     await runPluginTesterExpectThrownException({
-      options: getDummyPluginOptions({ tests: [{ code: simpleTest, exec: simpleTest }] }),
+      options: getDummyPluginOptions({
+        tests: [{ code: simpleTest, exec: simpleTest }]
+      }),
       expectedError: ErrorMessage.InvalidHasExecAndCodeOrOutput(dummyTestObject)
     });
 
@@ -6154,7 +6501,7 @@ describe('tests targeting the TestObject interface', () => {
       })
     );
 
-    expect(itSpy).toBeCalledTimes(2);
+    expect(itSpy).toHaveBeenCalledTimes(2);
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([
       [getFixtureContents('codeFixture.js', { trim: false }), expect.any(Object)],
@@ -6249,11 +6596,15 @@ describe('tests targeting the TestObject interface', () => {
     const filename = getFixturePath('outputFixture.js');
 
     await runPluginTester(
-      getDummyPluginOptions({ tests: [{ babelOptions: { filename }, code: simpleTest }] })
+      getDummyPluginOptions({
+        tests: [{ babelOptions: { filename }, code: simpleTest }]
+      })
     );
 
     await runPluginTester(
-      getDummyPresetOptions({ tests: [{ babelOptions: { filename }, code: simpleTest }] })
+      getDummyPresetOptions({
+        tests: [{ babelOptions: { filename }, code: simpleTest }]
+      })
     );
 
     expect(transformAsyncSpy.mock.calls).toMatchObject([

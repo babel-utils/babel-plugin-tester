@@ -1,1 +1,2 @@
-export default (<div></div> as any);
+const x: any = 5;
+export default <div></div>;

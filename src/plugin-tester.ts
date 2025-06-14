@@ -1,36 +1,50 @@
-/* eslint-disable unicorn/consistent-destructuring */
+/* eslint-disable @typescript-eslint/no-deprecated */
 import assert from 'node:assert';
-import path from 'node:path';
 import fs from 'node:fs';
 import { EOL } from 'node:os';
 import { types } from 'node:util';
 import { createContext, Script } from 'node:vm';
-import mergeWith from 'lodash.mergewith';
-import stripIndent from 'strip-indent';
-import debugFactory from 'debug';
 
-import { $type } from './symbols';
-import { ErrorMessage } from './errors';
-import { prettierFormatter } from './formatters/prettier';
-import { unstringSnapshotSerializer } from './serializers/unstring-snapshot';
+import { isAbsolutePath, toDirname, toPath } from '@-xun/fs';
+import mergeWith from 'lodash.mergewith';
+import stripIndent from 'strip-indent~3';
+
+import { $type, globalDebugger } from 'universe:constant.ts';
+import { ErrorMessage } from 'universe:errors.ts';
+
+import type { PluginItem } from '@babel/core';
+import type { ExtendedDebugger } from 'rejoinder';
+import type { Class } from 'type-fest';
 
 import type {
-  Range,
-  ResultFormatter,
-  PluginTesterOptions,
-  TestObject,
   FixtureOptions,
+  MaybePluginTesterTestFixtureConfig,
+  MaybePluginTesterTestObjectConfig,
+  PartialPluginTesterBaseConfig,
   PluginTesterBaseConfig,
+  PluginTesterOptions,
   PluginTesterTestConfig,
   PluginTesterTestDescribeConfig,
   PluginTesterTestFixtureConfig,
   PluginTesterTestObjectConfig,
-  MaybePluginTesterTestObjectConfig,
-  MaybePluginTesterTestFixtureConfig,
-  PartialPluginTesterBaseConfig
-} from './types';
+  Range,
+  ResultFormatter,
+  TestObject
+} from 'universe:types.ts';
 
-import type { Class } from 'type-fest';
+export { prettierFormatter } from 'universe:formatters/prettier.ts';
+export { unstringSnapshotSerializer } from 'universe:serializers/unstring-snapshot.ts';
+
+export {
+  pluginTester,
+  restartTestTitleNumbering,
+  runPluginUnderTestHere,
+  runPresetUnderTestHere,
+  validEndOfLineValues,
+  validTitleNumberingValues
+};
+
+export type * from 'universe:types.ts';
 
 const { isNativeError } = types;
 
@@ -38,7 +52,7 @@ const parseErrorStackRegExp =
   /at (?:(?<fn>\S+) )?(?:.*? )?\(?(?<path>(?:\/|file:|\w:\\).*?)(?:\)|$)/i;
 
 const parseScriptFilepathRegExp =
-  /(\/|\\)babel-plugin-tester(\/|\\)(dist|src)(\/|\\)(index|plugin-tester)\.(j|t)s$/;
+  /(\/|\\)babel-plugin-tester(\/|\\)((dist|src)(\/|\\))+(index|plugin-tester)\.(j|t)s$/;
 
 const isIntegerRegExp = /^\d+$/;
 
@@ -47,7 +61,7 @@ const isIntegerRangeRegExp = /^(?<startStr>\d+)-(?<endStr>\d+)$/;
 const noop = () => undefined;
 Object.freeze(noop);
 
-const getDebuggers = (namespace: string, parentDebugger: debugFactory.Debugger) => {
+const getDebuggers = (namespace: string, parentDebugger: ExtendedDebugger) => {
   const debug = parentDebugger.extend(namespace);
 
   return {
@@ -56,10 +70,7 @@ const getDebuggers = (namespace: string, parentDebugger: debugFactory.Debugger) 
   };
 };
 
-const { debug: debug1, verbose: verbose1 } = getDebuggers(
-  'tester',
-  debugFactory('babel-plugin-tester')
-);
+const { debug: debug1, verbose: verbose1 } = getDebuggers('tester', globalDebugger);
 
 /**
  * A unique symbol that, when included in `babelOptions.plugins`, will be
@@ -115,16 +126,17 @@ function restartTestTitleNumbering() {
 function pluginTester(options: PluginTesterOptions = {}) {
   debug1('executing main babel-plugin-tester function');
 
-  const globalContextHasExpectFn = 'expect' in globalThis && typeof expect == 'function';
-  const globalContextHasTestFn = 'it' in globalThis && typeof it == 'function';
+  const globalContextHasExpectFn =
+    'expect' in globalThis && typeof expect === 'function';
+  const globalContextHasTestFn = 'it' in globalThis && typeof it === 'function';
 
   const globalContextHasDescribeFn =
-    'describe' in globalThis && typeof describe == 'function';
+    'describe' in globalThis && typeof describe === 'function';
 
   const globalContextExpectFnHasToMatchSnapshot = (() => {
     try {
       return globalContextHasExpectFn
-        ? typeof expect(undefined)?.toMatchSnapshot == 'function'
+        ? typeof expect(undefined).toMatchSnapshot === 'function'
         : false;
     } catch {
       /* istanbul ignore next */
@@ -133,11 +145,11 @@ function pluginTester(options: PluginTesterOptions = {}) {
   })();
 
   const globalContextTestFnHasSkip = globalContextHasTestFn
-    ? typeof it.skip == 'function'
+    ? typeof it.skip === 'function'
     : false;
 
   const globalContextTestFnHasOnly = globalContextHasTestFn
-    ? typeof it.only == 'function'
+    ? typeof it.only === 'function'
     : false;
 
   if (!globalContextHasDescribeFn) {
@@ -159,6 +171,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
   verbose1('environment-derived config: %O', envConfig);
   verbose1('normalized test blocks: %O', normalizedTests);
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (!hasTests) {
     debug1('terminated early: no valid tests provided');
     return;
@@ -202,7 +215,9 @@ function pluginTester(options: PluginTesterOptions = {}) {
           rawBaseConfig.presetName ||
           rawBaseConfig.presetOptions)) ||
       (rawBaseConfig.preset &&
-        (rawBaseConfig.plugin || rawBaseConfig.pluginName || rawBaseConfig.pluginOptions))
+        (rawBaseConfig.plugin ||
+          rawBaseConfig.pluginName ||
+          rawBaseConfig.pluginOptions))
     ) {
       throw new TypeError(ErrorMessage.BadConfigPluginAndPreset());
     }
@@ -229,15 +244,11 @@ function pluginTester(options: PluginTesterOptions = {}) {
 
     verbose2('partially constructed base configuration: %O', baseConfig);
 
-    if (baseConfig.fixtures !== undefined && typeof baseConfig.fixtures != 'string') {
+    if (baseConfig.fixtures !== undefined && typeof baseConfig.fixtures !== 'string') {
       throw new TypeError(ErrorMessage.BadConfigFixturesNotString());
     }
 
-    if (
-      baseConfig.tests !== undefined &&
-      !Array.isArray(baseConfig.tests) &&
-      (!baseConfig.tests || typeof baseConfig.tests != 'object')
-    ) {
+    if (!Array.isArray(baseConfig.tests) && typeof baseConfig.tests !== 'object') {
       throw new TypeError(ErrorMessage.BadConfigInvalidTestsType());
     }
 
@@ -245,15 +256,17 @@ function pluginTester(options: PluginTesterOptions = {}) {
       ? baseConfig.tests.filter((test, ndx) => {
           if (
             Array.isArray(test) ||
-            (typeof test != 'string' &&
+            (typeof test !== 'string' &&
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               test !== null &&
+              // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
               test !== undefined &&
-              typeof test != 'object')
+              typeof test !== 'object')
           ) {
             throw new TypeError(ErrorMessage.BadConfigInvalidTestsArrayItemType(ndx));
           }
 
-          const result = typeof test == 'string' || Boolean(test);
+          const result = typeof test === 'string' || Boolean(test);
 
           if (!result) {
             debug2(`test item \`%O\` at index ${ndx} was skipped`, test);
@@ -265,17 +278,19 @@ function pluginTester(options: PluginTesterOptions = {}) {
           Object.entries(baseConfig.tests).filter(([title, test]) => {
             if (
               Array.isArray(test) ||
-              (typeof test != 'string' &&
+              (typeof test !== 'string' &&
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 test !== null &&
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 test !== undefined &&
-                typeof test != 'object')
+                typeof test !== 'object')
             ) {
               throw new TypeError(
                 ErrorMessage.BadConfigInvalidTestsObjectProperty(title)
               );
             }
 
-            const result = typeof test == 'string' || Boolean(test);
+            const result = typeof test === 'string' || Boolean(test);
 
             if (!result) {
               debug2(`test property "${title}" with value \`%O\` was skipped`, test);
@@ -331,6 +346,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             assumption: noop
           },
           {},
+          // eslint-disable-next-line no-restricted-syntax
           process.cwd()
         );
 
@@ -369,7 +385,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
                     functionName,
                     // ? Just in case the script name/path has colons
                     filePath: filePath
-                      .split(`file://${process.platform == 'win32' ? '/' : ''}`)
+                      .split(`file://${process.platform === 'win32' ? '/' : ''}`)
                       .at(-1)!
                       .split(':')
                       .slice(0, -2)
@@ -383,7 +399,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
 
         verbose2('reversed call stack: %O', reversedCallStack);
 
-        if (reversedCallStack?.length) {
+        if (reversedCallStack.length) {
           const referenceIndex = findReferenceStackIndex(reversedCallStack);
           verbose2('reference index: %O', referenceIndex);
 
@@ -399,30 +415,30 @@ function pluginTester(options: PluginTesterOptions = {}) {
       }
 
       function findReferenceStackIndex(
-        reversedCallStack: { functionName: string; filePath: string }[]
+        reversedCallStack: { functionName?: string; filePath: string }[]
       ) {
         // ? Different realms might have slightly different stacks depending on
         // ? which file was imported. Return the first one found.
         return [
           reversedCallStack.findIndex(({ functionName, filePath }) => {
             return (
-              functionName == 'defaultPluginTester' &&
+              functionName === 'defaultPluginTester' &&
               parseScriptFilepathRegExp.test(filePath)
             );
           }),
           reversedCallStack.findIndex(({ functionName, filePath }) => {
             return (
-              functionName == 'pluginTester' &&
+              functionName === 'pluginTester' &&
               /* istanbul ignore next */ parseScriptFilepathRegExp.test(filePath)
             );
           }),
           reversedCallStack.findIndex(({ functionName, filePath }) => {
             return (
-              functionName == 'resolveBaseConfig' &&
+              functionName === 'resolveBaseConfig' &&
               parseScriptFilepathRegExp.test(filePath)
             );
           })
-        ].find((ndx) => ndx != -1);
+        ].find((index) => index !== -1);
       }
     }
   }
@@ -444,7 +460,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
     }
 
     function stringToRanges(name: string, str: string | undefined): (number | Range)[] {
-      if (typeof str != 'string') {
+      if (typeof str !== 'string') {
         return [];
       }
 
@@ -469,7 +485,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
                 throw new TypeError(
                   ErrorMessage.BadEnvironmentVariableRange(name, s, range)
                 );
-              } else if (start == end) {
+              } else if (start === end) {
                 return start;
               }
 
@@ -494,10 +510,11 @@ function pluginTester(options: PluginTesterOptions = {}) {
     const testConfigs: PluginTesterTestConfig[] = [];
 
     const useFixtureTitleNumbering =
-      baseConfig.titleNumbering == 'all' || baseConfig.titleNumbering == 'fixtures-only';
+      baseConfig.titleNumbering === 'all' ||
+      baseConfig.titleNumbering === 'fixtures-only';
 
     const useTestObjectTitleNumbering =
-      baseConfig.titleNumbering == 'all' || baseConfig.titleNumbering == 'tests-only';
+      baseConfig.titleNumbering === 'all' || baseConfig.titleNumbering === 'tests-only';
 
     if (fixturesAbsolutePath) {
       debug2(
@@ -509,7 +526,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
         debug2('generating test objects from fixtures path');
 
         const describeBlock =
-          typeof describeBlockTitle == 'string'
+          typeof describeBlockTitle === 'string'
             ? createAndPushDescribeConfig(`${describeBlockTitle} fixtures`)
             : undefined;
 
@@ -522,9 +539,11 @@ function pluginTester(options: PluginTesterOptions = {}) {
           parentDescribeConfig: describeBlock
         });
       } else {
-        debug2('not generating test objects from fixtures path: path is not a directory');
+        debug2(
+          'not generating test objects from fixtures path: path is not a directory'
+        );
       }
-    } else if (typeof fixtures == 'string') {
+    } else if (typeof fixtures === 'string') {
       throw new TypeError(
         ErrorMessage.UnableToDeriveAbsolutePath(
           filepath,
@@ -537,11 +556,11 @@ function pluginTester(options: PluginTesterOptions = {}) {
       debug2('skipped loading fixtures: no fixtures path provided');
     }
 
-    if (tests && (!testsIsArray || tests.length)) {
+    if (!testsIsArray || tests.length) {
       debug2('generating test objects from tests');
 
       const describeBlock =
-        typeof describeBlockTitle == 'string'
+        typeof describeBlockTitle === 'string'
           ? createAndPushDescribeConfig(describeBlockTitle)
           : undefined;
 
@@ -561,7 +580,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
           ...entries.map(([title, test]) => {
             return createTestConfig({
               title,
-              ...(typeof test == 'string' ? { code: test } : test)
+              ...(typeof test === 'string' ? { code: test } : test)
             });
           })
         );
@@ -625,7 +644,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
       verbose3('root options: %O', rootOptions);
 
       fs.readdirSync(fixturesDirectory).forEach((filename) => {
-        const fixtureSubdir = path.join(fixturesDirectory, filename);
+        const fixtureSubdir = toPath(fixturesDirectory, filename);
 
         debug3(
           'potentially generating new test object from fixture at subpath %O',
@@ -684,11 +703,11 @@ function pluginTester(options: PluginTesterOptions = {}) {
           );
 
           const codePath = codeFilename
-            ? path.join(fixtureSubdir, codeFilename)
+            ? toPath(fixtureSubdir, codeFilename)
             : undefined;
 
           const execPath = execFilename
-            ? path.join(fixtureSubdir, execFilename)
+            ? toPath(fixtureSubdir, execFilename)
             : undefined;
 
           const hasBabelrc = [
@@ -698,7 +717,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             '.babelrc.cjs',
             '.babelrc.mjs'
           ].some((p) => {
-            return fs.existsSync(path.join(fixtureSubdir, p));
+            return fs.existsSync(toPath(fixtureSubdir, p));
           });
 
           const {
@@ -725,6 +744,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             setup,
             teardown,
             formatResult,
+            outputRaw,
             fixtureOutputName,
             fixtureOutputExt
           } = localOptions;
@@ -746,7 +766,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             fixtureOutputName || baseFixtureOutputName
           }.${outputExtension}`;
 
-          const outputPath = path.join(fixtureSubdir, fixtureOutputBasename);
+          const outputPath = toPath(fixtureSubdir, fixtureOutputBasename);
 
           const hasOutputFile = outputPath && fs.existsSync(outputPath);
 
@@ -761,7 +781,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             {
               babelOptions: {
                 // ? It is impossible for the following to be undefined
-                filename: (codePath || execPath) as string,
+                filename: (codePath || execPath)!,
                 // ? If they have a babelrc, then we'll let them use that
                 babelrc: hasBabelrc
               }
@@ -798,6 +818,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
               code,
               codeFixture: codePath,
               output,
+              outputRaw,
               outputFixture: outputPath,
               exec,
               execFixture: execPath
@@ -807,6 +828,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
 
           verbose3('partially constructed fixture-based test object: %O', testConfig);
 
+          // ! Invariant: test plugin/preset is always first/last respectively
           if (plugin) {
             testConfig.babelOptions.plugins.push([
               plugin,
@@ -820,6 +842,8 @@ function pluginTester(options: PluginTesterOptions = {}) {
           }
 
           finalizePluginAndPresetRunOrder(testConfig.babelOptions);
+          reduceDuplicatePluginsAndPresets(testConfig.babelOptions);
+
           verbose3('finalized fixture-based test object: %O', testConfig);
 
           validateTestConfig(testConfig);
@@ -867,13 +891,14 @@ function pluginTester(options: PluginTesterOptions = {}) {
         teardown,
         formatResult,
         snapshot,
-        code: rawCode,
-        output: rawOutput,
-        exec: rawExec,
+        code: originalCode,
+        output: originalOutput,
+        outputRaw,
+        exec: originalExec,
         fixture,
-        codeFixture: rawCodeFixture,
+        codeFixture: originalCodeFixture,
         outputFixture,
-        execFixture: rawExecFixture
+        execFixture: originalExecFixture
       } = mergeWith(
         {
           setup: noop,
@@ -885,19 +910,23 @@ function pluginTester(options: PluginTesterOptions = {}) {
 
       const codeFixture = getAbsolutePathUsingFilepathDirname(
         filepath,
-        rawCodeFixture ?? fixture
+        originalCodeFixture ?? fixture
       );
 
-      const execFixture = getAbsolutePathUsingFilepathDirname(filepath, rawExecFixture);
+      const execFixture = getAbsolutePathUsingFilepathDirname(
+        filepath,
+        originalExecFixture
+      );
 
-      const code = rawCode !== undefined ? stripIndent(rawCode) : readCode(codeFixture);
+      const code =
+        originalCode !== undefined ? stripIndent(originalCode) : readCode(codeFixture);
 
       const output =
-        rawOutput !== undefined
-          ? stripIndent(rawOutput)
+        originalOutput !== undefined
+          ? stripIndent(originalOutput)
           : readCode(filepath, outputFixture);
 
-      const exec = rawExec ?? readCode(execFixture);
+      const exec = originalExec ?? readCode(execFixture);
 
       const testConfig: MaybePluginTesterTestObjectConfig = mergeWith(
         { [$type]: 'test-object' } as const,
@@ -915,7 +944,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
           babelOptions: { plugins: [], presets: [] },
           snapshot: snapshot ?? baseSnapshot,
           testBlockTitle: (() => {
-            const titleString = (title || pluginName || presetName) as string;
+            const titleString = (title || pluginName || presetName)!;
             if (useTestObjectTitleNumbering) {
               const numericPrefix = currentTestNumber++;
               return {
@@ -944,6 +973,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             output !== undefined
               ? trimAndFixLineEndings(output, endOfLine, code)
               : undefined,
+          outputRaw,
           outputFixture,
           exec,
           execFixture:
@@ -969,12 +999,14 @@ function pluginTester(options: PluginTesterOptions = {}) {
       }
 
       finalizePluginAndPresetRunOrder(testConfig.babelOptions);
+      reduceDuplicatePluginsAndPresets(testConfig.babelOptions);
+
       verbose3('finalized test object: %O', testConfig);
 
       validateTestConfig(testConfig, {
-        hasCodeAndCodeFixture: !!(rawCode && codeFixture),
-        hasOutputAndOutputFixture: !!(rawOutput && outputFixture),
-        hasExecAndExecFixture: !!(rawExec && execFixture)
+        hasCodeAndCodeFixture: !!(originalCode && codeFixture),
+        hasOutputAndOutputFixture: !!(originalOutput && outputFixture),
+        hasExecAndExecFixture: !!(originalExec && execFixture)
       });
 
       hasTests = true;
@@ -988,7 +1020,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
     debug2(`registering ${tests.length} blocks with testing framework`);
 
     tests.forEach((testConfig) => {
-      if (testConfig[$type] == 'describe-block') {
+      if (testConfig[$type] === 'describe-block') {
         debug2(
           `registering describe block "${testConfig.describeBlockTitle}" and its sub-blocks`
         );
@@ -1103,7 +1135,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
         if (frameworkError) {
           verbose2('rethrowing framework test failure');
           // eslint-disable-next-line no-unsafe-finally
-          throw frameworkError;
+          throw frameworkError as Error;
         }
       }
     };
@@ -1123,6 +1155,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
       code,
       codeFixture,
       output,
+      outputRaw,
       outputFixture,
       exec,
       execFixture
@@ -1140,9 +1173,9 @@ function pluginTester(options: PluginTesterOptions = {}) {
           `calling babel transform function (${transformer.name}) with parameters: %O`,
           parameters
         );
-        return (await transformer(...parameters))?.code;
+        return await transformer(...parameters);
       } catch (error) {
-        verbose2(`babel transformation failed with error: ${error}`);
+        verbose2(`babel transformation failed with error: ${String(error)}`);
         if (expectedError) {
           errored = true;
           return error;
@@ -1158,15 +1191,17 @@ function pluginTester(options: PluginTesterOptions = {}) {
         assert(errored, ErrorMessage.ExpectedBabelToThrow());
 
         if (typeof expectedError === 'function') {
+          // eslint-disable-next-line no-restricted-syntax
           if (expectedError === Error || expectedError.prototype instanceof Error) {
             assert(
+              // eslint-disable-next-line no-restricted-syntax
               rawBabelOutput instanceof expectedError,
               ErrorMessage.ExpectedErrorToBeInstanceOf(expectedError)
             );
           } else if (
-            (expectedError as Exclude<typeof expectedError, Class<Error>>)(
+            !(expectedError as Exclude<typeof expectedError, Class<Error>>)(
               rawBabelOutput
-            ) !== true
+            )
           ) {
             assert.fail(ErrorMessage.ExpectedThrowsFunctionToReturnTrue());
           }
@@ -1180,6 +1215,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
               resultString.includes(expectedError),
               ErrorMessage.ExpectedErrorToIncludeString(resultString, expectedError)
             );
+            // eslint-disable-next-line no-restricted-syntax
           } else if (expectedError instanceof RegExp) {
             assert(
               expectedError.test(resultString),
@@ -1187,10 +1223,29 @@ function pluginTester(options: PluginTesterOptions = {}) {
             );
           } // ? Else condition is handled by the typeof === 'function' branch
         }
-      } else if (typeof rawBabelOutput !== 'string') {
-        throw new TypeError(ErrorMessage.BabelOutputTypeIsNotString(rawBabelOutput));
       } else {
         debug2('expecting babel transform function to succeed');
+
+        // ? Since expectedError is not truthy, we know that rawBabelOutput must
+        // ? be the return type of the babel transformer function
+        const isRawBabelOutput = !!rawBabelOutput && typeof rawBabelOutput === 'object';
+        const hasRawBabelOutputCode = isRawBabelOutput && 'code' in rawBabelOutput;
+
+        if (isRawBabelOutput && outputRaw) {
+          debug2('executing provided outputRaw function before final comparison');
+          await outputRaw(rawBabelOutput);
+        }
+
+        if (!hasRawBabelOutputCode || typeof rawBabelOutput.code !== 'string') {
+          throw new TypeError(
+            ErrorMessage.BabelOutputTypeIsNotString(
+              hasRawBabelOutputCode ? rawBabelOutput.code : rawBabelOutput
+            )
+          );
+        }
+
+        debug2('performing final comparison');
+
         const formatResultFilepath = codeFixture || execFixture || filepath;
 
         // ? We split rawBabelOutput and result into two steps to ensure
@@ -1198,8 +1253,8 @@ function pluginTester(options: PluginTesterOptions = {}) {
         // ? erroneously captured when we only really care about errors thrown by
         // ? babel
         const result = trimAndFixLineEndings(
-          formatResult(rawBabelOutput || '', {
-            cwd: formatResultFilepath ? path.dirname(formatResultFilepath) : undefined,
+          await formatResult(rawBabelOutput.code || '', {
+            cwd: formatResultFilepath ? toDirname(formatResultFilepath) : undefined,
             filepath: formatResultFilepath,
             filename: formatResultFilepath
           }),
@@ -1218,16 +1273,17 @@ function pluginTester(options: PluginTesterOptions = {}) {
             module: fakeModule,
             exports: fakeModule.exports,
             require,
-            __dirname: path.dirname(execFixture),
+            __dirname: toDirname(execFixture),
             __filename: execFixture
           });
 
           new Script(result, { filename: execFixture }).runInContext(context, {
             displayErrors: true,
             breakOnSigint: true,
+            // @ts-expect-error: not sure from the docs if this is a type error
             microtaskMode: 'afterEvaluate'
           });
-        } else if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
+        } else if (testConfig[$type] === 'test-object' && testConfig.snapshot) {
           debug2('expecting output from babel transform function to match snapshot');
 
           assert(
@@ -1249,7 +1305,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             output,
             ErrorMessage.ExpectedOutputToEqualActual(testConfig)
           );
-        } else if (testConfig[$type] == 'fixture-object' && outputFixture) {
+        } else if (testConfig[$type] === 'fixture-object' && outputFixture) {
           debug2('writing output from babel transform function to new output file');
           fs.writeFileSync(outputFixture, result);
         } else {
@@ -1262,7 +1318,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
         }
       }
     } catch (error) {
-      verbose2(`test failed: ${error}`);
+      verbose2('test failed: %O', error);
       throw error;
     }
   }
@@ -1292,7 +1348,8 @@ function pluginTester(options: PluginTesterOptions = {}) {
       exec,
       output,
       babelOptions,
-      expectedError
+      expectedError,
+      outputRaw
     } = testConfig;
 
     if (knownViolations) {
@@ -1312,7 +1369,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
       }
     }
 
-    if (testConfig[$type] == 'test-object' && testConfig.snapshot) {
+    if (testConfig[$type] === 'test-object' && testConfig.snapshot) {
       if (!globalContextExpectFnHasToMatchSnapshot) {
         throwTypeErrorWithDebugOutput(ErrorMessage.TestEnvironmentNoSnapshotSupport());
       }
@@ -1346,6 +1403,10 @@ function pluginTester(options: PluginTesterOptions = {}) {
       throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasThrowsAndOutput(testConfig));
     }
 
+    if (outputRaw !== undefined && expectedError !== undefined) {
+      throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasThrowsAndOutputRaw());
+    }
+
     if (exec !== undefined && expectedError !== undefined) {
       throwTypeErrorWithDebugOutput(ErrorMessage.InvalidHasThrowsAndExec(testConfig));
     }
@@ -1368,6 +1429,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
       expectedError !== undefined &&
       !(
         ['function', 'boolean', 'string'].includes(typeof expectedError) ||
+        // eslint-disable-next-line no-restricted-syntax
         expectedError instanceof RegExp
       )
     ) {
@@ -1400,7 +1462,8 @@ function mergeCustomizer(
   object: Record<string, unknown>,
   source: Record<string, unknown>
 ) {
-  if (object && srcValue === undefined && key in source) {
+  if (srcValue === undefined && key in source) {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete object[key];
   } else if (Array.isArray(objValue)) {
     return objValue.concat(srcValue);
@@ -1420,13 +1483,13 @@ function getAbsolutePathUsingFilepathDirname(filepath?: string, basename?: strin
 
   const result = !basename
     ? undefined
-    : path.isAbsolute(basename)
-    ? basename
-    : filepath
-    ? path.join(path.dirname(filepath), basename)
-    : undefined;
+    : isAbsolutePath(basename)
+      ? basename
+      : filepath
+        ? toPath(toDirname(filepath), basename)
+        : undefined;
 
-  verbose2(`dirname(${filepath}) + ${basename} => ${result}`);
+  verbose2(`dirname(${String(filepath)}) + ${String(basename)} => ${String(result)}`);
   return result;
 }
 
@@ -1438,8 +1501,8 @@ function readFixtureOptions(baseDirectory: string) {
   const { verbose: verbose2 } = getDebuggers('read-opts', debug1);
 
   const optionsPath = [
-    path.join(baseDirectory, 'options.js'),
-    path.join(baseDirectory, 'options.json')
+    toPath(baseDirectory, 'options.js'),
+    toPath(baseDirectory, 'options.json')
   ].find((p) => fs.existsSync(p));
 
   try {
@@ -1478,19 +1541,19 @@ function readCode(filepath: string | undefined, basename?: string): string | und
   const { verbose: verbose2 } = getDebuggers('read-code', debug1);
 
   const codePath =
-    arguments.length == 1
+    arguments.length === 1
       ? filepath
       : getAbsolutePathUsingFilepathDirname(filepath, basename);
 
   if (!codePath) {
     verbose2(
-      `attempt to read in contents from file ignored: no absolute path derivable from filepath "${filepath}" and basename "${basename}"`
+      `attempt to read in contents from file ignored: no absolute path derivable from filepath "${String(filepath)}" and basename "${String(basename)}"`
     );
     return undefined;
   }
 
   /* istanbul ignore next */
-  if (!path.isAbsolute(codePath)) {
+  if (!isAbsolutePath(codePath)) {
     const message = ErrorMessage.PathIsNotAbsolute(codePath);
     verbose2(`attempt to read in contents from file failed: ${message}`);
     throw new Error(message);
@@ -1525,14 +1588,14 @@ function trimAndFixLineEndings(
   verbose2(`applying EOL fix "${endOfLine}": all EOL will be replaced`);
   verbose2(
     'input (trimmed) with original EOL: %O',
-    source.replaceAll('\r', '\\r').replaceAll('\n', '\\n')
+    source.replaceAll('\r', String.raw`\r`).replaceAll('\n', String.raw`\n`)
   );
 
   const output = source.replaceAll(/\r?\n/g, getReplacement()).trim();
 
   verbose2(
     'output (trimmed) with EOL fix applied: %O',
-    output.replaceAll('\r', '\\r').replaceAll('\n', '\\n')
+    output.replaceAll('\r', String.raw`\r`).replaceAll('\n', String.raw`\n`)
   );
 
   return output;
@@ -1556,7 +1619,7 @@ function trimAndFixLineEndings(
         return match[0];
       }
       default: {
-        verbose2(`encountered invalid EOL option "${endOfLine}"`);
+        verbose2(`encountered invalid EOL option "${String(endOfLine)}"`);
         throw new TypeError(ErrorMessage.BadConfigInvalidEndOfLine(endOfLine));
       }
     }
@@ -1570,7 +1633,7 @@ function trimAndFixLineEndings(
 function finalizePluginAndPresetRunOrder(
   babelOptions: PluginTesterOptions['babelOptions']
 ) {
-  const { verbose: verbose2 } = getDebuggers('finalize', debug1);
+  const { verbose: verbose2 } = getDebuggers('finalize:order', debug1);
 
   if (babelOptions?.plugins) {
     babelOptions.plugins = babelOptions.plugins.filter((p) => {
@@ -1627,6 +1690,116 @@ function finalizePluginAndPresetRunOrder(
 }
 
 /**
+ * Collapses duplicate plugin/preset entries down to a single plugin/preset
+ * entry. The last duplicate plugin/preset (i.e. highest index) wins, the rest
+ * are essentially deleted.
+ *
+ * This function accounts for the three generic babel plugin/preset
+ * configurations: string, 2-tuple, and 3-tuple.
+ *
+ * @see {@link PluginItem}
+ */
+function reduceDuplicatePluginsAndPresets(
+  babelOptions: PluginTesterOptions['babelOptions']
+) {
+  const { verbose: verbose2 } = getDebuggers('finalize:duplicates', debug1);
+
+  if (babelOptions?.plugins) {
+    const plugins: typeof babelOptions.plugins = [];
+
+    babelOptions.plugins.forEach((incomingPlugin) => {
+      if (incomingPlugin && typeof incomingPlugin !== 'symbol') {
+        const incomingPluginName = pluginOrPresetToName(incomingPlugin);
+
+        if (incomingPluginName) {
+          const duplicatedPluginIndex = plugins.findIndex((outgoingPlugin) => {
+            if (outgoingPlugin && typeof outgoingPlugin !== 'symbol') {
+              const outgoingPluginName = pluginOrPresetToName(outgoingPlugin);
+              return outgoingPluginName === incomingPluginName;
+            }
+          });
+
+          if (duplicatedPluginIndex !== -1) {
+            verbose2(
+              'collapsed duplicate plugin configuration for %O (at index %O)',
+              incomingPluginName,
+              duplicatedPluginIndex
+            );
+
+            plugins[duplicatedPluginIndex] = incomingPlugin;
+            return;
+          }
+        }
+      }
+
+      plugins.push(incomingPlugin);
+    });
+
+    babelOptions.plugins = plugins;
+  }
+
+  if (babelOptions?.presets) {
+    const presets: typeof babelOptions.presets = [];
+
+    babelOptions.presets.forEach((incomingPreset) => {
+      if (incomingPreset && typeof incomingPreset !== 'symbol') {
+        const incomingPresetName = pluginOrPresetToName(incomingPreset);
+
+        if (incomingPresetName) {
+          const duplicatedPresetIndex = presets.findIndex((outgoingPreset) => {
+            if (outgoingPreset && typeof outgoingPreset !== 'symbol') {
+              const outgoingPresetName = pluginOrPresetToName(outgoingPreset);
+              return outgoingPresetName === incomingPresetName;
+            }
+          });
+
+          if (duplicatedPresetIndex !== -1) {
+            verbose2(
+              'collapsed duplicate preset configuration for %O (at index %O)',
+              incomingPresetName,
+              duplicatedPresetIndex
+            );
+
+            presets[duplicatedPresetIndex] = incomingPreset;
+            return;
+          }
+        }
+      }
+
+      presets.push(incomingPreset);
+    });
+
+    babelOptions.presets = presets;
+  }
+
+  verbose2('collapsed duplicate test object plugins and presets');
+
+  /**
+   * Note that, due to how flexible Babel configuration is, not all plugins or
+   * presets will have a name.
+   *
+   * This function is a _much_ more generic version of `tryInferPluginName`.
+   * TODO: perhaps they should be merged?
+   */
+  function pluginOrPresetToName(pluginOrPreset: PluginItem) {
+    if (typeof pluginOrPreset === 'string') {
+      return pluginOrPreset;
+    }
+
+    if (Array.isArray(pluginOrPreset)) {
+      const candidate = pluginOrPreset.at(2) ?? pluginOrPreset.at(0);
+      return typeof candidate === 'string' ? candidate : undefined;
+    }
+
+    if (typeof pluginOrPreset === 'object' && 'name' in pluginOrPreset) {
+      return typeof pluginOrPreset.name === 'string' ? pluginOrPreset.name : undefined;
+    }
+
+    return undefined;
+  }
+}
+
+/**
  * Determines if `numericPrefix` equals at least one number or is covered by at
  * least one range Range in the `ranges` array.
  */
@@ -1634,41 +1807,13 @@ function numericPrefixInRanges(
   numericPrefix: number | undefined,
   ranges: (number | Range)[]
 ) {
-  if (typeof numericPrefix == 'number') {
+  if (typeof numericPrefix === 'number') {
     return ranges.some((range) => {
-      return typeof range == 'number'
-        ? numericPrefix == range
+      return typeof range === 'number'
+        ? numericPrefix === range
         : numericPrefix >= range.start && numericPrefix <= range.end;
     });
   }
 
   return false;
 }
-
-export {
-  pluginTester as default,
-  pluginTester,
-  restartTestTitleNumbering,
-  prettierFormatter,
-  unstringSnapshotSerializer,
-  runPluginUnderTestHere,
-  runPresetUnderTestHere,
-  validTitleNumberingValues,
-  validEndOfLineValues
-};
-
-export * from './types';
-
-// ? What follows is some not-so-pretty interop for backwards compatible require
-// ? calls using the old CJS default import syntax. In the next major version of
-// ? babel-plugin-tester, all default exports will be removed entirely.
-pluginTester.default = pluginTester;
-pluginTester.pluginTester = pluginTester;
-pluginTester.restartTestTitleNumbering = restartTestTitleNumbering;
-pluginTester.prettierFormatter = prettierFormatter;
-pluginTester.unstringSnapshotSerializer = unstringSnapshotSerializer;
-pluginTester.runPluginUnderTestHere = runPluginUnderTestHere;
-pluginTester.runPresetUnderTestHere = runPresetUnderTestHere;
-pluginTester.validTitleNumberingValues = validTitleNumberingValues;
-pluginTester.validEndOfLineValues = validEndOfLineValues;
-module.exports = pluginTester;

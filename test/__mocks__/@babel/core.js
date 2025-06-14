@@ -1,6 +1,3 @@
-import * as babel from '@babel/core';
+// ? babel@<=7 are published in a weird way that's hostile to modification. The below allows us to spy on babel APIs. Without this, strange errors occur when Jest tries to mutate babel's weirdo module export.
 
-// ? Doing things this way so we can spyOn babel APIs and without this we were
-// ? getting errors: TypeError: Cannot set property transform of #<Object> which
-// ? has only a getter
-module.exports = { ...babel };
+module.exports = { ...require('@babel/core') };
