@@ -1367,7 +1367,7 @@ However, it _can_ be used with [`outputRaw`][88].
 
 ```javascript
 import { pluginTester } from 'babel-plugin-tester';
-import identifierReversePlugin from '../identifier-reverse-plugin';
+import identifierReversePlugin from '../identifier-reverse-plugin.js';
 
 // NOTE: you can use beforeAll, afterAll, beforeEach, and afterEach as usual,
 // but initial configuration tasks, like loading content from fixture files,
@@ -1416,7 +1416,7 @@ pluginTester({
 ```javascript
 import path from 'node:path';
 import { pluginTester } from 'babel-plugin-tester';
-import identifierReversePlugin from '../identifier-reverse-plugin';
+import identifierReversePlugin from '../identifier-reverse-plugin.js';
 
 pluginTester({
   // One (and ONLY ONE) of the two following lines MUST be included.
