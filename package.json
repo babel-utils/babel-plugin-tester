@@ -91,7 +91,7 @@
   },
   "devDependencies": {
     "@-xun/project": "^2.0.10",
-    "@-xun/symbiote": "^4.4.4",
+    "@-xun/symbiote": "^4.11.5",
     "@-xun/types": "^1.1.0",
     "@babel/helper-plugin-utils": "^7.27.1",
     "@babel/plugin-syntax-typescript": "^7.27.1",
