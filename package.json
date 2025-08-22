@@ -90,7 +90,7 @@
     "type-fest": "^4.41.0"
   },
   "devDependencies": {
-    "@-xun/project": "^2.0.4",
+    "@-xun/project": "^2.0.10",
     "@-xun/symbiote": "^4.4.4",
     "@-xun/types": "^1.1.0",
     "@babel/helper-plugin-utils": "^7.27.1",
