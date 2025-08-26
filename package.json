@@ -85,7 +85,7 @@
     "lodash.mergewith": "^4.6.2",
     "prettier": "^3.6.2",
     "pretty-format": "^30.0.5",
-    "rejoinder": "^2.0.2",
+    "rejoinder": "^2.1.0",
     "strip-indent~3": "npm:strip-indent@^3.0.0",
     "type-fest": "^4.41.0"
   },
