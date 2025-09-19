@@ -87,7 +87,7 @@
     "pretty-format": "^30.0.5",
     "rejoinder": "^2.1.0",
     "strip-indent~3": "npm:strip-indent@^3.0.0",
-    "type-fest": "^4.41.0"
+    "type-fest": "^5.0.1"
   },
   "devDependencies": {
     "@-xun/project": "^2.0.10",
