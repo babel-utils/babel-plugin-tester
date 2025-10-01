@@ -395,7 +395,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
             })
             .filter(<T>(o: T): o is NonNullable<T> => Boolean(o)) ||
           /* istanbul ignore next */ []
-        ).reverse();
+        ).toReversed();
 
         verbose2('reversed call stack: %O', reversedCallStack);
 
@@ -1280,7 +1280,7 @@ function pluginTester(options: PluginTesterOptions = {}) {
           new Script(result, { filename: execFixture }).runInContext(context, {
             displayErrors: true,
             breakOnSigint: true,
-            // @ts-expect-error: not sure from the docs if this is a type error
+            // @ts-expect-error: need to investigate if this is still needed
             microtaskMode: 'afterEvaluate'
           });
         } else if (testConfig[$type] === 'test-object' && testConfig.snapshot) {
